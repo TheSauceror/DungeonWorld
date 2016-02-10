@@ -1,0 +1,331 @@
+<html>
+<head><title>Battle</title></head>
+<body onload="startFight()">
+<script>
+
+var map = [];
+var fight = [];
+
+function startFight() {
+  map[0] = ["","","","",""];
+  map[1] = ["","","","",""];
+  map[2] = ["","","","",""];
+  map[3] = ["","","","",""];
+  map[4] = ["","","","",""];
+
+  fight[fight.length] = new Hero(1, "Otto", "Elf", "Mage", 5, 12, 1, 1, 2, 1, 1, 1, 1, 1, 1, 0, 0, "nexttoenemy|meleeattack||notnexttoenemy|magicattack");
+  fight[fight.length] = new Hero(1, "Thog", "Orc", "Barbarian", 12, 6, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 0, "notnexttoenemy|moveclosertoenemy||nexttomultipleenemies|whirlwind||nexttoenemy|meleeattack");
+  fight[fight.length] = new Hero(1, "Zacharius", "Human", "Archer", 9, 9, 1, 1, 1, 1, 2, 1, 1, 1, 2, 0, 0, "nexttoenemy|meleeattack||notnexttoenemy|rangedattack");
+  fight[fight.length] = new Hero(-1, "Skeleton", "Undead", "Skeleton", 9, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, "notnexttoenemy|moveclosertoenemy||nexttoenemy|meleeattack");
+  fight[fight.length] = new Hero(-1, "Skeleton", "Undead", "Skeleton", 9, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, "notnexttoenemy|moveclosertoenemy||nexttoenemy|meleeattack");
+  fight[fight.length] = new Hero(-1, "Skeleton", "Undead", "Skeleton", 9, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, "notnexttoenemy|moveclosertoenemy||nexttoenemy|meleeattack");
+  fight[fight.length] = new Hero(-1, "Skeleton", "Undead", "Skeleton", 9, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, "notnexttoenemy|moveclosertoenemy||nexttoenemy|meleeattack");
+  fight[fight.length] = new Hero(-1, "Skeleton", "Undead", "Skeleton", 9, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, "notnexttoenemy|moveclosertoenemy||nexttoenemy|meleeattack");
+  fight[fight.length] = new Hero(-1, "Skeleton", "Undead", "Skeleton", 9, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, "notnexttoenemy|moveclosertoenemy||nexttoenemy|meleeattack");
+  fight[fight.length] = new Hero(-1, "Skeleton", "Undead", "Skeleton", 9, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, "notnexttoenemy|moveclosertoenemy||nexttoenemy|meleeattack");
+  fight[fight.length] = new Hero(-1, "Lich", "Undead", "Lich", 5, 0, 1, 1, 3, 1, 1, 1, 1, 1, 1, 0, 0, "nexttoenemy|magicattack||notnexttoenemy|summonskeleton");
+
+  fight.sort(function(a, b){return b.init-a.init});
+
+  fight.forEach(function(element, index, array){
+    do{
+      var x = Math.floor((Math.random() * 5));
+      var y = (fight[index].team == 1) ? Math.floor((Math.random() * 2) + 3) : Math.floor((Math.random() * 2));
+    }while(map[x][y] != "");
+    fight[index].x = x;
+    fight[index].y = y;
+    map[x][y] = index;
+//alert(fight[map[x][y]].prof);
+  });
+
+  updateInitiative();
+  updateMap();
+}
+
+function Hero(team, name, race, prof, hp, mp, str, con, int, wis, dex, agi, cha, per, act, hpreg, mpreg, battleplan) {
+  this.team = team;
+  this.name = name;
+  this.race = race;
+  this.prof = prof;
+  this.maxhp = hp;
+  this.maxmp = mp;
+  this.hp = hp;
+  this.mp = mp;
+  this.str = str;
+  this.con = con;
+  this.int = int;
+  this.wis = wis;
+  this.dex = dex;
+  this.agi = agi;
+  this.cha = cha;
+  this.per = per;
+  this.act = act;
+  this.hpreg = hpreg;
+  this.mpreg = mpreg;
+  this.battleplan = battleplan;
+  this.init = agi*2+dex;
+}
+
+function updateInitiative() {
+  var initstring = "<b>Order of Initiative:</b><br>";
+  initstring += "<table><tr><th>Name</th><th>Race</th><th>Profession</th><th>X</th><th>Y</th><th>HP</th></tr>";
+  fight.forEach(function(element, index, array){initstring += "<tr><td>"+fight[index].name+"</td><td>"+fight[index].race+"</td><td>"+fight[index].prof+"</td><td>" + fight[index].x+"</td><td>"+fight[index].y+"</td><td>"+fight[index].hp+"</td></tr>";});
+  initstring += "</table>";
+  document.getElementById("initiative").innerHTML = initstring;
+}
+
+function updateMap() {
+  var mapstring = "";
+  for(var i = 0; i < map.length; i++) {
+    for(var j = 0; j < map.length; j++) {
+      //console.log(j+"x"+i);
+      (map[j][i] !== "") ? mapstring += "<img src='"+fight[map[j][i]].prof+".gif' height='24' width='24' title='"+fight[map[j][i]].name+"'>" : mapstring += "<img src='rockfloor.gif' height='24' width='24'>";
+      //(map[j][i] != "") ? mapstring += fight[map[j][i]].name[0] : mapstring += "x";
+    }
+    mapstring += "<br>";
+  }
+  document.getElementById("map").innerHTML = mapstring;
+}
+
+function testSwitch1(i,j) {
+  var testplan = fight[i].battleplan.split("||")[j].split("|")[0];
+  switch(testplan) {
+    case "nexttoenemy":
+      var closest = findNearestEnemy(i);
+      var dist = (Math.abs(fight[i].x-fight[closest].x) + Math.abs(fight[i].y-fight[closest].y));
+      return dist < 2;
+      /*var nextto = 0;
+      for (var c1 = -1; c1 < 2; c1++) {
+        for (var c2 = -1; c2 < 2; c2++) {
+          if(fight[i].x+c1 > -1 && fight[i].x+c1 < 5 && fight[i].y+c2 > -1 && fight[i].y+c2 < 5 ) {
+            if(map[fight[i].x+c1][fight[i].y+c2] != null && map[fight[i].x+c1][fight[i].y+c2].team == -fight[i].team) { nextto++; }
+          }
+        }
+      }
+      return nextto;*/
+      break;
+    case "notnexttoenemy":
+      var closest = findNearestEnemy(i);
+      var dist = (Math.abs(fight[i].x-fight[closest].x) + Math.abs(fight[i].y-fight[closest].y));
+      return dist > 1;
+      /*var nextto = 1;
+      for (var c1 = -1; c1 < 2; c1++) {
+        for (var c2 = -1; c2 < 2; c2++) {
+          if(fight[i].x+c1 > -1 && fight[i].x+c1 < 5 && fight[i].y+c2 > -1 && fight[i].y+c2 < 5 ) {
+            if(map[fight[i].x+c1][fight[i].y+c2] != null && map[fight[i].x+c1][fight[i].y+c2].team == -fight[i].team) { nextto--; }
+          }
+        }
+      }
+      return nextto;*/
+      break;
+    case "nexttomultipleenemies":
+      var count = 0;
+      if(fight[i].x+1 < 5 && map[fight[i].x+1][fight[i].y] != "") count++;
+      if(fight[i].x-1 > -1 && map[fight[i].x-1][fight[i].y] != "") count++;
+      if(fight[i].y+1 < 5 && map[fight[i].x][fight[i].y+1] != "") count++;
+      if(fight[i].y-1 > -1 && map[fight[i].x][fight[i].y-1] != "") count++;
+      return count > 1;
+      break;
+      /*var nextto = 0;
+      for (var c1 = -1; c1 < 2; c1++) {
+        for (var c2 = -1; c2 < 2; c2++) {
+          if(fight[i].x+c1 > -1 && fight[i].x+c1 < 5 && fight[i].y+c2 > -1 && fight[i].y+c2 < 5 ) {
+            if(map[fight[i].x+c1][fight[i].y+c2] != null && map[fight[i].x+c1][fight[i].y+c2].team == -fight[i].team) { nextto++; }
+          }
+        }
+      }
+      (nextto > 1) ? true : false;
+      break;*/
+  }
+}
+
+function findNearestEnemy(i) {
+  var closest = -1;
+  for (var j = 0; j < fight.length; j++) {
+    if(fight[j].hp > 0 && fight[j].team == -fight[i].team) {
+      if(closest == -1) {
+        closest = j;
+      } else {
+        if((Math.abs(fight[i].x-fight[j].x) + Math.abs(fight[i].y-fight[j].y)) < (Math.abs(fight[i].x-fight[closest].x) + Math.abs(fight[i].y-fight[closest].y))) {
+          closest = j;
+        }
+      }
+    }
+  }
+  return closest;
+}
+
+function testSwitch2(i,j) {
+  var testplan = fight[i].battleplan.split("||")[j].split("|")[1];
+  //alert(testplan);
+  switch(testplan) {
+    case "moveclosertoenemy":
+      closest = findNearestEnemy(i);
+      document.getElementById("report").innerHTML += fight[i].name + " moved from (" + fight[i].x + ", " + fight[i].y + ") to (";
+      for (var k = 0; k < fight[i].agi; k++) {
+      //var move = fight[i].agi;
+      //while(move > 0 ) {
+        if(fight[i].x < fight[closest].x && map[fight[i].x+1][fight[i].y] == "") {
+          map[fight[i].x+1][fight[i].y] = map[fight[i].x][fight[i].y];
+          map[fight[i].x][fight[i].y] = "";
+          fight[i].x++;
+          //move--;
+        } else
+        if(fight[i].y < fight[closest].y && map[fight[i].x][fight[i].y+1] == "") {
+          //document.getElementById("report").innerHTML += fight[i].name + " moved from (" + fight[i].x + ", " + fight[i].y + ") to (" + fight[i].x + ", " + (fight[i].y+1) + ").<br>";
+          map[fight[i].x][fight[i].y+1] = map[fight[i].x][fight[i].y];
+          map[fight[i].x][fight[i].y] = "";
+          fight[i].y++;
+          //move--;
+        } else
+        if(fight[i].x > fight[closest].x && map[fight[i].x-1][fight[i].y] == "") {
+          map[fight[i].x-1][fight[i].y] = map[fight[i].x][fight[i].y];
+          map[fight[i].x][fight[i].y] = "";
+          fight[i].x--;
+          //move--;
+        } else
+        if(fight[i].y > fight[closest].y && map[fight[i].x][fight[i].y-1] == "") {
+          map[fight[i].x][fight[i].y-1] = map[fight[i].x][fight[i].y];
+          map[fight[i].x][fight[i].y] = "";
+          fight[i].y--;
+          //move--;
+        }
+      }
+      document.getElementById("report").innerHTML += fight[i].x + ", " + fight[i].y + ").<br>";
+      return;
+      break;
+    case "meleeattack":
+      closest = findNearestEnemy(i);
+      if((Math.abs(fight[i].x-fight[closest].x) + Math.abs(fight[i].y-fight[closest].y)) < 2) {
+        document.getElementById("report").innerHTML += fight[i].name + " hits " + fight[closest].name + " for " + fight[i].str + " damage.<br>";
+        fight[closest].hp -= fight[i].str;
+        if(fight[closest].hp < 1) {
+          fight[closest].hp = 0;
+          map[fight[closest].x][fight[closest].y] = "";
+          document.getElementById("report").innerHTML += fight[closest].name + " dies.<br>";
+        }
+      }
+      return;
+      break;
+    case "rangedattack":
+      closest = findNearestEnemy(i);
+      if((Math.abs(fight[i].x-fight[closest].x) + Math.abs(fight[i].y-fight[closest].y)) < 9) {
+        document.getElementById("report").innerHTML += fight[i].name + " shoots " + fight[closest].name + " for " + fight[i].dex + " damage.<br>";
+        fight[closest].hp -= fight[i].dex;
+        if(fight[closest].hp < 1) {
+          fight[closest].hp = 0;
+          map[fight[closest].x][fight[closest].y] = "";
+          document.getElementById("report").innerHTML += fight[closest].name + " dies.<br>";
+        }
+      }
+      return;
+      break;
+    case "magicattack":
+      closest = findNearestEnemy(i);
+      if((Math.abs(fight[i].x-fight[closest].x) + Math.abs(fight[i].y-fight[closest].y)) < 6) {
+        document.getElementById("report").innerHTML += fight[i].name + " zaps " + fight[closest].name + " for " + fight[i].int + " damage.<br>";
+        fight[closest].hp -= fight[i].int;
+        if(fight[closest].hp < 1) {
+          fight[closest].hp = 0;
+          map[fight[closest].x][fight[closest].y] = "";
+          document.getElementById("report").innerHTML += fight[closest].name + " dies.<br>";
+        }
+      }
+      return;
+      break;
+    case "whirlwind":
+      if(fight[i].x+1 < 5 && map[fight[i].x+1][fight[i].y] != "") {
+        document.getElementById("report").innerHTML += fight[i].name + " cleaves through " + fight[map[fight[i].x+1][fight[i].y]].name + " with Whirlwind for " + fight[i].str + " damage.<br>";
+        fight[map[fight[i].x+1][fight[i].y]].hp -= fight[i].str;
+        if(fight[map[fight[i].x+1][fight[i].y]].hp < 1) {
+          fight[map[fight[i].x+1][fight[i].y]].hp = 0;
+          map[fight[i].x+1][fight[i].y] = "";
+          document.getElementById("report").innerHTML += fight[map[fight[i].x+1][fight[i].y]].name + " dies.<br>";
+        }
+      }
+      if(fight[i].x-1 > -1 && map[fight[i].x-1][fight[i].y] != "") {
+        document.getElementById("report").innerHTML += fight[i].name + " cleaves through " + fight[map[fight[i].x-1][fight[i].y]].name + " with Whirlwind for " + fight[i].str + " damage.<br>";
+        fight[map[fight[i].x-1][fight[i].y]].hp -= fight[i].str;
+        if(fight[map[fight[i].x-1][fight[i].y]].hp < 1) {
+          fight[map[fight[i].x-1][fight[i].y]].hp = 0;
+          map[fight[i].x-1][fight[i].y] = "";
+          document.getElementById("report").innerHTML += fight[map[fight[i].x-1][fight[i].y]].name + " dies.<br>";
+        }
+      }
+      if(fight[i].y+1 < 5 && map[fight[i].x][fight[i].y+1] != "") {
+        document.getElementById("report").innerHTML += fight[i].name + " cleaves through " + fight[map[fight[i].x][fight[i].y+1]].name + " with Whirlwind for " + fight[i].str + " damage.<br>";
+        fight[map[fight[i].x][fight[i].y+1]].hp -= fight[i].str;
+        if(fight[map[fight[i].x][fight[i].y+1]].hp < 1) {
+          fight[map[fight[i].x][fight[i].y+1]].hp = 0;
+          map[fight[i].x][fight[i].y+1] = "";
+          document.getElementById("report").innerHTML += fight[map[fight[i].x][fight[i].y+1]].name + " dies.<br>";
+        }
+      }
+      if(fight[i].y-1 > -1 && map[fight[i].x][fight[i].y-1] != "") {
+        document.getElementById("report").innerHTML += fight[i].name + " cleaves through " + fight[map[fight[i].x][fight[i].y-1]].name + " with Whirlwind for " + fight[i].str + " damage.<br>";
+        fight[map[fight[i].x][fight[i].y-1]].hp -= fight[i].str;
+        if(fight[map[fight[i].x][fight[i].y-1]].hp < 1) {
+          fight[map[fight[i].x][fight[i].y-1]].hp = 0;
+          map[fight[i].x][fight[i].y-1] = "";
+          document.getElementById("report").innerHTML += fight[map[fight[i].x][fight[i].y-1]].name + " dies.<br>";
+        }
+      }
+  
+      //for (var c1 = -1; c1 < 2; c1++) {
+        //for (var c2 = -1; c2 < 2; c2++) {
+        //   if(map[fight[i].x+1][fight[i].y] != "") {
+        //     document.getElementById("report").innerHTML += fight[i].name + " cleaves through " + map[fight[i].x+1][fight[i].y].name + " with Whirlwind for " + fight[i].str + " damage.<br>";
+        //     fight[closest].hp -= fight[i].str;
+        //     if(fight[closest].hp < 1) {
+        //       fight[closest].hp = 0;
+        //       map[fight[closest].x][fight[closest].y] = "";
+        //       document.getElementById("report").innerHTML += fight[closest].name + " dies.<br>";
+        //     }
+        //   }
+        //}
+      //}
+      return;
+      break;
+    case "summonskeleton":
+      //fight[fight.length] = new Hero(-1, "Skeleton", "Undead", "Skeleton", 9, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, "notnexttoenemy|moveclosertoenemy||nexttoenemy|meleeattack");
+      //fight[fight.length-1].x = 0;
+      //fight[fight.length-1].y = 0;
+      //map[0][0] = fight.length-1;
+      document.getElementById("report").innerHTML += fight[map[fight[i].x][fight[i].y]].name + " summons a skeleton.<br>";
+      return;
+      break;
+  }
+}
+
+function updateFight() {
+  for(var i = 0; i < fight.length; i++) {
+    if(fight[i].hp < 1) { continue; }
+    if(fight[i].hpreg > 0 && fight[i].hp < fight[i].maxhp) { 
+      fight[i].hp += fight[i].hpreg;
+      document.getElementById("report").innerHTML += fight[i].name + " heals " + fight[i].hpreg + " HP.<br>";
+    }
+    for (var k = 0; k < fight[i].act; k++) {
+      var j = -1;
+      do{
+        j++;
+      }while(!testSwitch1(i,j));
+      testSwitch2(i,j);
+    }
+  }
+  document.getElementById("report").innerHTML += "<hr>";
+  updateInitiative();
+  updateMap();
+}
+
+</script>
+
+<div id="initiative"></div>
+
+<div id="map"></div>
+
+<button onclick="updateFight();" autofocus>Next</button><br>
+
+<div id="report" style="position:absolute;left:500px;top:0px;"></div>
+
+</body>
+</html>
