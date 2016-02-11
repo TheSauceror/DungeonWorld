@@ -19,7 +19,7 @@ ini_set("display_errors", 1);
 if(isset($_COOKIE["PHPRPG"])) {
   $cookie = explode("||",$_COOKIE["PHPRPG"]);
   $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
-  $hero = mysqli_fetch_assoc(mysqli_query($conn,"SELECT pw FROM Hero WHERE heroid = '$cookie[0]'"));
+  $hero = mysqli_fetch_assoc(mysqli_query($conn,"SELECT pw FROM Hero WHERE id = '$cookie[0]'"));
   mysqli_close($conn);
   if($cookie[1] == $hero['pw']) {
     header('Location: index.php');
@@ -59,7 +59,7 @@ if(isset($_POST['name'],$_POST['pw'],$_POST['race'],$_POST['prof'])) {
   $pw = sha1(mysqli_real_escape_string($conn, $_POST['pw']));
   $race = mysqli_real_escape_string($conn, $_POST['race']);
   $prof = mysqli_real_escape_string($conn, $_POST['prof']);
-  if(!is_null(mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM Hero WHERE heroname = '$name'")))) {
+  if(!is_null(mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM Hero WHERE name = '$name'")))) {
     echo "Hero name already exists.";
   } else {
 
@@ -109,7 +109,7 @@ if(isset($_POST['name'],$_POST['pw'],$_POST['race'],$_POST['prof'])) {
     $maxmp = floor((1*5 + 1*3) * $mpmult);
     $initiative = 1*2 + 1;
 
-    mysqli_query($conn, "INSERT INTO Hero (heroname, pw, herorace, heroprof, maxhp, hp, maxmp, mp, initiative) VALUES ('$name', '$pw', '$race', '$prof', '$maxhp', '$maxhp', '$maxmp', '$maxmp', '$initiative')");
+    mysqli_query($conn, "INSERT INTO Hero (name, pw, race, prof, maxhp, hp, maxmp, mp, initiative) VALUES ('$name', '$pw', '$race', '$prof', '$maxhp', '$maxhp', '$maxmp', '$maxmp', '$initiative')");
 
     mysqli_close($conn);
     switch($prof) {
@@ -155,11 +155,11 @@ else if(isset($_POST['name'],$_POST['pw'])) {
   $conn=mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd") or die("#2013 - Lost connection to MySQL server at 'reading authorization packet', system error: 0<br>" . mysqli_error($conn));
   $name = mysqli_real_escape_string($conn, $_POST['name']);
   $pw = sha1(mysqli_real_escape_string($conn, $_POST['pw']));
-  $hero = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM Hero WHERE heroname = '$name' AND pw = '$pw'"));
+  $hero = mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM Hero WHERE name = '$name' AND pw = '$pw'"));
   if(is_null($hero)) {
     echo "Incorrect login";
   } else {
-    setcookie("PHPRPG", $hero['heroid'] . "||" . $pw, time()+60*60*24*365);
+    setcookie("PHPRPG", $hero['id'] . "||" . $pw, time()+60*60*24*365);
     echo "<META http-equiv='refresh' content='0;URL=index.php'>";
     mysqli_close($conn);
     exit();

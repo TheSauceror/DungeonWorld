@@ -57,12 +57,12 @@ if(isset($_GET['plans'])) {
   }
   $battleplan = implode("||",$battleplans);
   $conn=mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
-  mysqli_query($conn,"UPDATE Hero SET battleplan = '$battleplan' WHERE name = '$cookie[0]'");
+  mysqli_query($conn,"UPDATE Hero SET battleplan = '$battleplan' WHERE id = '$cookie[0]'");
   mysqli_close($conn);
 }
 
 $conn=mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
-$currentplans = mysqli_fetch_assoc(mysqli_query($conn,"SELECT battleplan FROM Hero WHERE heroid = '$cookie[0]'"));
+$currentplans = mysqli_fetch_assoc(mysqli_query($conn,"SELECT battleplan FROM Hero WHERE id = '$cookie[0]'"));
 mysqli_close($conn);
 
 $currentplan = explode("||",$currentplans['battleplan']);

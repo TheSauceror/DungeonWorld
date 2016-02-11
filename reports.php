@@ -12,8 +12,8 @@ include "checklogin.php";
 $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
 //$hero = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Hero WHERE id = '$cookie[0]'"));
 //$party = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Party WHERE id = '$hero[party]'"));
-$hero = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Hero, Party WHERE heroid = '$cookie[0]' AND Hero.heroparty = Party.partyid"));
-$reports = mysqli_query($conn,"SELECT * FROM Reports WHERE party = '$hero[heroparty]' ORDER BY reportid DESC");
+$hero = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Hero, Party WHERE id = '$cookie[0]' AND Hero.party = Party.partyid"));
+$reports = mysqli_query($conn,"SELECT * FROM Reports WHERE party = '$hero[party]' ORDER BY reportid DESC");
 
 echo "Reports:<br>";
 

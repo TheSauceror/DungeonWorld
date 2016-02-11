@@ -3,11 +3,11 @@
 include "checklogin.php";
 
 if(isset($_POST['to'],$_POST['message'])) {
-  $conn=mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
+  $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
   $to = mysqli_real_escape_string($conn, $_POST['to']);
   $subject = mysqli_real_escape_string($conn, $_POST['subject']);
   $message = mysqli_real_escape_string($conn, $_POST['message']);
-  $timestamp = date("d-m-y H:i:s");
+  $timestamp = date("m-d-y H:i:s");
   mysqli_query($conn, "INSERT INTO Messages (receiver, sender, subject, message, timestamp) VALUES ('$to', '$cookie[0]', '$subject', '$message', '$timestamp')");
   mysqli_close($conn);
   echo "Message sent!";

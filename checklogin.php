@@ -7,11 +7,11 @@ ini_set("display_errors", 1);
 if(isset($_COOKIE["PHPRPG"])) {
   $cookie = explode("||",$_COOKIE["PHPRPG"]);
   $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
-  $hero = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Hero WHERE heroid = '$cookie[0]'"));
+  $hero = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Hero WHERE id = '$cookie[0]'"));
   if($cookie[1] == $hero['pw']) {
     echo "<a href='patchnotes.php'>Patch Notes</a> - ";
     echo "<a href='devtools.php'>Dev Tools</a> - ";
-    echo "<a href='index.php'>" . $hero['heroname'] . "</a> - ";
+    echo "<a href='index.php'>" . $hero['name'] . "</a> - ";
     echo "<a href='attributes.php'>Attributes</a> - ";
     echo "<a href='herolist.php'>Hero List</a> - ";
     echo "<a href='loadhero.php'>Load Hero</a> - ";

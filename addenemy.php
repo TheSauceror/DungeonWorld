@@ -50,20 +50,15 @@ if(isset($_POST['name'])) {
   $race = mysqli_real_escape_string($conn, $_POST['race']);
   $prof = mysqli_real_escape_string($conn, $_POST['prof']);
   $str = mysqli_real_escape_string($conn, $_POST['str']);
-  $con = mysqli_real_escape_string($conn, $_POST['con']);
-  $agi = mysqli_real_escape_string($conn, $_POST['agi']);
+  $vit = mysqli_real_escape_string($conn, $_POST['vit']);
   $dex = mysqli_real_escape_string($conn, $_POST['dex']);
-  $int = mysqli_real_escape_string($conn, $_POST['int']);
-  $wis = mysqli_real_escape_string($conn, $_POST['wis']);
-  $cha = mysqli_real_escape_string($conn, $_POST['cha']);
-  $act = mysqli_real_escape_string($conn, $_POST['act']);
-  $per = mysqli_real_escape_string($conn, $_POST['per']);
+  $nce = mysqli_real_escape_string($conn, $_POST['nce']);
+  $pie = mysqli_real_escape_string($conn, $_POST['pie']);
   $xp = mysqli_real_escape_string($conn, $_POST['xp']);
   foreach($_POST['plans'] as $plans) {
     $battleplans[] = implode('|', $plans);
   }
   $battleplan = mysqli_real_escape_string($conn, implode("||",$battleplans));
-  $xp = mysqli_real_escape_string($conn, $_POST['xp']);
 
   $hpmult = 1;
   $mpmult = 1;
@@ -111,9 +106,9 @@ if(isset($_POST['name'])) {
   $maxmp = floor(($int*5 + $wis*3) * $mpmult);
   $initiative = $agi*2 + $per;
 
-	echo $enemyname, $enemyrace, $enemyprof, $maxhp, $maxhp, $maxmp, $maxmp, $initiative, $str, $con, $agi, $dex, $int, $wis, $cha, $act, $per, $battleplan, $xp;
+	echo $name, $race, $prof, $maxhp, $maxhp, $maxmp, $maxmp, $initiative, $str, $vit, $dex, $nce, $pie, $xp, $battleplan;
 
-	mysqli_query($conn, "INSERT INTO Enemies (name, race, prof, maxhp, hp, maxmp, mp, initiative, str, con, agi, dex, wis, cha, act, per, battleplan, xp) VALUES ('$name', '$race', '$prof', '$maxhp', '$maxhp', '$maxmp', '$maxmp', '$initiative', '$str', '$con', '$agi', '$dex', '$wis', '$cha', '$act', '$per', '$battleplan', '$xp')") or die(mysqli_error($conn));
+	mysqli_query($conn, "INSERT INTO Enemies (name, race, prof, maxhp, hp, maxmp, mp, initiative, str, vit, dex, nce, pie, battleplan, xp) VALUES ('$name', '$race', '$prof', '$maxhp', '$maxhp', '$maxmp', '$maxmp', '$initiative', '$str', '$vit', '$dex', '$nce', '$pie', '$xp', '$battleplan')") or die(mysqli_error($conn));
 
 	mysqli_close($conn);
 
@@ -126,15 +121,11 @@ if(isset($_POST['name'])) {
 	<tr><td>Name</td><td><input type='text' name='name' required></td></tr>
 	<tr><td>Race</td><td><input type='text' name='race' required></td></tr>
 	<tr><td>Profession</td><td><input type='text' name='prof' required></td></tr>
-	<tr><td>Str</td><td><input type='text' name='str' required></td></tr>
-	<tr><td>Con</td><td><input type='text' name='con' required></td></tr>
-	<tr><td>Agi</td><td><input type='text' name='agi' required></td></tr>
-	<tr><td>Dex</td><td><input type='text' name='dex' required></td></tr>
-	<tr><td>Int</td><td><input type='text' name='int' required></td></tr>
-	<tr><td>Wis</td><td><input type='text' name='wis' required></td></tr>
-	<tr><td>Cha</td><td><input type='text' name='cha' required></td></tr>
-	<tr><td>Act</td><td><input type='text' name='act' required></td></tr>
-	<tr><td>Per</td><td><input type='text' name='per' required></td></tr>
+	<tr><td>Strength</td><td><input type='text' name='str' required></td></tr>
+	<tr><td>Vitality</td><td><input type='text' name='vit' required></td></tr>
+	<tr><td>Dexterity</td><td><input type='text' name='dex' required></td></tr>
+	<tr><td>Intelligence</td><td><input type='text' name='nce' required></td></tr>
+	<tr><td>Piety</td><td><input type='text' name='pie' required></td></tr>
 	<tr><td>XP</td><td><input type='text' name='xp' required></td></tr>
 	<tr><td>Battleplan</td><td><select name='plans[0][0]' id='plans[0][0]' onchange='change(this,0,1);'>
   <option value=''>Select an option</option>

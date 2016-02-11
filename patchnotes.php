@@ -18,13 +18,16 @@
 	<li>Fix hero battleplan</li>
 	<li>Having an 'int' column is messing everything up. Need to change it to 'nce'</li>
 	<li>Fix items. Then market</li>
+	<li>Need to move messages from GET to POST</li>
+	<li>Need to fix sendmessage and replying</li>
 </ul>
 <hr width='33%'>
 <h2>February 10, 2016</h2>
 <ul>
 	<li>Started changing database to get everything by ID instead of name</li>
 	<li>Started crying 'cause I have to redo the entire database :(</li>
-	<li>Continues crying 'cause I didn't realize I messed up halfway through redoing it all :(</li>
+	<li>Ragequit 'cause I didn't realize I messed up halfway through redoing it all :(</li>
+	<li>Changed attributes</li>
 </ul>
 <h2>February 9, 2016</h2>
 <ul>
