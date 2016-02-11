@@ -68,11 +68,11 @@ if(isset($_POST['attribute'])) {
     $maxmp = floor(($hero['pie']*4 + $hero['nce']) * $mpmult);
   	$initiative = $hero['dex']*2 + $hero['nce'];
 
-  	mysqli_query($conn,"UPDATE Hero SET `maxhp` = $maxhp WHERE heroid = '$hero[id]'") or die(mysqli_error($conn));
-  	mysqli_query($conn,"UPDATE Hero SET `hp` = $maxhp WHERE heroid = '$hero[id]'") or die(mysqli_error($conn));
-  	mysqli_query($conn,"UPDATE Hero SET `maxmp` = $maxmp WHERE heroid = '$hero[id]'") or die(mysqli_error($conn));
-  	mysqli_query($conn,"UPDATE Hero SET `mp` = $maxmp WHERE heroid = '$hero[id]'") or die(mysqli_error($conn));
-    mysqli_query($conn,"UPDATE Hero SET `initiative` = $initiative WHERE heroid = '$hero[id]'") or die(mysqli_error($conn));
+  	mysqli_query($conn,"UPDATE Hero SET `maxhp` = $maxhp WHERE id = '$hero[id]'") or die(mysqli_error($conn));
+  	mysqli_query($conn,"UPDATE Hero SET `hp` = $maxhp WHERE id = '$hero[id]'") or die(mysqli_error($conn));
+  	mysqli_query($conn,"UPDATE Hero SET `maxmp` = $maxmp WHERE id = '$hero[id]'") or die(mysqli_error($conn));
+  	mysqli_query($conn,"UPDATE Hero SET `mp` = $maxmp WHERE id = '$hero[id]'") or die(mysqli_error($conn));
+    mysqli_query($conn,"UPDATE Hero SET `initiative` = $initiative WHERE id = '$hero[id]'") or die(mysqli_error($conn));
   }
 }
 mysqli_close($conn);

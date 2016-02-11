@@ -20,8 +20,13 @@
 	<li>Fix items. Then market</li>
 	<li>Need to move messages from GET to POST</li>
 	<li>Need to fix sendmessage and replying</li>
+	<li>Dungeons can reach the max text size and freeze</li>
 </ul>
 <hr width='33%'>
+<h2>February 11, 2016</h2>
+<ul>
+	<li>Started improving report UI</li>
+</ul>
 <h2>February 10, 2016</h2>
 <ul>
 	<li>Started changing database to get everything by ID instead of name</li>

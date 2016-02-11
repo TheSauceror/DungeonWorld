@@ -27,9 +27,7 @@ $fighters = [];
 $turnorder = [];
 $map = [];
 $totalxp = 0;
-$reportinitiative = "";
-$reportmap = "";
-$reporttext = "";
+$report = "";
 $maxturns = 20;
 
 function init() {
