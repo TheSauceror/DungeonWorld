@@ -27,12 +27,12 @@ $reporttext = explode("|",stripslashes($report['reporttext']));
 
 ?>
 
-<div id="reportintro" style="background-color:red;"></div>
 <table style="width:100%;">
+	<tr><td colspan="3" style="background-color:red;width:100%;text-align:center;height:28px;"><div id="reportintro"></div></td></tr>
 	<tr>
 		<td style="background-color:blue;width:33%;text-align:center;"><div id="reportinitiative"></div></td>
-		<td style="background-color:green;width:33%;text-align:center;"><div id="reportmap"></div></td>
-		<td style="background-color:yellow;width:33%;text-align:center;"><div id="reporttext"></div></td>
+		<td style="background-color:yellow;width:33%;text-align:center;"><div id="reportmap"></div></td>
+		<td style="background-color:green;width:33%;text-align:center;"><div id="reporttext"></div></td>
 	</tr>
 </table>
 <br><br>

@@ -27,10 +27,11 @@ $fighters = [];
 $turnorder = [];
 $map = [];
 $totalxp = 0;
+$reportintro = "";
 $reportinitiative = "";
 $reportmap = "";
 $reporttext = "";
-$maxturns = 20;
+//$maxturns = 20;
 
 function init() {
   global $cookie, $partyname, $dungeonid, $dungeonname, $dungeonrooms, $roomdescriptions, $partyfighters;
@@ -56,16 +57,16 @@ init();
 
 foreach($dungeonrooms as $key => $room) {
   // global $dungeonrooms, $partyfighters, $roomstats, $fighters, $turnorder;
-echo "<span style='color:red;'>partyfighters: </span>";
-print_r($partyfighters);
-echo "<br>";
-echo "<span style='color:red;'>fighters before: </span>";
-print_r($fighters);
-echo "<br>";
+  echo "<span style='color:red;'>partyfighters: </span>";
+  print_r($partyfighters);
+  echo "<br>";
+  echo "<span style='color:red;'>fighters before: </span>";
+  print_r($fighters);
+  echo "<br>";
   $fighters = $partyfighters;
-echo "<span style='color:red;'>fighters after: </span>";
-print_r($fighters);
-echo "<br>";
+  echo "<span style='color:red;'>fighters after: </span>";
+  print_r($fighters);
+  echo "<br>";
   $roomstats = [];
   $conn=mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
   foreach($dungeonrooms as $dungeonroom) {
@@ -76,12 +77,13 @@ echo "<br>";
   }
   mysqli_close($conn);
   //findMaxHpAndMp();
-  $report .= "<h2>$dungeonname - Room " . ($key+1) . "</h2>";
-  $report .= "<h3>" . $roomdescriptions[$key] . "</h3>";
+  $reportintro .= "<strong>$dungeonname: Room " . ($key + 1) . "</strong> - " . $roomdescriptions[$key];
   startRoom($key);
   updateMap($roomstats[$key]['length'], $roomstats[$key]['width'], $roomstats[$key]['floor']);
-  $report .= "|";
+  $maxturns = 20;
   while(!onlyOneTeam()) {
+    $maxturns--;
+    echo "Turns left: " . $maxturns . "<br>";
     getTurnOrder();
     foreach ($turnorder[0] as $currentturn) {
       for($acts = 0; $acts < $fighters[$currentturn]['act']; $acts++) {
@@ -91,27 +93,27 @@ echo "<br>";
           $j++;
         }while(!testSwitch1($currentturn,$j));
         testSwitch2($currentturn,$j);
-        if(onlyOneTeam()) { break 2; }
+        /*if(onlyOneTeam() || $maxturns == 0) {
+          break 2; 
+        }*/
+        if(onlyOneTeam() == $fighters[0]['party'] && $maxturns > 0) {
+          $reportintro .= "Victory!";
+          break 2;
+        }
       }
     }
     updateMap($roomstats[$key]['length'], $roomstats[$key]['width'], $roomstats[$key]['floor']);
-    $report .= "|";
   }
 
   // getTurnOrder();
-  // updateMap($roomstats[$key]['length'], $roomstats[$key]['width']);
-  $maxturns--;
-  echo "Turns left: " . $maxturns . "<br>";
-  if(onlyOneTeam() == $fighters[0]['party'] && $maxturns > 0) {
-    $report .= "<center><h2>Victory!</h2></center>";
+
+  /*if(onlyOneTeam() == $fighters[0]['party'] && $maxturns > 0) {
+    $reportintro .= "Victory!";
   } else {
-    $report .= "<center><h2>Defeat!</h2></center>";
-    giveXp();
+    $reportintro .= "Defeat!";
     exit;
   }
-  $report .= "|";
-  
-
+  $reportintro .= "|";*/
 
   foreach($fighters as $ind => $fighter) {
     if($fighter['party'] != $hero['party']) {
@@ -122,26 +124,24 @@ echo "<br>";
   $partyfighters = $fighters;
 }
 
-giveXp();
-
 function giveXp() {
-  global $partyfighters, $totalxp, $report;
+  global $partyfighters, $totalxp, $reportintro;
   foreach($partyfighters as $fighter) {
     $id = $fighter['id'];
     $eachxp = floor($totalxp/count($partyfighters));
     $conn=mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
     mysqli_query($conn,"UPDATE Hero SET xp = xp + $eachxp WHERE id='$id'");
     mysqli_close($conn);
-    $report .= $fighter['name'] . ": " . $eachxp . "xp<br>";
+    $reportintro .= $fighter['name'] . ": " . $eachxp . "xp<br>";
   }
 }
 
 function testSwitch1($i, $j) {
-  global $fighters, $report;
+  global $fighters, $reporttext;
   $testplan = explode("||",$fighters[$i]['battleplan']);
-  // $report .= count($testplan) . "x" . count($testplan);
+  // $reportmap .= count($testplan) . "x" . count($testplan);
   if($testplan[0] == "" || $j > count($testplan)) {
-    $report .= $fighters[$i]['name'] . " does nothing.<br>";
+    $reporttext .= $fighters[$i]['name'] . " does nothing.<br>";
     return true;
   }
   $testplan = explode("|", $testplan[$j])[0];
@@ -160,21 +160,21 @@ function testSwitch1($i, $j) {
       return $fighters[$i]['hp'] < $fighters[$i]['maxhp'];
       break;
     default:
-      $report .= $fighters[$i]['name'] . " does nothing.<br>";
+      $reporttext .= $fighters[$i]['name'] . " does nothing.<br>";
       return true;
       break;
   }
 }
 
 function testSwitch2($i ,$j) {
-  global $fighters, $map, $totalxp, $report;
+  global $fighters, $map, $totalxp, $reporttext;
   $testplan = explode("||",$fighters[$i]['battleplan']);
   if($testplan[0] == "") { return; }
   $testplan = explode("|", $testplan[$j])[1];
   switch($testplan) {
     case "moveclosertoenemy":
       $closest = findNearestEnemy($i);
-      $report .= $fighters[$i]['name'] . " moved from (" . $fighters[$i]['x'] . ", " . $fighters[$i]['y'] . ") to (";
+      $reporttext .= $fighters[$i]['name'] . " moved from (" . $fighters[$i]['x'] . ", " . $fighters[$i]['y'] . ") to (";
       for ($k = 0; $k < $fighters[$i]['move']; $k++) {
       //$move = $fighters[$i]['agi'];
       //while($move > 0 ) {
@@ -203,49 +203,49 @@ function testSwitch2($i ,$j) {
           //$move--;
         }
       }
-      $report .= $fighters[$i]['x'] . ", " .+ $fighters[$i]['y'] . ").<br>";
+      $reporttext .= $fighters[$i]['x'] . ", " .+ $fighters[$i]['y'] . ").<br>";
       return;
       break;
     case "meleeattack":
       $closest = findNearestEnemy($i);
       if((abs($fighters[$i]['x']-$fighters[$closest]['x']) + abs($fighters[$i]['y']-$fighters[$closest]['y'])) < 2) {
-        $report .= $fighters[$i]['name'] . " hits " . $fighters[$closest]['name'] . " for " . $fighters[$i]['str'] . " damage.<br>";
+        $reporttext .= $fighters[$i]['name'] . " hits " . $fighters[$closest]['name'] . " for " . $fighters[$i]['str'] . " damage.<br>";
         $fighters[$closest]['hp'] -= $fighters[$i]['str'];
         if($fighters[$closest]['hp'] < 1) {
           $fighters[$closest]['hp'] = 0;
           $map[$fighters[$closest]['y']][$fighters[$closest]['x']] = -1;
-          $report .= $fighters[$closest]['name'] . " dies.<br>";
+          $reporttext .= $fighters[$closest]['name'] . " dies.<br>";
           if($fighters[$closest]['party'] == "Enemy") { $totalxp += $fighters[$closest]['xp']; }
         }
-      } else { $report .= $fighters[$i]['name'] . " is out of range.<br>";}
+      } else { $reporttext .= $fighters[$i]['name'] . " is out of range.<br>";}
       return;
       break;
     case "rangedattack":
       $closest = findNearestEnemy($i);
       if((abs($fighters[$i]['x']-$fighters[$closest]['x']) + abs($fighters[$i]['y']-$fighters[$closest]['y'])) < 9) {
-        $report .= $fighters[$i]['name'] . " shoots " . $fighters[$closest]['name'] . " for " . $fighters[$i]['dex'] . " damage.<br>";
+        $reporttext .= $fighters[$i]['name'] . " shoots " . $fighters[$closest]['name'] . " for " . $fighters[$i]['dex'] . " damage.<br>";
         $fighters[$closest]['hp'] -= $fighters[$i]['dex'];
         if($fighters[$closest]['hp'] < 1) {
           $fighters[$closest]['hp'] = 0;
           $map[$fighters[$closest]['y']][$fighters[$closest]['x']] = -1;
-          $report .= $fighters[$closest]['name'] . " dies.<br>";
+          $reporttext .= $fighters[$closest]['name'] . " dies.<br>";
           if($fighters[$closest]['party'] == "Enemy") { $totalxp += $fighters[$closest]['xp']; }
         }
-      } else { $report .= $fighters[$i]['name'] . " is out of range.<br>";}
+      } else { $reporttext .= $fighters[$i]['name'] . " is out of range.<br>";}
       return;
       break;
     case "magicattack":
       $closest = findNearestEnemy($i);
       if((abs($fighters[$i]['x']-$fighters[$closest]['x']) + abs($fighters[$i]['y']-$fighters[$closest]['y'])) < 6) {
-        $report .= $fighters[$i]['name'] . " zaps " . $fighters[$closest]['name'] . " for " . $fighters[$i]['nce'] . " damage.<br>";
+        $reporttext .= $fighters[$i]['name'] . " zaps " . $fighters[$closest]['name'] . " for " . $fighters[$i]['nce'] . " damage.<br>";
         $fighters[$closest]['hp'] -= $fighters[$i]['nce'];
         if($fighters[$closest]['hp'] < 1) {
           $fighters[$closest]['hp'] = 0;
           $map[$fighters[$closest]['y']][$fighters[$closest]['x']] = -1;
-          $report .= $fighters[$closest]['name'] . " dies.<br>";
+          $reporttext .= $fighters[$closest]['name'] . " dies.<br>";
           if($fighters[$closest]['party'] == "Enemy") { $totalxp += $fighters[$closest]['xp']; }
         }
-      } else { $report .= $fighters[$i]['name'] . " is out of range.<br>";}
+      } else { $reporttext .= $fighters[$i]['name'] . " is out of range.<br>";}
       return;
       break;
   }
@@ -281,18 +281,18 @@ function findNearestEnemy($index) {
 }
 
 function getTurnOrder() {
-  global $fighters, $turnorder, $report;
+  global $fighters, $turnorder, $reportinitiative;
   $turnorder = array(null,null);
   foreach($fighters as $key => $f) {
     $turnorder[0][] = $key;
     $turnorder[1][] = $f['initiative'];
   }
   array_multisort($turnorder[1], SORT_DESC, SORT_NUMERIC, $turnorder[0]);
-  $report .= "<table><tr><th>Initiative</th><th>Name</th><th>Health</th><th>Mana</th></tr>";
+  $reportinitiative .= "<table><tr><th>Initiative</th><th>Name</th><th>Health</th><th>Mana</th></tr>";
   foreach($turnorder[0] as $key => $turn) {
-    $report .= "<tr><td>" . $turnorder[1][$key] . "</td><td>" . $fighters[$turn]['name'] . "</td><td>" . $fighters[$turn]['hp'] . "</td><td>" . $fighters[$turn]['mp'] . "</td></tr>";
+    $reportinitiative .= "<tr><td>" . $turnorder[1][$key] . "</td><td>" . $fighters[$turn]['name'] . "</td><td>" . $fighters[$turn]['hp'] . "</td><td>" . $fighters[$turn]['mp'] . "</td></tr>";
   }
-  $report .= "</table>";
+  $reportinitiative .= "</table>";
 }
 
 function findMaxHpAndMp() {
@@ -373,27 +373,39 @@ function startRoom($num) {
 }
 
 function updateMap($l, $w, $floor) {
-  global $fighters, $map, $report, $dungeonfloor;
+  global $fighters, $map, $reportmap, $dungeonfloor, $reportintro, $reportinitiative, $reporttext;
   $mapstring = "";
   for ($i=0; $i < $w; $i++) {
     for ($j=0; $j < $l; $j++) {
       $key = $map[$i][$j];
       if($key > -1 && $fighters[$key]['hp'] > 0) {
-        $mapstring .= "<img src='images/" . $fighters[$key]['prof'] . ".gif' height='24' width='24' title='" . $fighters[$key]['prof'] . "'>";
+        $mapstring .= "<img src='images/" . $fighters[$key]['prof'] . ".gif' title='" . $fighters[$key]['name'] . "'>";
       }
       else {
-        $mapstring .= "<img src='images/" . $floor . ".gif' height='24' width='24'>";
+        $mapstring .= "<img src='images/" . $floor . ".gif'>";
       }
     }
     $mapstring .= "<br>";
   }
-  $report .= $mapstring;
+  $reportintro .= "|";
+  if($reportmap != "") {
+    $reportinitiative .= "|";
+    $reporttext .= "|";
+  }
+  $reportmap .= $mapstring . "|";
 }
 
-$report = addslashes($report);
+$reportinitiative .= "|";
+$reporttext .= "|";
+
+giveXp();
+$reportintro = addslashes($reportintro);
+$reportinitiative = addslashes($reportinitiative);
+$reportmap = addslashes($reportmap);
+$reporttext = addslashes($reporttext);
 $date = date("m-d-y H:i:s");
 $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
-mysqli_query($conn,"INSERT INTO Reports (party, timestamp, dungeon, report) VALUES ('$hero[id]', '$date', '$dungeonname', '$report')") or die(mysqli_error($conn));
+mysqli_query($conn,"INSERT INTO Reports (party, timestamp, dungeon, reportintro, reportinitiative, reportmap, reporttext) VALUES ('$hero[id]', '$date', '$dungeonname', '$reportintro', '$reportinitiative', '$reportmap', '$reporttext')") or die(mysqli_error($conn));
 mysqli_close($conn);
 
 //echo "<META http-equiv='refresh' content='0;URL=reports.php'>";

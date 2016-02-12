@@ -11,6 +11,7 @@
 <hr width='33%'>
 <h2>Known Bugs</h2>
 <ul>
+	<li>Dungeons don't end on failure correctly</li>
 	<li>Hero list only shows heroes that are in a party</li>
 	<li>Hero database has 0's for maxhp/hp/maxmp/mp/initiative</li>
 	<li>Enemy professions aren't showing up</li>
@@ -26,6 +27,7 @@
 <h2>February 11, 2016</h2>
 <ul>
 	<li>Started improving report UI</li>
+	<li>Seperated battle report into divs</li>
 </ul>
 <h2>February 10, 2016</h2>
 <ul>
