@@ -37,7 +37,7 @@ $reporttext = explode("|",stripslashes($report['reporttext']));
 </table>
 <br><br>
 
-<center><button onclick="back();">Back</button><button onclick="next();" style="margin-left:100px;">Next</button></center>
+<center><button class="whitebutton" onclick="back();">Back</button><button class="whitebutton" onclick="next();" style="margin-left:100px;">Next</button></center>
 
 <script>
 var reportintro = <?php echo json_encode($reportintro); ?>;

@@ -1,5 +1,6 @@
 <script>
-// var num = 0;
+
+//var num = 0;
 // function add() {
   // document.getElementById('plans').innerHTML += "<select name='plans'><option value=''>Select an option</option><option value='hpbelow'>When HP is below</option><option value='noenemy'>When not next to an enemy</option></select><br>";
   
@@ -9,6 +10,7 @@
   // document.body.appendChild(battleplans[num]);
   // num++;
 // }
+
 function addOption(id,text,value) {
   var option = document.createElement("option");
   option.text = text

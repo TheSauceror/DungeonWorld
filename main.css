@@ -30,7 +30,7 @@ table, th, td {
 	padding: 5px;
 }
 
-button {
+.whitebutton {
     font-size: 24pt;
     background-color: white;
     color: black;

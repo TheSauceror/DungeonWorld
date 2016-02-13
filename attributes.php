@@ -17,8 +17,8 @@ echo "<h1>$hero[name]</h1>";
 if(isset($_POST['attribute'])) {
   $aID = mysqli_real_escape_string($conn, $_POST['attribute']);
   if($hero['xp'] < $hero[$aID] * 100) { echo "Not enough xp"; } else {
-  	mysqli_query($conn,"UPDATE Hero SET `$aID` = ( `$aID` + 1 ) WHERE name = '$name'") or die(mysqli_error($conn));
-  	mysqli_query($conn,"UPDATE Hero SET xp = xp - ($hero[$aID] * 100) WHERE name = '$name'") or die(mysqli_error($conn));
+  	mysqli_query($conn,"UPDATE Hero SET `$aID` = ( `$aID` + 1 ) WHERE id = '$cookie[0]'") or die(mysqli_error($conn));
+  	mysqli_query($conn,"UPDATE Hero SET xp = xp - ($hero[$aID] * 100) WHERE id = '$$cookie[0]'") or die(mysqli_error($conn));
     $hero['xp'] -= ($hero[$aID] * 100);
   	$hero[$aID]++;
 
@@ -84,7 +84,7 @@ echo "<tr><td>Strength</td><td>$hero[str]</td><td><a href='javascript:updateAttr
 echo "<tr><td>Vitality</td><td>$hero[vit]</td><td><a href='javascript:updateAttribute(\"vit\");'>" . $hero['vit']*100 . "</a></td></tr>";
 echo "<tr><td>Dexterity</td><td>$hero[dex]</td><td><a href='javascript:updateAttribute(\"dex\");'>" . $hero['dex']*100 . "</a></td></tr>";
 echo "<tr><td>Intelligence</td><td>$hero[nce]</td><td><a href='javascript:updateAttribute(\"nce\");'>" . $hero['nce']*100 . "</a></td></tr>";
-echo "<tr><td>Wisdom</td><td>$hero[pie]</td><td><a href='javascript:updateAttribute(\"pie\");'>" . $hero['pie']*100 . "</a></td></tr>";
+echo "<tr><td>Piety</td><td>$hero[pie]</td><td><a href='javascript:updateAttribute(\"pie\");'>" . $hero['pie']*100 . "</a></td></tr>";
 echo "</table>";
 
 echo "<form name='attributefrm' id='attributefrm' method='POST' action='attributes.php'><input name='attribute' type='hidden' value='' id='attributeID'></form>";
