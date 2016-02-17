@@ -7,27 +7,37 @@
 	<li>Make a room generator form</li>
 	<li>Make a room editor form</li>
 	<li>Make a dungeon generator form</li>
+	<li>Make a item generator form</li>
+	<li>Make a item editor form</li>
 </ul>
 <hr width='33%'>
 <h2>Known Bugs</h2>
 <ul>
 	<li>Dungeons don't end on failure correctly</li>
-	<li>Hero list only shows heroes that are in a party</li>
-	<li>Hero database has 0's for maxhp/hp/maxmp/mp/initiative</li>
-	<li>Enemy professions aren't showing up</li>
-	<li>Right now, race/prof attribute %'s are all over the places and static. Should consolidate them so we can update them if we need to balance later</li>
 	<li>Fix hero battleplan</li>
-	<li>Having an 'int' column is messing everything up. Need to change it to 'nce'</li>
-	<li>Fix items. Then market</li>
+	<li>Fix market</li>
 	<li>Need to move messages from GET to POST</li>
 	<li>Need to fix sendmessage and replying</li>
-	<li>Dungeons can reach the max text size and freeze</li>
+</ul>
+<hr width='33%'>
+<h2>February 15, 2016</h2>
+<ul>
+	<li>Items show up again and add to stats correctly</li>
+	<li>Herolist shows all heroes now</li>
+</ul>
+<hr width='33%'>
+<h2>February 13, 2016</h2>
+<ul>
+	<li>Dungeons shouldn't  reach the max text size and freeze anymore</li>
+	<li>Fixed intelligence</li>
+	<li>Race/prof attribute %'s are precalculated before battle</li>
 </ul>
 <hr width='33%'>
 <h2>February 11, 2016</h2>
 <ul>
 	<li>Started improving report UI</li>
 	<li>Seperated battle report into divs</li>
+	<li>Fixed report image titles</li>
 </ul>
 <h2>February 10, 2016</h2>
 <ul>

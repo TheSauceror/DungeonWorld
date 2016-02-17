@@ -93,9 +93,9 @@ foreach($dungeonrooms as $key => $room) {
           $j++;
         }while(!testSwitch1($currentturn,$j));
         testSwitch2($currentturn,$j);
-        /*if(onlyOneTeam() || $maxturns == 0) {
-          break 2; 
-        }*/
+        //if(onlyOneTeam() || $maxturns == 0) {
+        //  break 2; 
+        //}
         if(onlyOneTeam() == $fighters[0]['party'] && $maxturns > 0) {
           $reportintro .= "Victory!";
           break 2;
