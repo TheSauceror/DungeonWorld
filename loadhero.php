@@ -30,13 +30,18 @@ function getItemName($slot, $hero, $equip) {
 
 function getAllItemStats($hero, $stat) {
   $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
-	$equippeditems = mysqli_fetch_assoc(mysqli_query($conn,"SELECT SUM(ItemBase.$stat) + SUM(ItemPrefix.$stat) + SUM(ItemSuffix.$stat) AS 'allequippedstats' FROM Inventory LEFT JOIN ItemBase ON Inventory.base = ItemBase.baseid Left JOIN ItemPrefix ON Inventory.prefix = ItemPrefix.prefixid LEFT JOIN ItemSuffix ON Inventory.suffix = ItemSuffix.suffixid WHERE Inventory.owner = '$hero' AND Inventory.equip > 0"));
-	//while($row = mysqli_fetch_assoc($tempequippeditems)) {
+	//$equippeditems = mysqli_fetch_assoc(mysqli_query($conn,"SELECT SUM(ItemBase.$stat) + SUM(ItemPrefix.$stat) + SUM(ItemSuffix.$stat) AS 'allequippedstats' FROM Inventory LEFT JOIN ItemBase ON Inventory.base = ItemBase.baseid Left JOIN ItemPrefix ON Inventory.prefix = ItemPrefix.prefixid LEFT JOIN ItemSuffix ON Inventory.suffix = ItemSuffix.suffixid WHERE Inventory.owner = '$hero' AND Inventory.equip > 0"));
+	$equippeditems = mysqli_query($conn,"SELECT * FROM Inventory LEFT JOIN ItemBase ON Inventory.base = ItemBase.baseid Left JOIN ItemPrefix ON Inventory.prefix = ItemPrefix.prefixid LEFT JOIN ItemSuffix ON Inventory.suffix = ItemSuffix.suffixid WHERE Inventory.owner = '$hero' AND Inventory.equip > 0");
+  $equippedstats = 0;
+  while($row = mysqli_fetch_assoc($equippeditems)) {
+    $equippedstats += max(0, $row["prefix".$stat]) + max(0, $row["base".$stat]) + max(0, $row["suffix".$stat]);
+  }
+  //while($row = mysqli_fetch_assoc($tempequippeditems)) {
 		//$equippeditems[] = $row;
 	//}
   //return mysqli_fetch_assoc(mysqli_query($conn,"SELECT $col FROM Item WHERE equip > 0 AND owner = '$hero'"))[$col];
-  return $equippeditems['allequippedstats'];
   mysqli_close($conn);
+  return $equippedstats;
 }
 
 echo "<br>";

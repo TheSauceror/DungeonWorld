@@ -23,9 +23,9 @@ if(isset($_POST['name'])) {
 <h1>Add Dungeon</h1>
 <form name='adddungeonfrm' id='dungeonfrm' method='POST' action='adddungeon.php'>
 	<table>
-	<tr><td>Name</td><td><input type='text' name='name' required></td></tr>
-	<tr><td>Rooms (seperate with '|')</td><td><input type='text' name='rooms' required></td></tr>
-	<tr><td>Description</td><td><textarea name='des' required></textarea></td></tr>
+	<tr><td>Name</td><td><input type='text' name='name' size='40' required></td></tr>
+	<tr><td>Rooms (separate with '|')</td><td><input type='text' name='rooms' required></td></tr>
+	<tr><td>Description (separate with '|')</td><td><textarea name='des' cols='40' rows='6' required></textarea></td></tr>
 	</table>
 	<br>
 	<input type='submit' value='Add Dungeon'>

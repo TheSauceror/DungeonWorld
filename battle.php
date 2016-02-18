@@ -41,6 +41,16 @@ function init() {
   while($row = mysqli_fetch_assoc($party)) {
     $partyfighters[] = $row;
   }
+  foreach ($partyfighters as $heronum => $hero) {
+    echo "<span style='color:green;'>loading " . $hero['name'] . "'s items</span><br>";
+    $partyfighters[$heronum]['sdam'] = getAllItemStats($hero['id'], "sdam");
+    $partyfighters[$heronum]['pdam'] = getAllItemStats($hero['id'], "pdam");
+    $partyfighters[$heronum]['bdam'] = getAllItemStats($hero['id'], "bdam");
+    $partyfighters[$heronum]['sarm'] = getAllItemStats($hero['id'], "sarm");
+    $partyfighters[$heronum]['parm'] = getAllItemStats($hero['id'], "parm");
+    $partyfighters[$heronum]['barm'] = getAllItemStats($hero['id'], "barm");
+
+  }
   $dungeonid = mysqli_real_escape_string($conn, "$dungeonid");
   $dungeonstats = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Dungeons WHERE dungeonid = '$dungeonid'"));
   $dungeonname = $dungeonstats['dungeonname'];
@@ -57,18 +67,13 @@ init();
 
 foreach($dungeonrooms as $key => $room) {
   // global $dungeonrooms, $partyfighters, $roomstats, $fighters, $turnorder;
-  echo "<span style='color:red;'>partyfighters: </span>";
-  print_r($partyfighters);
   echo "<br>";
   echo "<span style='color:red;'>fighters before: </span>";
   print_r($fighters);
   echo "<br>";
   $fighters = $partyfighters;
-  echo "<span style='color:red;'>fighters after: </span>";
-  print_r($fighters);
-  echo "<br>";
   $roomstats = [];
-  $conn=mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
+  $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
   foreach($dungeonrooms as $dungeonroom) {
     $roomstats[] = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Rooms WHERE roomid = '$dungeonroom'"));
   }
@@ -76,6 +81,9 @@ foreach($dungeonrooms as $key => $room) {
     $fighters[] = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Enemies WHERE name = '$enemyname'"));
   }
   mysqli_close($conn);
+  echo "<span style='color:red;'>fighters after: </span>";
+  print_r($fighters);
+  echo "<br>";
   //findMaxHpAndMp();
   $reportintro .= "<strong>$dungeonname: Room " . ($key + 1) . "</strong> - " . $roomdescriptions[$key];
   startRoom($key);
@@ -94,7 +102,7 @@ foreach($dungeonrooms as $key => $room) {
         }while(!testSwitch1($currentturn,$j));
         testSwitch2($currentturn,$j);
         //if(onlyOneTeam() || $maxturns == 0) {
-        //  break 2; 
+        //  break 2;
         //}
         if(onlyOneTeam() == $fighters[0]['party'] && $maxturns > 0) {
           $reportintro .= "Victory!";
@@ -122,6 +130,24 @@ foreach($dungeonrooms as $key => $room) {
     }
   }
   $partyfighters = $fighters;
+}
+
+function getDamage($attacker, $defender) {
+  $damage = max(0, $attacker['sdam'] - $defender['sarm']) + max(0, $attacker['pdam'] - $defender['parm']) + max(0, $attacker['bdam'] - $defender['barm']);
+  echo "<span style='color:blue;'>damage: </span>", $damage, " from ", $attacker['name'], " to ", $defender['name'], "<br>";
+  return $damage;
+}
+
+function getAllItemStats($hero, $stat) {
+  $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
+  //$equippeditems = mysqli_fetch_assoc(mysqli_query($conn,"SELECT SUM(ItemBase.$stat) + SUM(ItemPrefix.$stat) + SUM(ItemSuffix.$stat) AS 'allequippedstats' FROM Inventory LEFT JOIN ItemBase ON Inventory.base = ItemBase.baseid Left JOIN ItemPrefix ON Inventory.prefix = ItemPrefix.prefixid LEFT JOIN ItemSuffix ON Inventory.suffix = ItemSuffix.suffixid WHERE Inventory.owner = '$hero' AND Inventory.equip > 0"));
+  $equippeditems = mysqli_query($conn,"SELECT * FROM Inventory LEFT JOIN ItemBase ON Inventory.base = ItemBase.baseid Left JOIN ItemPrefix ON Inventory.prefix = ItemPrefix.prefixid LEFT JOIN ItemSuffix ON Inventory.suffix = ItemSuffix.suffixid WHERE Inventory.owner = '$hero' AND Inventory.equip > 0");
+  $equippedstats = 0;
+  while($row = mysqli_fetch_assoc($equippeditems)) {
+    $equippedstats += max(0, $row["prefix".$stat]) + max(0, $row["base".$stat]) + max(0, $row["suffix".$stat]);
+  }
+  mysqli_close($conn);
+  return $equippedstats;
 }
 
 function giveXp() {
@@ -209,8 +235,9 @@ function testSwitch2($i ,$j) {
     case "meleeattack":
       $closest = findNearestEnemy($i);
       if((abs($fighters[$i]['x']-$fighters[$closest]['x']) + abs($fighters[$i]['y']-$fighters[$closest]['y'])) < 2) {
-        $reporttext .= $fighters[$i]['name'] . " hits " . $fighters[$closest]['name'] . " for " . $fighters[$i]['str'] . " damage.<br>";
-        $fighters[$closest]['hp'] -= $fighters[$i]['str'];
+        $damage = getDamage($fighters[$i], $fighters[$closest]);
+        $reporttext .= $fighters[$i]['name'] . " hits " . $fighters[$closest]['name'] . " for " . $damage . " damage.<br>";
+        $fighters[$closest]['hp'] -= $damage;
         if($fighters[$closest]['hp'] < 1) {
           $fighters[$closest]['hp'] = 0;
           $map[$fighters[$closest]['y']][$fighters[$closest]['x']] = -1;
@@ -223,8 +250,9 @@ function testSwitch2($i ,$j) {
     case "rangedattack":
       $closest = findNearestEnemy($i);
       if((abs($fighters[$i]['x']-$fighters[$closest]['x']) + abs($fighters[$i]['y']-$fighters[$closest]['y'])) < 9) {
-        $reporttext .= $fighters[$i]['name'] . " shoots " . $fighters[$closest]['name'] . " for " . $fighters[$i]['dex'] . " damage.<br>";
-        $fighters[$closest]['hp'] -= $fighters[$i]['dex'];
+        $damage = getDamage($fighters[$i], $fighters[$closest]);
+        $reporttext .= $fighters[$i]['name'] . " shoots " . $fighters[$closest]['name'] . " for " . $damage . " damage.<br>";
+        $fighters[$closest]['hp'] -= $damage;
         if($fighters[$closest]['hp'] < 1) {
           $fighters[$closest]['hp'] = 0;
           $map[$fighters[$closest]['y']][$fighters[$closest]['x']] = -1;
@@ -237,8 +265,9 @@ function testSwitch2($i ,$j) {
     case "magicattack":
       $closest = findNearestEnemy($i);
       if((abs($fighters[$i]['x']-$fighters[$closest]['x']) + abs($fighters[$i]['y']-$fighters[$closest]['y'])) < 6) {
-        $reporttext .= $fighters[$i]['name'] . " zaps " . $fighters[$closest]['name'] . " for " . $fighters[$i]['nce'] . " damage.<br>";
-        $fighters[$closest]['hp'] -= $fighters[$i]['nce'];
+        $damage = getDamage($fighters[$i], $fighters[$closest]);
+        $reporttext .= $fighters[$i]['name'] . " zaps " . $fighters[$closest]['name'] . " for " . $damage . " damage.<br>";
+        $fighters[$closest]['hp'] -= $damage;
         if($fighters[$closest]['hp'] < 1) {
           $fighters[$closest]['hp'] = 0;
           $map[$fighters[$closest]['y']][$fighters[$closest]['x']] = -1;

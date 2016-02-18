@@ -26,7 +26,7 @@ if(isset($_POST['length'])) {
 	<tr><td>Length</td><td><input type='number' name='length' required></td></tr>
 	<tr><td>Width</td><td><input type='number' name='width' required></td></tr>
 	<tr><td>Floor texture</td><td><input type='text' name='floor' required></td></tr>
-	<tr><td>Enemies (seperate with '|')</td><td><input type='text' name='enemies' required></td></tr>
+	<tr><td>Enemies (separate with '|')</td><td><input type='text' name='enemies' required></td></tr>
 	</table>
 	<br>
 	<input type='submit' value='Add Room'>

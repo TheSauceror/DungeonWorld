@@ -3,12 +3,13 @@
 ?>
 <h2>Planned Updates</h2>
 <ul>
-	<li>Make an enemy editor form</li>
-	<li>Make a room generator form</li>
-	<li>Make a room editor form</li>
-	<li>Make a dungeon generator form</li>
-	<li>Make a item generator form</li>
-	<li>Make a item editor form</li>
+	<li>Make an enemy editor dev tool</li>
+	<li>Make a room generator dev tool</li>
+	<li>Make a room editor dev tool</li>
+	<li>Make a dungeon generator dev tool</li>
+	<li>Make a item generator dev tool (will probably need 4: base, prefix, suffix, and one to put them all together) - <strong>use the last for hero creation and battle</strong></li>
+	<li>Make a item editor dev tool</li>
+	<li>Make a party finder</li>
 </ul>
 <hr width='33%'>
 <h2>Known Bugs</h2>
@@ -18,21 +19,29 @@
 	<li>Fix market</li>
 	<li>Need to move messages from GET to POST</li>
 	<li>Need to fix sendmessage and replying</li>
+	<li>Apostrophes break dungeon names</li>
+	<li>Hero creation doesn't work because item giving is broken</li>
+	<li>Need to change rooms to list enemies by id</li>
 </ul>
 <hr width='33%'>
+<h2>February 17, 2016</h2>
+<ul>
+	<li>Having no equipped items now correctly displays item stats as 0</li>
+	<li>Stats from items can no longer be negative</li>
+	<li>Gave item stats to enemies</li>
+	<li>Updated enemylist and loadenemy to show item stats</li>
+</ul>
 <h2>February 15, 2016</h2>
 <ul>
 	<li>Items show up again and add to stats correctly</li>
 	<li>Herolist shows all heroes now</li>
 </ul>
-<hr width='33%'>
 <h2>February 13, 2016</h2>
 <ul>
 	<li>Dungeons shouldn't  reach the max text size and freeze anymore</li>
 	<li>Fixed intelligence</li>
 	<li>Race/prof attribute %'s are precalculated before battle</li>
 </ul>
-<hr width='33%'>
 <h2>February 11, 2016</h2>
 <ul>
 	<li>Started improving report UI</li>
