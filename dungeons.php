@@ -19,8 +19,8 @@ if($hero['party'] == NULL) {
 	// exit;
 }
 
-if(strtotime($hero['cd']) > strtotime(date("m-d-y H:i:s"))) {
-  echo "<center><h1>Dungeon cooldown until: " . $hero['cd'] . "</h1></center>";
+if($hero['cd'] > time()) {
+  echo "<center><h1>Dungeon cooldown until: " . date("m-d-y H:i:s", $hero['cd']) . "</h1></center>";
   // exit;
 }
 

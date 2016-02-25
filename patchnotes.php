@@ -24,6 +24,14 @@
 	<li>Need to change rooms to list enemies by id</li>
 </ul>
 <hr width='33%'>
+<h2>February 24, 2016</h2>
+<ul>
+	<li>Changed reports to show up after the dungeon is completed</li>
+	<li>Started setting up the market</li>
+	<li>Changed itemlist to show your inventory</li>
+	<li>Organized database better</li>
+	<li>Changed 'experience' to 'gold'</li>
+</ul>
 <h2>February 17, 2016</h2>
 <ul>
 	<li>Having no equipped items now correctly displays item stats as 0</li>

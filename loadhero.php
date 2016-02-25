@@ -12,8 +12,8 @@ $hero = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Hero, Party WHERE H
 
 echo "Hero:<br>";
 
-echo "<table><tr><th>Name</th><th>Race</th><th>Profession</th><th>Experience</th><th>Party</th><th>Strength</th><th>Vitality</th><th>Dexterity</th><th>Intelligence</th><th>Piety</th><th>Gold</th></tr>";
-echo "<tr><td><a href='loadhero.php?id=$hero[id]'>$hero[name]</a></td><td>$hero[race]</td><td>$hero[prof]</td><td>$hero[xp]</td><td><a href='loadparty.php?partyid=$hero[partyid]'>$hero[partyname]</a></td><td>$hero[str]</td><td>$hero[vit]</td><td>$hero[dex]</td><td>$hero[nce]</td><td>$hero[pie]</td><td>$hero[gold]</td></tr>";
+echo "<table><tr><th>Name</th><th>Race</th><th>Profession</th><th>Gold</th><th>Party</th><th>Strength</th><th>Vitality</th><th>Dexterity</th><th>Intelligence</th><th>Piety</th></tr>";
+echo "<tr><td><a href='loadhero.php?id=$hero[id]'>$hero[name]</a></td><td>$hero[race]</td><td>$hero[prof]</td><td>$hero[gold]</td><td><a href='loadparty.php?partyid=$hero[partyid]'>$hero[partyname]</a></td><td>$hero[str]</td><td>$hero[vit]</td><td>$hero[dex]</td><td>$hero[nce]</td><td>$hero[pie]</td></tr>";
 echo "</table>";
 
 function getItemName($slot, $hero, $equip) {
@@ -68,13 +68,13 @@ echo "Piercing armor: " . getAllItemStats($id, "parm") . "<br>";
 echo "Bludgeoning armor: " . getAllItemStats($id, "barm") . "<br>";
 
 echo "<br>Items:<br>";
-echo "Main Hand: " . getItemName('hand', $id, 1) . "<br>";
-echo "Off Hand: " . getItemName('hand', $id, 2) . "<br>";
-echo "Head: " . getItemName('head', $id, 1) . "<br>";
-echo "Torso: " . getItemName('torso', $id, 1) . "<br>";
-echo "Arms: " . getItemName('arms', $id, 1) . "<br>";
-echo "Legs: " . getItemName('legs', $id, 1) . "<br>";
-echo "Feet: " . getItemName('feet', $id, 1) . "<br>";
+echo "Main Hand: " . getItemName('Hand', $id, 1) . "<br>";
+echo "Off Hand: " . getItemName('Hand', $id, 2) . "<br>";
+echo "Head: " . getItemName('Head', $id, 1) . "<br>";
+echo "Torso: " . getItemName('Torso', $id, 1) . "<br>";
+echo "Arms: " . getItemName('Arms', $id, 1) . "<br>";
+echo "Legs: " . getItemName('Legs', $id, 1) . "<br>";
+echo "Feet: " . getItemName('Feet', $id, 1) . "<br>";
 //echo "Main Hand: " . trim(mysqli_fetch_assoc(mysqli_query($conn,"SELECT CONCAT(pre, ' ', base, ' ', suf) as name FROM Item WHERE equip = 1 AND slot = 'hand' AND owner = '$id'"))['name']) . "<br>";
 //echo "Off Hand: " . trim(mysqli_fetch_assoc(mysqli_query($conn,"SELECT CONCAT(pre, ' ', base, ' ', suf) as name FROM Item WHERE equip = 2 AND slot = 'hand' AND owner = '$id'"))['name']) . "<br>";
 //echo "Head: " . trim(mysqli_fetch_assoc(mysqli_query($conn,"SELECT CONCAT(pre, ' ', base, ' ', suf) as name FROM Item WHERE equip = 1 AND slot = 'head' AND owner = '$id'"))['name']) . "<br>";

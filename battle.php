@@ -12,7 +12,7 @@ include "checklogin.php";
 
 ini_set("display_errors", 1);
 
-echo "<center><h1>Calculating...</h1></center>";
+echo "<center><h1>Running the dungeon...</h1></center>";
 
 $partyname = "";
 $dungeonid = $_POST['dungeon'];
@@ -26,18 +26,25 @@ $partyfighters = [];
 $fighters = [];
 $turnorder = [];
 $map = [];
-$totalxp = 0;
+$totalgold = 0;
 $reportintro = "";
 $reportinitiative = "";
 $reportmap = "";
 $reporttext = "";
 //$maxturns = 20;
+$cd = 0;
 
 function init() {
-  global $cookie, $partyname, $dungeonid, $dungeonname, $dungeonrooms, $roomdescriptions, $partyfighters;
+  global $cookie, $partyname, $dungeonid, $dungeonname, $dungeonrooms, $roomdescriptions, $partyfighters, $cd;
   $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
   $hero = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Hero WHERE id = '$cookie[0]'"));
   $party = mysqli_query($conn,"SELECT * FROM Hero WHERE party = '$hero[party]'");
+
+  /*if(mysqli_fetch_assoc($party)['cd'] > time()) {
+    echo "<center><h1>Dungeon cooldown until: " . date("m-d-y H:i:s", mysqli_fetch_assoc($party)['cd']) . "</h1></center>";
+    // exit;
+  }*/
+
   while($row = mysqli_fetch_assoc($party)) {
     $partyfighters[] = $row;
   }
@@ -55,9 +62,8 @@ function init() {
   $dungeonstats = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Dungeons WHERE dungeonid = '$dungeonid'"));
   $dungeonname = $dungeonstats['dungeonname'];
   $dungeonrooms = explode("|", $dungeonstats['rooms']);
-  $cdtime = 10 * count($dungeonrooms);
-  $cd = date("m-d-y H:i:s",strtotime("+$cdtime minutes"));
-  mysqli_query($conn,"UPDATE Party SET cd = '$cd' WHERE name = '$partyname'");
+  $cd = time() + (600 * count($dungeonrooms));
+  mysqli_query($conn,"UPDATE Party SET cd = '$cd' WHERE partyid = '$hero[party]'");
   $roomdescriptions = explode("|", $dungeonstats['des']);
   mysqli_close($conn);
   findMaxHpAndMp();
@@ -150,15 +156,15 @@ function getAllItemStats($hero, $stat) {
   return $equippedstats;
 }
 
-function giveXp() {
-  global $partyfighters, $totalxp, $reportintro;
+function giveGold() {
+  global $partyfighters, $totalgold, $reportintro;
   foreach($partyfighters as $fighter) {
     $id = $fighter['id'];
-    $eachxp = floor($totalxp/count($partyfighters));
-    $conn=mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
-    mysqli_query($conn,"UPDATE Hero SET xp = xp + $eachxp WHERE id='$id'");
+    $eachgold = floor($totalgold/count($partyfighters));
+    $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
+    mysqli_query($conn, "UPDATE Hero SET gold = gold + $eachgold WHERE id = '$id'");
     mysqli_close($conn);
-    $reportintro .= $fighter['name'] . ": " . $eachxp . "xp<br>";
+    $reportintro .= $fighter['name'] . ": " . $eachgold . " gold<br>";
   }
 }
 
@@ -193,7 +199,7 @@ function testSwitch1($i, $j) {
 }
 
 function testSwitch2($i ,$j) {
-  global $fighters, $map, $totalxp, $reporttext;
+  global $fighters, $map, $totalgold, $reporttext;
   $testplan = explode("||",$fighters[$i]['battleplan']);
   if($testplan[0] == "") { return; }
   $testplan = explode("|", $testplan[$j])[1];
@@ -242,7 +248,7 @@ function testSwitch2($i ,$j) {
           $fighters[$closest]['hp'] = 0;
           $map[$fighters[$closest]['y']][$fighters[$closest]['x']] = -1;
           $reporttext .= $fighters[$closest]['name'] . " dies.<br>";
-          if($fighters[$closest]['party'] == "Enemy") { $totalxp += $fighters[$closest]['xp']; }
+          if($fighters[$closest]['party'] == "Enemy") { $totalgold += $fighters[$closest]['gold']; }
         }
       } else { $reporttext .= $fighters[$i]['name'] . " is out of range.<br>";}
       return;
@@ -257,7 +263,7 @@ function testSwitch2($i ,$j) {
           $fighters[$closest]['hp'] = 0;
           $map[$fighters[$closest]['y']][$fighters[$closest]['x']] = -1;
           $reporttext .= $fighters[$closest]['name'] . " dies.<br>";
-          if($fighters[$closest]['party'] == "Enemy") { $totalxp += $fighters[$closest]['xp']; }
+          if($fighters[$closest]['party'] == "Enemy") { $totalgold += $fighters[$closest]['gold']; }
         }
       } else { $reporttext .= $fighters[$i]['name'] . " is out of range.<br>";}
       return;
@@ -272,7 +278,7 @@ function testSwitch2($i ,$j) {
           $fighters[$closest]['hp'] = 0;
           $map[$fighters[$closest]['y']][$fighters[$closest]['x']] = -1;
           $reporttext .= $fighters[$closest]['name'] . " dies.<br>";
-          if($fighters[$closest]['party'] == "Enemy") { $totalxp += $fighters[$closest]['xp']; }
+          if($fighters[$closest]['party'] == "Enemy") { $totalgold += $fighters[$closest]['gold']; }
         }
       } else { $reporttext .= $fighters[$i]['name'] . " is out of range.<br>";}
       return;
@@ -427,14 +433,14 @@ function updateMap($l, $w, $floor) {
 $reportinitiative .= "|";
 $reporttext .= "|";
 
-giveXp();
+giveGold();
 $reportintro = addslashes($reportintro);
 $reportinitiative = addslashes($reportinitiative);
 $reportmap = addslashes($reportmap);
 $reporttext = addslashes($reporttext);
-$date = date("m-d-y H:i:s");
+//$date = date("m-d-y H:i:s");
 $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
-mysqli_query($conn,"INSERT INTO Reports (party, timestamp, dungeon, reportintro, reportinitiative, reportmap, reporttext) VALUES ('$hero[party]', '$date', '$dungeonname', '$reportintro', '$reportinitiative', '$reportmap', '$reporttext')") or die(mysqli_error($conn));
+mysqli_query($conn,"INSERT INTO Reports (party, timestamp, dungeon, reportintro, reportinitiative, reportmap, reporttext) VALUES ('$hero[party]', '$cd', '$dungeonname', '$reportintro', '$reportinitiative', '$reportmap', '$reporttext')") or die(mysqli_error($conn));
 mysqli_close($conn);
 
 //echo "<META http-equiv='refresh' content='0;URL=reports.php'>";

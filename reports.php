@@ -13,13 +13,14 @@ $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd")
 //$hero = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Hero WHERE id = '$cookie[0]'"));
 //$party = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Party WHERE id = '$hero[party]'"));
 $hero = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Hero, Party WHERE id = '$cookie[0]' AND Hero.party = Party.partyid"));
-$reports = mysqli_query($conn,"SELECT * FROM Reports WHERE party = '$hero[party]' ORDER BY reportid DESC");
+
+$reports = mysqli_query($conn,"SELECT * FROM Reports WHERE party = '$hero[party]' AND timestamp <= UNIX_TIMESTAMP() ORDER BY reportid DESC");
 
 echo "Reports:<br>";
 
 echo "<table><tr><th>Timestamp</th><th>Dungeon</th><th>Report</th></tr>";
 while($row = mysqli_fetch_assoc($reports)) {
-  echo "<tr><td>" . $row['timestamp'] . "</td><td>" . $row['dungeon'] . "</td><td><a href='javascript:updateReport(" . $row['reportid'] . ");'>Read</a></td></tr>";
+  echo "<tr><td>" . date("m-d-y H:i:s", $row['timestamp']) . "</td><td>" . $row['dungeon'] . "</td><td><a href='javascript:updateReport(" . $row['reportid'] . ");'>Read</a></td></tr>";
 }
 echo "</table>";
 

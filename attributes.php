@@ -16,10 +16,10 @@ $hero = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Hero WHERE id = '$c
 echo "<h1>$hero[name]</h1>";
 if(isset($_POST['attribute'])) {
   $aID = mysqli_real_escape_string($conn, $_POST['attribute']);
-  if($hero['xp'] < $hero[$aID] * 100) { echo "Not enough xp"; } else {
+  if($hero['gold'] < $hero[$aID] * 100) { echo "Not enough gold"; } else {
   	mysqli_query($conn,"UPDATE Hero SET `$aID` = ( `$aID` + 1 ) WHERE id = '$cookie[0]'") or die(mysqli_error($conn));
-  	mysqli_query($conn,"UPDATE Hero SET xp = xp - ($hero[$aID] * 100) WHERE id = '$$cookie[0]'") or die(mysqli_error($conn));
-    $hero['xp'] -= ($hero[$aID] * 100);
+  	mysqli_query($conn,"UPDATE Hero SET gold = gold - ($hero[$aID] * 100) WHERE id = '$$cookie[0]'") or die(mysqli_error($conn));
+    $hero['gold'] -= ($hero[$aID] * 100);
   	$hero[$aID]++;
 
     $hpmult = 1;
@@ -77,7 +77,7 @@ if(isset($_POST['attribute'])) {
 }
 mysqli_close($conn);
 
-echo "<h3>Available xp: " . $hero['xp'] . "</h3>";
+echo "<h3>Available gold: " . $hero['gold'] . "</h3>";
 
 echo "<table><tr><th>Attribute</th><th>Level</th><th>Cost</th></tr>";
 echo "<tr><td>Strength</td><td>$hero[str]</td><td><a href='javascript:updateAttribute(\"str\");'>" . $hero['str']*100 . "</a></td></tr>";
