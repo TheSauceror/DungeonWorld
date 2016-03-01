@@ -16,13 +16,13 @@ function changestats(change) {
 
 ini_set("display_errors", 1);
 
-if(isset($_COOKIE["PHPRPG"])) {
-  $cookie = explode("||",$_COOKIE["PHPRPG"]);
+if(isset($_COOKIE["DungeonsOfEld"])) {
+  $cookie = explode("||",$_COOKIE["DungeonsOfEld"]);
   $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
   $hero = mysqli_fetch_assoc(mysqli_query($conn,"SELECT pw FROM Hero WHERE id = '$cookie[0]'"));
   mysqli_close($conn);
   if($cookie[1] == $hero['pw']) {
-    header('Location: index.php');
+    header('Location: profile.php');
   }
 }
 
@@ -146,8 +146,8 @@ if(isset($_POST['name'],$_POST['pw'],$_POST['race'],$_POST['prof'])) {
       break;
       
     }
-    setcookie("PHPRPG", $name."||".$pw, time()+60*60*24*365);
-    echo "<META http-equiv='refresh' content='0;URL=index.php'>";
+    setcookie("DungeonsOfEld", $name."||".$pw, time()+60*60*24*365);
+    echo "<META http-equiv='refresh' content='0;URL=profile.php'>";
     exit();
   }
 }
@@ -159,8 +159,8 @@ else if(isset($_POST['name'],$_POST['pw'])) {
   if(is_null($hero)) {
     echo "Incorrect login";
   } else {
-    setcookie("PHPRPG", $hero['id'] . "||" . $pw, time()+60*60*24*365);
-    echo "<META http-equiv='refresh' content='0;URL=index.php'>";
+    setcookie("DungeonsOfEld", $hero['id'] . "||" . $pw, time()+60*60*24*365);
+    echo "<META http-equiv='refresh' content='0;URL=profile.php'>";
     mysqli_close($conn);
     exit();
   }

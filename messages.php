@@ -30,7 +30,7 @@ echo "<table><tr><th>From</th><th>Subject</th><th>Time</th></tr>";
 while($row = mysqli_fetch_assoc($messages)) {
   echo "<tr><td>";
   if($row['unread']==1) { echo "<b>"; }
-  echo "<a href='loadhero.php?id=" . $row['id'] . "'>" . $row['name'] . "</a>";
+  echo "<a href='profile.php?id=" . $row['id'] . "'>" . $row['name'] . "</a>";
   if($row['unread']==1) { echo "</b>"; }
   echo "</td><td>";
   if($row['unread']==1) { echo "<b>"; }

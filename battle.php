@@ -62,7 +62,7 @@ function init() {
   $dungeonstats = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Dungeons WHERE dungeonid = '$dungeonid'"));
   $dungeonname = $dungeonstats['dungeonname'];
   $dungeonrooms = explode("|", $dungeonstats['rooms']);
-  $cd = time() + (600 * count($dungeonrooms));
+  $cd = time() + (6 * count($dungeonrooms));//600 = 10 minutes
   mysqli_query($conn,"UPDATE Party SET cd = '$cd' WHERE partyid = '$hero[party]'");
   $roomdescriptions = explode("|", $dungeonstats['des']);
   mysqli_close($conn);
@@ -83,8 +83,8 @@ foreach($dungeonrooms as $key => $room) {
   foreach($dungeonrooms as $dungeonroom) {
     $roomstats[] = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Rooms WHERE roomid = '$dungeonroom'"));
   }
-  foreach(explode("|", $roomstats[$key]['enemies']) as $enemyname) {
-    $fighters[] = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Enemies WHERE name = '$enemyname'"));
+  foreach(explode("|", $roomstats[$key]['enemies']) as $enemyid) {
+    $fighters[] = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Enemies WHERE id = '$enemyid'"));
   }
   mysqli_close($conn);
   echo "<span style='color:red;'>fighters after: </span>";
@@ -139,7 +139,7 @@ foreach($dungeonrooms as $key => $room) {
 }
 
 function getDamage($attacker, $defender) {
-  $damage = max(0, $attacker['sdam'] - $defender['sarm']) + max(0, $attacker['pdam'] - $defender['parm']) + max(0, $attacker['bdam'] - $defender['barm']);
+  $damage = max(1, max(0, $attacker['sdam'] - $defender['sarm']) + max(0, $attacker['pdam'] - $defender['parm']) + max(0, $attacker['bdam'] - $defender['barm']));
   echo "<span style='color:blue;'>damage: </span>", $damage, " from ", $attacker['name'], " to ", $defender['name'], "<br>";
   return $damage;
 }
@@ -150,7 +150,7 @@ function getAllItemStats($hero, $stat) {
   $equippeditems = mysqli_query($conn,"SELECT * FROM Inventory LEFT JOIN ItemBase ON Inventory.base = ItemBase.baseid Left JOIN ItemPrefix ON Inventory.prefix = ItemPrefix.prefixid LEFT JOIN ItemSuffix ON Inventory.suffix = ItemSuffix.suffixid WHERE Inventory.owner = '$hero' AND Inventory.equip > 0");
   $equippedstats = 0;
   while($row = mysqli_fetch_assoc($equippeditems)) {
-    $equippedstats += max(0, $row["prefix".$stat]) + max(0, $row["base".$stat]) + max(0, $row["suffix".$stat]);
+    $equippedstats += max(0, ($row["prefix".$stat] * $row['prefixlevel']) + ($row["base".$stat] * $row['baselevel']) + ($row["suffix".$stat] * $row['suffixlevel']));
   }
   mysqli_close($conn);
   return $equippedstats;
@@ -158,9 +158,10 @@ function getAllItemStats($hero, $stat) {
 
 function giveGold() {
   global $partyfighters, $totalgold, $reportintro;
+  $totalgold *= (1 + rand(-15, 15) / 100);
+  $eachgold = floor($totalgold/count($partyfighters));
   foreach($partyfighters as $fighter) {
     $id = $fighter['id'];
-    $eachgold = floor($totalgold/count($partyfighters));
     $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
     mysqli_query($conn, "UPDATE Hero SET gold = gold + $eachgold WHERE id = '$id'");
     mysqli_close($conn);
@@ -323,11 +324,11 @@ function getTurnOrder() {
     $turnorder[1][] = $f['initiative'];
   }
   array_multisort($turnorder[1], SORT_DESC, SORT_NUMERIC, $turnorder[0]);
-  $reportinitiative .= "<table><tr><th>Initiative</th><th>Name</th><th>Health</th><th>Mana</th></tr>";
+  $reportinitiative .= "<center><table><tr><th>Initiative</th><th>Name</th><th>Health</th><th>Mana</th></tr>";
   foreach($turnorder[0] as $key => $turn) {
     $reportinitiative .= "<tr><td>" . $turnorder[1][$key] . "</td><td>" . $fighters[$turn]['name'] . "</td><td>" . $fighters[$turn]['hp'] . "</td><td>" . $fighters[$turn]['mp'] . "</td></tr>";
   }
-  $reportinitiative .= "</table>";
+  $reportinitiative .= "</table></center>";
 }
 
 function findMaxHpAndMp() {

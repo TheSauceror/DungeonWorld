@@ -20,10 +20,26 @@
 	<li>Need to move messages from GET to POST</li>
 	<li>Need to fix sendmessage and replying</li>
 	<li>Apostrophes break dungeon names</li>
-	<li>Hero creation doesn't work because item giving is broken</li>
-	<li>Need to change rooms to list enemies by id</li>
+	<li>Hero creation doesn't work because item creation is broken</li>
 </ul>
 <hr width='33%'>
+<h2>February 29, 2016</h2>
+<ul>
+	<li>Changed rooms to list enemies by id</li>
+	<li>Reorganized pages</li>
+	<li>Made items un/equippable </li>
+	<li>Set up dungeon levels</li>
+	<li>Implemented item component levels</li>
+	<li>Disabled changing other hero's equipment</li>
+	<li>Disabled seeing other hero's gold</li>
+	<li>Disabled increasing other hero's attributes</li>
+</ul>
+<h2>February 27, 2016</h2>
+<ul>
+	<li>Randomized enemy gold drops</li>
+	<li>Changed minimum damage to 1</li>
+	<li>Added landing page</li>
+</ul>
 <h2>February 24, 2016</h2>
 <ul>
 	<li>Changed reports to show up after the dungeon is completed</li>
