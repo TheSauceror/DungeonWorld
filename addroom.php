@@ -1,5 +1,6 @@
 <?php
-include "checklogin.php";
+  include "checklogin.php";
+  include "menu.php";
 ?>
 
 <?php

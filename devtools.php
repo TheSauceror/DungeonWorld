@@ -1,6 +1,7 @@
 <?php
 
 include "checklogin.php";
+include "menu.php";
 
 echo "<a href='addenemy.php'>Add Enemy</a><br>";
 echo "<a href='addroom.php'>Add Room</a><br>";

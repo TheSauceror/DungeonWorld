@@ -4,14 +4,13 @@
 <?php
 
 include "checklogin.php";
+include "menu.php";
 
 ini_set("display_errors", 1);
 
 $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
 $reportid = mysqli_real_escape_string($conn, $_GET['reportid']);
 $hero = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Hero, Party WHERE id = '$cookie[0]' AND Hero.party = Party.partyid"));
-//$hero = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Hero WHERE id = '$cookie[0]'"));
-//$party = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Party WHERE id = '$hero[party]'"));
 $report = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Reports WHERE reportid = '$reportid' AND party = '$hero[party]'"));
 
 if($report == NULL) { echo "Report not found"; }
@@ -28,11 +27,11 @@ $reporttext = explode("|",stripslashes($report['reporttext']));
 ?>
 
 <table style="width:100%;">
-	<tr><td colspan="3" style="background-color:red;width:100%;text-align:center;height:28px;"><div id="reportintro"></div></td></tr>
+	<tr><td colspan="3" style="width:100%;text-align:center;height:28px;"><div id="reportintro"></div></td></tr>
 	<tr>
-		<td style="background-color:blue;width:33%;text-align:center;"><div id="reportinitiative"></div></td>
-		<td style="background-color:yellow;width:33%;text-align:center;"><div id="reportmap"></div></td>
-		<td style="background-color:green;width:33%;text-align:center;"><div id="reporttext"></div></td>
+		<td style="width:33%;text-align:center;"><div id="reportinitiative"></div></td>
+		<td style="width:33%;text-align:center;"><div id="reportmap"></div></td>
+		<td style="width:33%;text-align:center;"><div id="reporttext"></div></td>
 	</tr>
 </table>
 <br><br>

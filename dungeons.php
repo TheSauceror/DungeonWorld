@@ -8,15 +8,21 @@ function updateDungeon(dID) {
 <?php
 
 include "checklogin.php";
+include "menu.php";
 
 $conn=mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
-$dungeons = mysqli_query($conn,"SELECT * FROM Dungeons");
+$dungeons = mysqli_query($conn,"SELECT * FROM Dungeons WHERE dungeonid > 0");
 
 $hero = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Hero, Party WHERE id = '$cookie[0]' AND Hero.party = Party.partyid"));
 
-if($hero['party'] == NULL) {
+if(trim(str_replace("|", "", $hero['battleplan'])) == "") {
+	echo "<center><h1>You need a battleplan to do dungeons.</h1></center>";
+	exit;
+}
+
+if($hero['party'] == 0) {
 	echo "<center><h1>You need a party to do dungeons.</h1></center>";
-	// exit;
+	exit;
 }
 
 if($hero['cd'] > time()) {
@@ -26,9 +32,9 @@ if($hero['cd'] > time()) {
 
 echo "Dungeons:<br>";
 
-echo "<table><tr><th>Name</th><th>Rooms</th></tr>";
+echo "<table><tr><th>Name</th><th>Rooms</th><th>Type</th><th>Level</th></tr>";
 while($row = mysqli_fetch_assoc($dungeons)) {
-  echo "<tr><td><a href='javascript:updateDungeon(" . $row['dungeonid'] . ");'>" . $row['dungeonname'] . "</a></td><td>" . sizeof(explode("|",$row['rooms'])) . "</td></tr>";
+  echo "<tr><td><a href='javascript:updateDungeon(" . $row['dungeonid'] . ");'>" . $row['dungeonname'] . "</a></td><td>" . sizeof(explode("|",$row['rooms'])) . "</td><td>" . $row['dungeontype'] . "</td><td>" . $row['dungeonlevel'] . "</td></tr>";
 }
 echo "</table>";
 

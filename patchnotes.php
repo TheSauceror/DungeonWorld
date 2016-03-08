@@ -1,28 +1,39 @@
 <?php
 	include "checklogin.php";
+	include "menu.php";
 ?>
+
 <h2>Planned Updates</h2>
 <ul>
-	<li>Make an enemy editor dev tool</li>
-	<li>Make a room generator dev tool</li>
-	<li>Make a room editor dev tool</li>
-	<li>Make a dungeon generator dev tool</li>
-	<li>Make a item generator dev tool (will probably need 4: base, prefix, suffix, and one to put them all together) - <strong>use the last for hero creation and battle</strong></li>
-	<li>Make a item editor dev tool</li>
-	<li>Make a party finder</li>
+	<li>We'll be getting rid of the current party system, and make it work more like a queue</li>
+	<li>Items will start dropping from monsters in the next couple days</li>
 </ul>
 <hr width='33%'>
 <h2>Known Bugs</h2>
 <ul>
 	<li>Dungeons don't end on failure correctly</li>
 	<li>Fix hero battleplan</li>
-	<li>Fix market</li>
 	<li>Need to move messages from GET to POST</li>
 	<li>Need to fix sendmessage and replying</li>
 	<li>Apostrophes break dungeon names</li>
-	<li>Hero creation doesn't work because item creation is broken</li>
 </ul>
 <hr width='33%'>
+<h2>March 7, 2016</h2>
+<ul>
+	<li>Added sorting to market</li>
+</ul>
+<h2>March 5, 2016</h2>
+<ul>
+	<li>Fix item creation</li>
+	<li>Fixed hero creation</li>
+</ul>
+<h2>February 29, 2016</h2>
+<ul>
+	<li>Removed function redundancy</li>
+	<li>Isolated login check</li>
+	<li>Show dungeon currently being explored</li>
+	<li>Improved item descriptions</li>
+</ul>
 <h2>February 29, 2016</h2>
 <ul>
 	<li>Changed rooms to list enemies by id</li>

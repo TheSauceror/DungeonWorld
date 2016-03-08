@@ -1,6 +1,7 @@
 <?php
 
 include "checklogin.php";
+include "menu.php";
 
 echo "<form name='enemysearch' action='loadenemy.php' method='GET'><input type='text' name='id'><input type='submit' value='Submit'></form>";
 

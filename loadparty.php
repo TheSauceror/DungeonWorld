@@ -1,6 +1,7 @@
 <?php
 
 include "checklogin.php";
+include "menu.php";
 
 echo "<form name='partysearch' action='loadparty.php' method='GET'><input type='text' name='partyid'><input type='submit' value='Submit'></form>";
 

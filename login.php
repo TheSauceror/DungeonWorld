@@ -16,6 +16,8 @@ function changestats(change) {
 
 ini_set("display_errors", 1);
 
+include "functions.php";
+
 if(isset($_COOKIE["DungeonsOfEld"])) {
   $cookie = explode("||",$_COOKIE["DungeonsOfEld"]);
   $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
@@ -26,35 +28,8 @@ if(isset($_COOKIE["DungeonsOfEld"])) {
   }
 }
 
-function giveItem($pre, $base, $suf, $itemowner, $isequipped) {
-
-  $conn=mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
-  $pre=mysqli_real_escape_string($conn, "$pre");
-  $base=mysqli_real_escape_string($conn, "$base");
-  $suf=mysqli_real_escape_string($conn, "$suf");
-  $itempre = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Itemstats WHERE name = '$pre' AND slot = 'prefix'"));
-  $itembase = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Itemstats WHERE name = '$base' AND slot != 'prefix' AND slot != 'suffix'"));
-  $itemsuf = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Itemstats WHERE name = '$suf' AND slot = 'suffix'"));
-
-  $item[slot] = $itembase[slot];
-  $item[sdam] = $itempre[sdam] + $itembase[sdam] + $itemsuf[sdam];
-  $item[pdam] = $itempre[pdam] + $itembase[pdam]+ $itemsuf[pdam];
-  $item[bdam] = $itempre[bdam] + $itembase[bdam] + $itemsuf[bdam];
-  $item[sarm] = $itempre[sarm] + $itembase[sarm] + $itemsuf[sarm];
-  $item[parm] = $itempre[parm] + $itembase[parm]+ $itemsuf[parm];
-  $item[barm] = $itempre[barm] + $itembase[barm] + $itemsuf[barm];
-  $item[hpreg] = $itempre[hpreg] + $itembase[hpreg] + $itemsuf[hpreg];
-  $item[mpreg] = $itempre[mpreg] + $itembase[mpreg] + $itemsuf[mpreg];
-  $item[des] = trim($itembase[des] . " " . $itempre[des] . " " . $itemsuf[des]);
-
-  mysqli_query($conn,"INSERT INTO Item (pre, base, suf, des, owner, slot, equip, sdam, pdam, bdam, sarm, parm, barm, hpreg, mpreg) VALUES ('$pre', '$base', '$suf', '$item[des]', '$itemowner', '$item[slot]', '$isequipped', '$item[sdam]', '$item[pdam]', '$item[bdam]', '$item[sarm]', '$item[parm]', '$item[barm]', '$item[hpreg]', '$item[mpreg]')");
-
-  mysqli_close($conn);
-
-}
-
-if(isset($_POST['name'],$_POST['pw'],$_POST['race'],$_POST['prof'])) {
-  $conn=mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
+if(isset($_POST['name'], $_POST['pw'], $_POST['race'], $_POST['prof'])) {
+  $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
   $name = mysqli_real_escape_string($conn, $_POST['name']);
   $pw = sha1(mysqli_real_escape_string($conn, $_POST['pw']));
   $race = mysqli_real_escape_string($conn, $_POST['race']);
@@ -62,96 +37,41 @@ if(isset($_POST['name'],$_POST['pw'],$_POST['race'],$_POST['prof'])) {
   if(!is_null(mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM Hero WHERE name = '$name'")))) {
     echo "Hero name already exists.";
   } else {
-
-    $hpmult = 1;
-    $mpmult = 1;
-    switch($race) {
-      case "Elf":
-        $hpmult = $hpmult - 0.15;
-        $mpmult = $mpmult + 0.3;
-        break;
-      case "Orc":
-        $hpmult = $hpmult + 0.2;
-        $mpmult = $mpmult - 0.1;
-        break;
-      case "Human":
-        $hpmult = $hpmult + 0.1;
-        $mpmult = $mpmult + 0.1;
-        break;
-      case "Dwarf":
-        $hpmult = $hpmult + 0.30;
-        $mpmult = $mpmult + 0.15;
-        break;
-    }
-    switch($prof) {
-      case "Mage":
-        $hpmult = $hpmult - 0.15;
-        $mpmult = $mpmult + 0.3;
-        break;
-      case "Barbarian":
-        $hpmult = $hpmult + 0.3;
-        $mpmult = $mpmult - 0.15;
-        break;
-      case "Archer":
-        $hpmult = $hpmult + 0.1;
-        $mpmult = $mpmult + 0.1;
-        break;
-      case "Knight":
-        $hpmult = $hpmult + 0.20;
-        $mpmult = $mpmult - 0.05;
-        break;
-      case "Priest":
-        $hpmult = $hpmult - 0.05;
-        $mpmult = $mpmult + 0.2;
-        break;
-    }
-    $maxhp = floor((1*5 + 1*3) * $hpmult);
-    $maxmp = floor((1*5 + 1*3) * $mpmult);
-    $initiative = 1*2 + 1;
-
-    mysqli_query($conn, "INSERT INTO Hero (name, pw, race, prof, maxhp, hp, maxmp, mp, initiative) VALUES ('$name', '$pw', '$race', '$prof', '$maxhp', '$maxhp', '$maxmp', '$maxmp', '$initiative')");
-
-    mysqli_close($conn);
+    mysqli_query($conn, "INSERT INTO Hero (name, pw, race, prof, battleplan) VALUES ('$name', '$pw', '$race', '$prof', '')");
+    $hero = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Hero WHERE name = '$name' AND pw = '$pw'"));
+    calculateHPMPInit($hero['id']);
     switch($prof) {
       case "Barbarian":
-        giveItem("Rusty", "Greataxe", "", $name, 1);
-        giveItem("", "Leather Gloves", "", $name, 1);
-        giveItem("", "Leather Greaves", "", $name, 1);
-        giveItem("", "Leather Boots", "", $name, 1);
+        giveItem($hero['id'],1,16,1,15,2,0,0);
+        giveItem($hero['id'],1,3,1,0,0,0,0);
+        giveItem($hero['id'],1,4,1,0,0,0,0);
+        giveItem($hero['id'],1,5,1,0,0,0,0);
         break;
       case "Mage":
-        giveItem("", "Staff", "", $name, 1);
-        giveItem("", "Spellbook", "", $name, 2);
-        giveItem("", "Mage Robe", "", $name, 1);
+        giveItem($hero['id'],1,7,1,0,0,0,0);
+        giveItem($hero['id'],2,9,1,0,0,0,0);
+        giveItem($hero['id'],1,6,1,0,0,0,0);
         break;
       case "Archer":
-        giveItem("Bent", "Shortbow", "", $name, 1);
-        giveItem("", "Leather Armor", "", $name, 1);
-        giveItem("", "Leather Gloves", "", $name, 1);
-        giveItem("", "Leather Greaves", "", $name, 1);
-        giveItem("", "Leather Boots", "", $name, 1);
+        giveItem($hero['id'],1,15,1,17,1,0,0);
+        giveItem($hero['id'],1,4,1,0,0,0,0);
         break;
       case "Priest":
-        giveItem("Frail", "Mace", "", $name, 1);
-        giveItem("", "Holy Symbol", "", $name, 2);
-        giveItem("", "Priest Robe", "", $name, 1);
+        giveItem($hero['id'],1,21,1,22,1,0,0);
+        giveItem($hero['id'],2,20,1,0,0,0,0);
+        giveItem($hero['id'],1,6,1,0,0,0,0);
         break;
       case "Knight":
-        giveItem("Rusty", "Long Sword", "", $name, 1);
-        giveItem("Weak", "Wooden Shield", "", $name, 2);
-        giveItem("", "Leather Armor", "", $name, 1);
-        giveItem("", "Leather Gloves", "", $name, 1);
-        giveItem("", "Leather Greaves", "", $name, 1);
-        giveItem("", "Leather Boots", "", $name, 1);
-      break;
-      
+        giveItem($hero['id'],1,11,1,15,1,0,0);
+        giveItem($hero['id'],2,14,1,0,0,0,0);
+        giveItem($hero['id'],1,2,1,0,0,0,0);
+        break;      
     }
-    setcookie("DungeonsOfEld", $name."||".$pw, time()+60*60*24*365);
+    setcookie("DungeonsOfEld", $hero['id'] . "||" . $pw, time()+60*60*24*365);
     echo "<META http-equiv='refresh' content='0;URL=profile.php'>";
     exit();
   }
-}
-else if(isset($_POST['name'],$_POST['pw'])) {
+} else if(isset($_POST['name'], $_POST['pw'])) {
   $conn=mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd") or die("#2013 - Lost connection to MySQL server at 'reading authorization packet', system error: 0<br>" . mysqli_error($conn));
   $name = mysqli_real_escape_string($conn, $_POST['name']);
   $pw = sha1(mysqli_real_escape_string($conn, $_POST['pw']));
@@ -161,9 +81,8 @@ else if(isset($_POST['name'],$_POST['pw'])) {
   } else {
     setcookie("DungeonsOfEld", $hero['id'] . "||" . $pw, time()+60*60*24*365);
     echo "<META http-equiv='refresh' content='0;URL=profile.php'>";
-    mysqli_close($conn);
-    exit();
   }
+  mysqli_close($conn);
 }
 
 echo "<form action='login.php' method='post'>

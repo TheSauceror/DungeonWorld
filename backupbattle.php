@@ -9,6 +9,7 @@ table, th, tr, td {
 <?php
 
 include "checklogin.php";
+include "menu.php";
 
 ini_set("display_errors", 1);
 

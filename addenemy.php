@@ -1,5 +1,6 @@
 <?php
-include "checklogin.php";
+  include "checklogin.php";
+  include "menu.php";
 ?>
 <script>
 function addOption(id,text,value) {

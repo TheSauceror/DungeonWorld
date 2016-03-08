@@ -52,6 +52,7 @@ function change(from, row, col) {
 <?php
 
 include "checklogin.php";
+include "menu.php";
 
 if(isset($_GET['plans'])) {
   foreach($_GET['plans'] as $plans) {
