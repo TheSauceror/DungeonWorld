@@ -114,13 +114,13 @@ if($id == $cookie[0]) {
   echo "</table>";
   echo "</form>";
 } else {
-  echo "Main Hand: " . getItemName('Hand', $id, 1) . " - " . getItemDes(0, $id, 'Hand', 1) . "<br>";
-  echo "Off Hand: " . getItemName('Hand', $id, 2) . " - " . getItemDes(0, $id, 'Hand', 2) . "<br>";
-  echo "Head: " . getItemName('Head', $id, 1) . " - " . getItemDes(0, $id, 'Head', 1) . "<br>";
-  echo "Torso: " . getItemName('Torso', $id, 1) . " - " . getItemDes(0, $id, 'Torso', 1) . "<br>";
-  echo "Arms: " . getItemName('Arms', $id, 1) . " - " . getItemDes(0, $id, 'Arms', 1) . "<br>";
-  echo "Legs: " . getItemName('Legs', $id, 1) . " - " . getItemDes(0, $id, 'Legs', 1) . "<br>";
-  echo "Feet: " . getItemName('Feet', $id, 1) . " - " . getItemDes(0, $id, 'Feet', 1) . "<br>";
+  echo "Main Hand: " . getItemName($id, 'Hand', 1, 0, 0, 0, 0, 0, 0) . " - " . getItemDes(0, $id, 'Hand', 1) . "<br>";
+  echo "Off Hand: " . getItemName($id, 'Hand', 2, 0, 0, 0, 0, 0, 0) . " - " . getItemDes(0, $id, 'Hand', 2) . "<br>";
+  echo "Head: " . getItemName($id, 'Head', 1, 0, 0, 0, 0, 0, 0) . " - " . getItemDes(0, $id, 'Head', 1) . "<br>";
+  echo "Torso: " . getItemName($id, 'Torso', 1, 0, 0, 0, 0, 0, 0) . " - " . getItemDes(0, $id, 'Torso', 1) . "<br>";
+  echo "Arms: " . getItemName($id, 'Arms', 1, 0, 0, 0, 0, 0, 0) . " - " . getItemDes(0, $id, 'Arms', 1) . "<br>";
+  echo "Legs: " . getItemName($id, 'Legs', 1, 0, 0, 0, 0, 0, 0) . " - " . getItemDes(0, $id, 'Legs', 1) . "<br>";
+  echo "Feet: " . getItemName($id, 'Feet', 1, 0, 0, 0, 0, 0, 0) . " - " . getItemDes(0, $id, 'Feet', 1) . "<br>";
 }
 
 mysqli_close($conn);
@@ -140,22 +140,6 @@ function getAllSlot($hero, $slot, $equip) {
   }
   mysqli_close($conn);
   return;
-}
-
-function getItemName($slot, $hero, $equip) {
-  $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
-  //SELECT * FROM Inventory LEFT JOIN ItemBase ON Inventory.base = ItemBase.baseid Left JOIN ItemPrefix ON Inventory.prefix = ItemPrefix.prefixid LEFT JOIN ItemSuffix ON Inventory.suffix = ItemSuffix.suffixid WHERE Inventory.owner = '$hero' AND Inventory.slot='$slot' AND Inventory.equip = '$equip'
-//  $itemname = mysqli_fetch_assoc(mysqli_query($conn,"SELECT CONCAT(prefixname, ' ', basename, ' ', suffixname) AS 'fullname' FROM Inventory LEFT JOIN ItemBase ON Inventory.base = ItemBase.baseid Left JOIN ItemPrefix ON Inventory.prefix = ItemPrefix.prefixid LEFT JOIN ItemSuffix ON Inventory.suffix = ItemSuffix.suffixid WHERE Inventory.owner = '$hero' AND ItemBase.slot='$slot' AND Inventory.equip = '$equip'"))['fullname'];
-//  print_r($itemname);
-  $itemname = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Inventory LEFT JOIN ItemBase ON Inventory.base = ItemBase.baseid Left JOIN ItemPrefix ON Inventory.prefix = ItemPrefix.prefixid LEFT JOIN ItemSuffix ON Inventory.suffix = ItemSuffix.suffixid WHERE Inventory.owner = '$hero' AND ItemBase.slot='$slot' AND Inventory.equip = '$equip'"));
-  //return mysqli_fetch_assoc(mysqli_query($conn,"SELECT $col FROM Item WHERE equip > 0 AND owner = '$hero'"))[$col];
-  mysqli_close($conn);
-//  return $itemname;
-  $fullitemname = "";
-  if($itemname['prefixlevel'] > 0) { $fullitemname .= $itemname['prefixname'] . "(" . $itemname['prefixlevel'] . ") "; }
-  if($itemname['baselevel'] > 0) { $fullitemname .= $itemname['basename'] . "(" . $itemname['baselevel'] . ")"; }
-  if($itemname['suffixlevel'] > 0) { $fullitemname .= " " . $itemname['suffixname'] . "(" . $itemname['suffixlevel'] . ")"; }
-  return trim($fullitemname);
 }
 
 ?>

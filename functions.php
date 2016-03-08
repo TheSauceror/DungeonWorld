@@ -1,5 +1,23 @@
 <?php
 
+function getItemName($hero, $slot, $equip, $baseid, $baselevel, $prefixid, $prefixlevel, $suffixid, $suffixlevel) {
+  $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
+  if($hero == 0) {
+    $itemname = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM ItemBase, ItemPrefix, ItemSuffix WHERE ItemBase.baseid = '$baseid' AND ItemPrefix.prefixid = '$prefixid' AND ItemSuffix.suffixid = '$suffixid'"));
+    $itemname['prefixlevel'] = $prefixlevel;
+    $itemname['baselevel'] = $baselevel;
+    $itemname['suffixlevel'] = $suffixlevel;
+  } else {
+    $itemname = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Inventory LEFT JOIN ItemBase ON Inventory.base = ItemBase.baseid Left JOIN ItemPrefix ON Inventory.prefix = ItemPrefix.prefixid LEFT JOIN ItemSuffix ON Inventory.suffix = ItemSuffix.suffixid WHERE Inventory.owner = '$hero' AND ItemBase.slot='$slot' AND Inventory.equip = '$equip'"));
+  }
+  mysqli_close($conn);
+  $fullitemname = "";
+  if($itemname['prefixlevel'] > 0) { $fullitemname .= $itemname['prefixname'] . "(" . $itemname['prefixlevel'] . ") "; }
+  $fullitemname .= $itemname['basename'] . "(" . $itemname['baselevel'] . ")";
+  if($itemname['suffixlevel'] > 0) { $fullitemname .= " " . $itemname['suffixname'] . "(" . $itemname['suffixlevel'] . ")"; }
+  return trim($fullitemname);
+}
+
 function getItemPrice($itemid, $mult) {
   $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
 	$item = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Inventory LEFT JOIN ItemBase ON Inventory.base = ItemBase.baseid Left JOIN ItemPrefix ON Inventory.prefix = ItemPrefix.prefixid LEFT JOIN ItemSuffix ON Inventory.suffix = ItemSuffix.suffixid WHERE Inventory.inventoryid = '$itemid'"));
@@ -24,6 +42,43 @@ function getAllItemStats($hero, $stat) { //get total stats of all items on a her
   }
   mysqli_close($conn);
   return $equippedstats;
+}
+
+function createItem($level) {
+  $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd"); 
+  $baseitemcomponents = mysqli_query($conn,"SELECT * FROM ItemBase");
+  $prefixitemcomponents = mysqli_query($conn,"SELECT * FROM ItemPrefix");
+  $suffixitemcomponents = mysqli_query($conn,"SELECT suffixid, suffixname FROM ItemSuffix");
+  $baseitem = [];
+  $prefixitem = [];
+  $suffixitem = [];
+  $prefixid = 0;
+  $prefixlevel = 0;
+  $suffixid = 0;
+  $suffixlevel = 0;
+  while($row = mysqli_fetch_assoc($baseitemcomponents)) {
+    $baseitem[] = $row;
+  }
+  $basenum = rand(0, count($baseitem) - 1);
+  $baseid = $baseitem[$basenum]['baseid'];
+  $baselevel = rand(1, $level);
+  if($baselevel > 1 && rand(1,100) > 50) {
+    while($row = mysqli_fetch_assoc($prefixitemcomponents)) {
+      $prefixitem[] = $row;
+    }
+    $prefixnum = rand(1, count($prefixitem) - 1);
+    $prefixid = $prefixitem[$prefixnum]['prefixid'];
+    $prefixlevel = rand(1, $baselevel - 1);
+  }
+  if($baselevel > 1 && rand(1,100) > 50) {
+    while($row = mysqli_fetch_assoc($suffixitemcomponents)) {
+      $suffixitem[] = $row;
+    }
+    $suffixnum = rand(1, count($suffixitem) - 1);
+    $suffixid = $suffixitem[$suffixnum]['suffixid'];
+    $suffixlevel = rand(1, $baselevel - 1);
+  }
+  return $baseid . "," . $baselevel . "," . $prefixid . "," . $prefixlevel . "," . $suffixid . "," . $suffixlevel;
 }
 
 function giveItem($heroid, $equip, $baseid, $baselevel, $prefixid, $prefixlevel, $suffixid, $suffixlevel) { //give an item to a hero

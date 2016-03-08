@@ -17,7 +17,7 @@ if(isset($_POST['sellitemid'])) {
 	//protect these inputs from injection
   //protect other people items from f12ing
 	$sellitemprice = getItemPrice($_POST['sellitemid']);
-	$markettime = time() + (7 * 24 * 60 * 60);
+	$markettime = time() + (3 * 24 * 60 * 60);
 	mysqli_query($conn, "UPDATE Inventory SET equip = 0, market = $markettime WHERE inventoryid = '$_POST[sellitemid]'");
 	mysqli_query($conn, "UPDATE Hero SET gold = gold + $sellitemprice WHERE id = '$cookie[0]'");
 }
