@@ -157,27 +157,6 @@ function change(from, row, col) {
   }
 }
 </script>
-<<<<<<< HEAD
-=======
-<?php
-
-include "checklogin.php";
-include "menu.php";
-
-if(isset($_GET['plans'])) {
-  foreach($_GET['plans'] as $plans) {
-    $battleplans[] = implode('|',$plans);
-  }
-  $battleplan = implode("||",$battleplans);
-  $conn=mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
-  mysqli_query($conn,"UPDATE Hero SET battleplan = '$battleplan' WHERE id = '$cookie[0]'");
-  mysqli_close($conn);
-}
-
-$conn=mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
-$currentplans = mysqli_fetch_assoc(mysqli_query($conn,"SELECT battleplan FROM Hero WHERE id = '$cookie[0]'"));
-mysqli_close($conn);
->>>>>>> FETCH_HEAD
 
 <form name='battleplan' id='battleplanfrm' action='battleplan.php' method='POST'>
   <select name='plans[0][0]' id='plans[0][0]' onchange='change(this,0,1);'>
