@@ -2,15 +2,20 @@
 include "checklogin.php";
 include "menu.php";
 
-if(isset($_GET['plans'])) {
-  foreach($_GET['plans'] as $plans) {
+$battleplans = [];
+if(isset($_POST['save'])) {
+  foreach($_POST['plans'] as $plans) {
     $battleplans[] = implode('|',$plans);
   }
   $battleplan = implode("||",$battleplans);
+  
   $conn=mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
   mysqli_query($conn,"UPDATE Hero SET battleplan = '$battleplan' WHERE id = '$cookie[0]'");
   mysqli_close($conn);
+  print_r("Battleplan Updated");
+  echo "<br>";
 }
+
 
 $conn=mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
 $currentplans = mysqli_fetch_assoc(mysqli_query($conn,"SELECT battleplan FROM Hero WHERE id = '$cookie[0]'"));
@@ -25,22 +30,20 @@ print_r($current);
 echo "<br>";
 
 // Get Battle Scripts
-$battlecsripts = null;
+$battlescripts = null;
 $conn=mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
-$battleresults = mysqli_query($conn,"SELECT scriptID, name FROM BattleScript WHERE owner = '$cookie[0]'")
-  or die(mysqli_error($conn));
+$battleresults = mysqli_query($conn,"SELECT scriptID, name FROM BattleScript WHERE owner = '$cookie[0]'") or die(mysqli_error($conn));
 while($row = mysqli_fetch_assoc($battleresults))
 {
-  $battlecsripts[] = $row;
+  $battlescripts[] = $row;
 }
 mysqli_close($conn);
-print_r($battlecsripts);
+print_r($battlescripts);
 
 // Get heal skills
 $healskills = null;
 $conn=mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
-$healresults = mysqli_query($conn,"SELECT skillid, skillname FROM SkillList, HeroSkills 
-  WHERE heroID = '$cookie[0]' AND abilityid=skillid AND category='heal'") or die(mysqli_error($conn));
+$healresults = mysqli_query($conn,"SELECT skillid, skillname FROM SkillList, HeroSkills WHERE heroID = '$cookie[0]' AND abilityid=skillid AND category='heal'") or die(mysqli_error($conn));
 while($row = mysqli_fetch_assoc($healresults))
 {
   $healskills[] = $row;
@@ -65,7 +68,7 @@ function add() {
   var selectSecond = document.createElement("select");
   selectSecond.name = "plans[" + num + "][1]";
   selectSecond.id = "plans[" + num + "][1]"; 
-  selectSecond.innerHTML = "<select name='plans[0][1]' id='plans[0][1]'></select><br />";
+  selectSecond.innerHTML = "<select name='plans[" + num + "][1]' id='plans[" + num + "][1]'></select><br />";
   bform.insertBefore(selectSecond, document.getElementById("buttons"));  
   bform.insertBefore(document.createElement("br"), document.getElementById("buttons"));
   num++;
@@ -86,7 +89,7 @@ function change(from, row, col) {
   switch(from.value) {
     case "yourhpbelow66":
       addOption(next, "Move closer to an enemy", "moveclosertoenemy");
-      addOption(next, "Move away from the enemy", "moveaway");
+      addOption(next, "Move away from the enemy", "moveawayfromenemy");
       var heals = <?php echo json_encode($healskills); ?>;
       if (heals != null)
       {
@@ -98,7 +101,7 @@ function change(from, row, col) {
       break;
   	case "yourhpbelow33":
       addOption(next, "Move closer to an enemy", "moveclosertoenemy");
-  	  addOption(next, "Move away from the enemy", "moveaway");
+  	  addOption(next, "Move away from the enemy", "moveawayfromenemy");
       var heals = <?php echo json_encode($healskills); ?>;
       if (heals != null)
       {
@@ -130,23 +133,23 @@ function change(from, row, col) {
   	  break;
   	case "notnexttoenemy":
   	  addOption(next, "Move closer to an enemy", "moveclosertoenemy");
-      var bscripts = <?php echo json_encode($battlecsripts); ?>;
+      var bscripts = <?php echo json_encode($battlescripts); ?>;
       if (bscripts != null)
       {
         for (i=0; i<bscripts.length; i++)
         {
-          addOption(next, bscripts[i]["name"], bscripts[i]["number"]);
+          addOption(next, bscripts[i]["name"], bscripts[i]["scriptID"]);
         }
       }
   	  break;
   	case "nexttoenemy":
-      addOption(next, "Move away from the enemy", "moveaway");
-      var bscripts = <?php echo json_encode($battlecsripts); ?>;
+      addOption(next, "Move away from the enemy", "moveawayfromenemy");
+      var bscripts = <?php echo json_encode($battlescripts); ?>;
       if (bscripts != null)
       {
         for (i=0; i<bscripts.length; i++)
         {
-          addOption(next, bscripts[i]["name"], bscripts[i]["number"]);
+          addOption(next, bscripts[i]["name"], bscripts[i]["scriptID"]);
         }
       }
   	  break;
@@ -171,5 +174,5 @@ function change(from, row, col) {
   </select>
   <select name='plans[0][1]' id='plans[0][1]'></select>
   <br>
-  <button id="buttons" type='button' onclick='add()'>Add</button><input type='submit' value='Save'></form>
+  <button id="buttons" type='button' onclick='add()'>Add</button><input type='submit' name='save' value='Save'></form>
 </form>
