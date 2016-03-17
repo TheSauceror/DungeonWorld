@@ -318,7 +318,7 @@ function doDamage($attacker, $verb, $defender, $damage) {
     $reporttext .= $fighters[$defender]['name'] . " dies.<br>";
     if($fighters[$defender]['party'] == "Enemy") {
       $totalgold += $fighters[$defender]['gold'];
-      if(rand(1, 100) <= 1) {
+      if(rand(1, 100) <= 5) {
         $droppeditem = createItem($dungeonlevel);
         $dropstats = explode(",", $droppeditem);
         $totalloot[] = $droppeditem;

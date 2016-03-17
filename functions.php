@@ -13,7 +13,7 @@ function getItemName($hero, $slot, $equip, $baseid, $baselevel, $prefixid, $pref
   mysqli_close($conn);
   $fullitemname = "";
   if($itemname['prefixlevel'] > 0) { $fullitemname .= $itemname['prefixname'] . "(" . $itemname['prefixlevel'] . ") "; }
-  $fullitemname .= $itemname['basename'] . "(" . $itemname['baselevel'] . ")";
+  if($itemname['baselevel'] > 0)  { $fullitemname .= $itemname['basename'] . "(" . $itemname['baselevel'] . ")"; }
   if($itemname['suffixlevel'] > 0) { $fullitemname .= " " . $itemname['suffixname'] . "(" . $itemname['suffixlevel'] . ")"; }
   return trim($fullitemname);
 }
@@ -189,6 +189,22 @@ function calculateHPMPInit($heroid) {
   mysqli_query($conn,"UPDATE Hero SET initiative = '$initiative' WHERE id = '$hero[id]'") or die(mysqli_error($conn));
 
   mysqli_close($conn);
+}
+
+function sort_up($a, $b) { //move these to functions? if used for sorting elsewhere
+  if(gettype($a[$_GET['sort']]) == "string") {
+    return strnatcasecmp($a[$_GET['sort']], $b[$_GET['sort']]);
+  } else {
+    return $a[$_GET['sort']] - $b[$_GET['sort']];
+  }
+}
+
+function sort_down($a, $b) { //move these to functions? if used for sorting elsewhere
+  if(gettype($a[$_GET['sort']]) == "string") {
+    return strnatcasecmp($b[$_GET['sort']], $a[$_GET['sort']]);
+  } else {
+    return $b[$_GET['sort']] - $a[$_GET['sort']];
+  }
 }
 
 ?>

@@ -1,3 +1,5 @@
+<head><link href="main.css" rel="stylesheet" type="text/css" /></head>
+
 <script>
 function changestats(change) {
   if(change == "Elf") { document.getElementById("racestats").innerHTML = "-15% HP, +30% MP"; }
@@ -37,7 +39,7 @@ if(isset($_POST['name'], $_POST['pw'], $_POST['race'], $_POST['prof'])) {
   if(!is_null(mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM Hero WHERE name = '$name'")))) {
     echo "Hero name already exists.";
   } else {
-    mysqli_query($conn, "INSERT INTO Hero (name, pw, race, prof, battleplan) VALUES ('$name', '$pw', '$race', '$prof', '')");
+    mysqli_query($conn, "INSERT INTO Hero (name, pw, race, prof, gold, battleplan) VALUES ('$name', '$pw', '$race', '$prof', '250', '')");
     $hero = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Hero WHERE name = '$name' AND pw = '$pw'"));
     calculateHPMPInit($hero['id']);
     switch($prof) {
@@ -67,6 +69,7 @@ if(isset($_POST['name'], $_POST['pw'], $_POST['race'], $_POST['prof'])) {
         giveItem($hero['id'],1,2,1,0,0,0,0);
         break;      
     }
+    mysqli_query($conn,"INSERT INTO HeroSkills (heroid, abilityid, skilllevel) VALUES ('$hero[id]', '7', '1')") or die(mysqli_error($conn));
     setcookie("DungeonsOfEld", $hero['id'] . "||" . $pw, time()+60*60*24*365);
     echo "<META http-equiv='refresh' content='0;URL=profile.php'>";
     exit();
@@ -86,7 +89,7 @@ if(isset($_POST['name'], $_POST['pw'], $_POST['race'], $_POST['prof'])) {
 }
 
 echo "<form action='login.php' method='post'>
-<fieldset>
+<fieldset class='parchment'>
 <legend>New Account</legend>
 Name: <input type='text' name='name' required>
 <br>Password: <input type='password' name='pw' required>
@@ -100,7 +103,7 @@ Name: <input type='text' name='name' required>
 echo "<br><br>";
 
 echo "<form action='login.php' method='post'>
-<fieldset>
+<fieldset class='parchment'>
 <legend>Login</legend>
 Name: <input type='text' name='name' required>
 <br>Password: <input type='password' name='pw' required>

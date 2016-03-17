@@ -3,7 +3,7 @@ html, body, div, span, applet, object, iframe,
 h4, h5, h6, p, blockquote, pre,
 a, abbr, acronym, address, big, cite, code,
 del, dfn, em, font, img, ins, kbd, q, s, samp,
-small, strike, strong, sub, sup, tt, var,
+small, strike, strong, tt, var,
 dl, dt, dd, ol,
 fieldset, form, label, legend,
 table, caption, tbody, tfoot, thead, tr, th, td {
@@ -16,12 +16,19 @@ table, caption, tbody, tfoot, thead, tr, th, td {
 }
 
 body {
-    background-color: black;
-    color: white;
+    /*background-color: black;*/
+    /*color: white;*/
+    background-image: url("table.jpg");
+    background-size: 100% 100%;
+    font-size: 20px;
 }
 
 a {
-	color: white;
+    color: black;
+}
+
+.white {
+    color: white;
 }
 
 table, th, td {
@@ -30,9 +37,11 @@ table, th, td {
 	padding: 5px;
 }
 
-.whitebutton {
+.button {
     font-size: 24pt;
-    background-color: white;
+    /*background-color: white;*/
+    background-image:url('metal.jpg');
+    background-size: 100% 100%;
     color: black;
     border: none;
     text-align: center;
@@ -40,4 +49,13 @@ table, th, td {
     display: inline-block;
     padding: 10px 30px;
     border-radius: 8px;
+}
+
+.help {
+    cursor: help;
+}
+
+.parchment {
+    background-image: url("parchment.png");
+    background-size: 100% 100%;
 }

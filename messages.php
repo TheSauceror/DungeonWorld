@@ -27,7 +27,7 @@ if(isset($_GET['messageid'])) {
 
 $messages = mysqli_query($conn,"SELECT * FROM Hero, Messages WHERE receiver = '$cookie[0]' AND Hero.id = Messages.sender ORDER BY messageid DESC");
 
-echo "<table><tr><th>From</th><th>Subject</th><th>Time</th></tr>";
+echo "<table class='parchment'><tr><th>From</th><th>Subject</th><th>Time</th></tr>";
 while($row = mysqli_fetch_assoc($messages)) {
   echo "<tr><td>";
   if($row['unread']==1) { echo "<b>"; }

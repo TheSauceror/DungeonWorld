@@ -8,10 +8,22 @@ $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd")
 echo "Skills:<br>";
 
 $skills = mysqli_query($conn,"SELECT * FROM SkillList");
-echo "<table><tr><th>ID</th><th>Name</th><th>Profession</th><th>Cost</th><th>Effect</th><th>Type</th><th>Range</th><th>Duration</th><th>Targets</th></tr>";
+echo "<table class='parchment'><tr><th>ID</th><th>Name</th><th>Profession</th><th>Tier</th><th>MP Cost</th><th>Effect</th></tr>";
 
 while($row = mysqli_fetch_assoc($skills)) {
-  echo "<tr><td>" . $row['skillid'] . "</td><td>" . $row['skillname'] . "</td><td>" . $row['skillprof'] . "</td><td>" . $row['cost'] . "</td><td>" . $row['effect'] . "</td><td>" . $row['type'] . "</td><td>" . $row['range'] . "</td><td>" . $row['duration'] . "</td><td>" . $row['targets'] . "</td></tr>";
+	$rowdes = "";
+  if($row['category'] == "heal") {
+    $rowdes .= "Heals for ";
+  } else if($row['category'] == "buff") {
+    $rowdes .= "Buffs an ally for ";
+  } else {
+    $rowdes .= "Does ";
+  }
+  $rowdes .= $row['effect'] . " " . $row['type'];
+  $rowdes .= " to " . $row['targets'] . " target";
+  if($row['targets'] > 1) { $rowdes .= "s"; }
+  if($row['skillstatus'] != "") { $rowdes .= " and " . $row['skillstatus']; }
+  echo "<tr><td>" . $row['skillid'] . "</td><td>" . $row['skillname'] . "</td><td>" . $row['skillprof'] . "</td><td>" . $row['tier'] . "</td><td>" . $row['cost'] . "</td><td>" . $rowdes . "</td></tr>";
 }
 echo "</table>";
 

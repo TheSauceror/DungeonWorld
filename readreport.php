@@ -27,16 +27,16 @@ $reporttext = explode("|",stripslashes($report['reporttext']));
 ?>
 
 <table style="width:100%;">
-	<tr><td colspan="3" style="width:100%;text-align:center;height:28px;"><div id="reportintro"></div></td></tr>
+	<tr><td colspan="3" style="width:100%;text-align:center;height:28px;"><div id="reportintro" class="parchment"></div></td></tr>
 	<tr>
-		<td style="width:33%;text-align:center;"><div id="reportinitiative"></div></td>
-		<td style="width:33%;text-align:center;"><div id="reportmap"></div></td>
-		<td style="width:33%;text-align:center;"><div id="reporttext"></div></td>
+		<td style="width:33%;text-align:center;padding:25px;" class="parchment"><div id="reportinitiative"></div></td>
+		<td style="width:33%;text-align:center;padding:25px;" class="parchment"><div id="reportmap"></div></td>
+		<td style="width:33%;text-align:center;line-height:22px;padding:25px;" class="parchment"><div id="reporttext"></div></td>
 	</tr>
 </table>
-<br><br>
+<br>
 
-<center><button class="whitebutton" onclick="back();">Back</button><button class="whitebutton" onclick="next();" style="margin-left:100px;">Next</button></center>
+<center><button class="button" onclick="back();">Back</button><button class="button" onclick="next();" style="margin-left:100px;">Next</button></center>
 
 <script>
 var reportintro = <?php echo json_encode($reportintro); ?>;

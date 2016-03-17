@@ -10,6 +10,6 @@ echo "<br>";
 echo "<a href='herolist.php'>Hero List</a><br>";
 echo "<a href='enemylist.php'>Enemy List</a><br>";
 echo "<a href='skilllist.php'>Skill List</a><br>";
-
+echo "<a href='guilds.php'>Guilds</a><br>";
 
 ?>

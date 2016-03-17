@@ -15,11 +15,11 @@ $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd")
 //$party = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Party WHERE id = '$hero[party]'"));
 $hero = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Hero, Party WHERE id = '$cookie[0]' AND Hero.party = Party.partyid"));
 
-$reports = mysqli_query($conn,"SELECT * FROM Reports WHERE party = '$hero[party]' ORDER BY reportid DESC");
+$reports = mysqli_query($conn,"SELECT * FROM Reports WHERE party = '$hero[party]' ORDER BY reportid DESC LIMIT 15");
 
 echo "Reports:<br>";
 
-echo "<table><tr><th>Timestamp</th><th>Dungeon</th><th>Report</th></tr>";
+echo "<table class='parchment'><tr><th>Timestamp</th><th>Dungeon</th><th>Report</th></tr>";
 while($row = mysqli_fetch_assoc($reports)) {
   echo "<tr><td>" . date("m-d-y H:i:s", $row['timestamp']) . "</td><td>" . $row['dungeon'] . "</td>";
   if($row['timestamp'] <= time()) {

@@ -18,6 +18,23 @@
 	<li>Apostrophes break dungeon names</li>
 </ul>
 <hr width='33%'>
+<h2>March 17, 2016</h2>
+<ul>
+	<li>Added guilds</li>
+	<li>Implemented skills</li>
+	<li>Added status effects</li>
+</ul>
+<h2>March 13, 2016</h2>
+<ul>
+	<li>Added skills</li>
+	<li>Updated profile</li>
+	<li>Increased attribute significance</li>
+</ul>
+<h2>March 9, 2016</h2>
+<ul>
+	<li>Updated UI</li>
+	<li>Added dungeon levels/types/tiers</li>
+</ul>
 <h2>March 7, 2016</h2>
 <ul>
 	<li>Added sorting to market</li>

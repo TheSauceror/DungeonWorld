@@ -1,21 +1,18 @@
 <?php
   include "functions.php";
 
-  echo createItem(1);
-  echo "<br><br>";
-  echo createItem(1);
-  echo "<br><br>";
-  echo createItem(1);
-  echo "<br><br>";
-  echo createItem(2);
-  echo "<br><br>";
-  echo createItem(3);
-  echo "<br><br>";
-  echo createItem(4);
-  echo "<br><br>";
-  echo createItem(5);
-  echo "<br><br>";
-  echo createItem(6);
-  echo "<br><br>";
-  echo createItem(7);
+  $skill['skilllevel'] = 6;
+  $skill['effect'] = "{skill level}/2";
+  echo $skill['skilllevel'];
+  echo "<br>";
+  echo $skill['effect'];
+  echo "<br>";
+  //$skilleffect = eval("return (str_replace('{skill level}', $skill[skilllevel], $skill[effect]));");
+  //echo $skilleffect;
+  //echo "<br>";
+  $skilleffect = str_replace('{skill level}', $skill['skilllevel'], $skill['effect']);
+  echo $skilleffect;
+  echo "<br>";
+  $skilleffect = eval("return ($skilleffect);");
+  echo $skilleffect;
 ?>

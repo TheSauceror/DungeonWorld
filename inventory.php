@@ -16,19 +16,37 @@ $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd")
 if(isset($_POST['sellitemid'])) {
 	//protect these inputs from injection
   //protect other people items from f12ing
-	$sellitemprice = getItemPrice($_POST['sellitemid']);
+  $sellitemid = mysqli_real_escape_string($conn, $_POST['sellitemid']);
+	$sellitemprice = getItemPrice($sellitemid, .4);
 	$markettime = time() + (3 * 24 * 60 * 60);
 	mysqli_query($conn, "UPDATE Inventory SET equip = 0, market = $markettime WHERE inventoryid = '$_POST[sellitemid]'");
 	mysqli_query($conn, "UPDATE Hero SET gold = gold + $sellitemprice WHERE id = '$cookie[0]'");
 }
 
+$items = mysqli_query($conn,"SELECT * FROM Inventory LEFT JOIN ItemBase ON Inventory.base = ItemBase.baseid Left JOIN ItemPrefix ON Inventory.prefix = ItemPrefix.prefixid LEFT JOIN ItemSuffix ON Inventory.suffix = ItemSuffix.suffixid WHERE Inventory.owner = $cookie[0] AND Inventory.market = '0' AND Inventory.equip = '0' ORDER BY inventoryid DESC");
+
+/*$itemlist = [];
+while($row = mysqli_fetch_assoc($items)) {
+  $itemlist[] = $row;
+}
+
+$sort = "";
+$order = "up";
+
+if(isset($_GET['order'])) {
+  if($_GET['order'] == "down") {
+    usort($itemlist, 'sort_down');
+  } else {
+    usort($itemlist, 'sort_up');
+  }
+}*/
+
 echo "Inventory:<br>";
 
-$items = mysqli_query($conn,"SELECT * FROM Inventory LEFT JOIN ItemBase ON Inventory.base = ItemBase.baseid Left JOIN ItemPrefix ON Inventory.prefix = ItemPrefix.prefixid LEFT JOIN ItemSuffix ON Inventory.suffix = ItemSuffix.suffixid WHERE Inventory.owner = $cookie[0] AND Inventory.market = '0' AND Inventory.equip = '0'");
-echo "<table><tr><th>ID</th><th>Prefix</th><th>Base</th><th>Suffix</th><th>Slot</th><th>S. Dmg</th><th>P. Dmg</th><th>B. Dmg</th><th>S. Arm</th><th>P. Arm</th><th>B. Arm</th><th>HP Regen</th><th>MP Regen</th><th>Description</th><th>Sell Item</th></tr>";
+echo "<table class='parchment'><tr><th>Prefix<br><a href='?sort=prefixname&order=up'>&#8593;</a> <a href='?sort=prefixname&order=down'>&#8595;</a></th><th>Base<br><a href='?sort=basename&order=up'>&#8593;</a> <a href='?sort=basename&order=down'>&#8595;</a></th><th>Suffix<br><a href='?sort=suffixname&order=up'>&#8593;</a> <a href='?sort=suffixname&order=down'>&#8595;</a></th><th>Slot<br><a href='?sort=slot&order=up'>&#8593;</a> <a href='?sort=slot&order=down'>&#8595;</a></th><th>S. Dmg<br><a href='?sort=sdam&order=up'>&#8593;</a> <a href='?sort=sdam&order=down'>&#8595;</a></th><th>P. Dmg<br><a href='?sort=pdam&order=up'>&#8593;</a> <a href='?sort=pdam&order=down'>&#8595;</a></th><th>B. Dmg<br><a href='?sort=bdam&order=up'>&#8593;</a> <a href='?sort=bdam&order=down'>&#8595;</a></th><th>S. Arm<br><a href='?sort=sarm&order=up'>&#8593;</a> <a href='?sort=sarm&order=down'>&#8595;</a></th><th>P. Arm<br><a href='?sort=parm&order=up'>&#8593;</a> <a href='?sort=parm&order=down'>&#8595;</a></th><th>B. Arm<br><a href='?sort=barm&order=up'>&#8593;</a> <a href='?sort=barm&order=down'>&#8595;</a></th><th>HP Regen<br><a href='?sort=hpreg&order=up'>&#8593;</a> <a href='?sort=hpreg&order=down'>&#8595;</a></th><th>MP Regen<br><a href='?sort=mpreg&order=up'>&#8593;</a> <a href='?sort=hpreg&order=down'>&#8595;</a></th><th>Description</th><th>Sell Item<br><a href='?sort=price&order=up'>&#8593;</a> <a href='?sort=price&order=down'>&#8595;</a></th></tr>";
 
 while($row = mysqli_fetch_assoc($items)) {
-  echo "<tr><td>" . $row['inventoryid'] . "</td><td>" . $row['prefixname'];
+  echo "<tr><td>" . $row['prefixname'];
   if($row['prefixlevel'] > 0) { echo "(" . $row['prefixlevel'] . ")"; }
   echo "</td><td>" . $row['basename'] . "(" . $row['baselevel'] . ")</td><td>" . $row['suffixname'];
   if($row['suffixlevel'] > 0) { echo "(" . $row['suffixlevel'] . ")"; }
