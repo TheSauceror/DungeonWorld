@@ -2,18 +2,29 @@
 include "checklogin.php";
 include "menu.php";
 
-$battleplans = [];
 if(isset($_POST['save'])) {
   foreach($_POST['plans'] as $plans) {
-    $battleplans[] = implode('|',$plans);
+    if (array_key_exists('0', $plans) && array_key_exists('1', $plans))
+    {
+      if ($plans[1] == 'attack')
+      {
+        $attacks = [];
+        foreach ($_POST['attack'] as $attack)
+        {
+          $attacks[] = $attack;
+        }
+        $plans[1] = implode(',', $attacks);
+      }
+      $battleplans[] = implode('|', $plans);
+    }
   }
-  $battleplan = implode("||",$battleplans);
-  
-  $conn=mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
-  mysqli_query($conn,"UPDATE Hero SET battleplan = '$battleplan' WHERE id = '$cookie[0]'");
-  mysqli_close($conn);
-  print_r("Battleplan Updated");
-  echo "<br>";
+  if (isset($battleplans))
+  {
+    $battleplan = implode("||",$battleplans);
+    $conn=mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
+    mysqli_query($conn,"UPDATE Hero SET battleplan = '$battleplan' WHERE id = '$cookie[0]'");
+    mysqli_close($conn);
+  }
 }
 
 
@@ -26,153 +37,185 @@ foreach($currentplan as $currents) {
   $current[] = explode('|',$currents);
 }
 
-print_r($current);
-echo "<br>";
-
-// Get Battle Scripts
-$battlescripts = null;
+$allskills = null;
 $conn=mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
-$battleresults = mysqli_query($conn,"SELECT scriptID, name FROM BattleScript WHERE owner = '$cookie[0]'") or die(mysqli_error($conn));
-while($row = mysqli_fetch_assoc($battleresults))
+$skillresults = mysqli_query($conn,"SELECT skillid, skillname FROM SkillList, HeroSkills WHERE heroID = '$cookie[0]' AND abilityid =skillid AND category!='heal'") or die(mysqli_error($conn));
+while ($row = mysqli_fetch_assoc($skillresults))
 {
-  $battlescripts[] = $row;
+  $allskills[] = $row;
 }
 mysqli_close($conn);
-print_r($battlescripts);
 
-// Get heal skills
 $healskills = null;
 $conn=mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
-$healresults = mysqli_query($conn,"SELECT skillid, skillname FROM SkillList, HeroSkills WHERE heroID = '$cookie[0]' AND abilityid=skillid AND category='heal'") or die(mysqli_error($conn));
+$healresults = mysqli_query($conn,"SELECT skillid, skillname FROM SkillList, HeroSkills WHERE heroID = '$cookie[0]' AND abilityid =skillid AND category='heal'") or die(mysqli_error($conn));
 while($row = mysqli_fetch_assoc($healresults))
 {
   $healskills[] = $row;
 }
 mysqli_close($conn);
-print_r($healskills);
 ?>
 
-<script>
 
-var num = 1;
+<script>
+window.onload=init;
+
+function init()
+{
+  var heals = <?php echo json_encode($healskills); ?>;
+  if (heals != null)
+    {
+      for (i=0; i<heals.length; i++)
+      {
+        addOption(document.getElementById('plans[0][1]'), heals[i]["skillname"], heals[i]["skillid"]);
+        addOption(document.getElementById('plans[1][1]'), heals[i]["skillname"], heals[i]["skillid"]);
+        addOption(document.getElementById('plans[2][1]'), heals[i]["skillname"], heals[i]["skillid"]);
+        addOption(document.getElementById('plans[3][1]'), heals[i]["skillname"], heals[i]["skillid"]);
+      }
+    }
+
+  var dbPlan = <?php echo json_encode($current); ?>;
+  var attack_arr = new Array();
+  for (i=0; i<dbPlan.length; i++)
+  {
+    switch(dbPlan[i][0])
+    {
+      case 'yourhpbelow33':
+        var checkbox = document.getElementById('plans[0][0]');
+        checkbox.checked = true;
+        var dropdown = document.getElementById('plans[0][1]');
+        dropdown.value = dbPlan[i][1];
+        break;
+      case 'yourhpbelow66':
+        var checkbox = document.getElementById('plans[1][0]');
+        checkbox.checked = true;
+        var dropdown = document.getElementById('plans[1][1]');
+        dropdown.value = dbPlan[i][1];
+        break;
+      case 'allyhpbelow33':
+        var checkbox = document.getElementById('plans[2][0]');
+        checkbox.checked = true;
+        var dropdown = document.getElementById('plans[2][1]');
+        dropdown.value = dbPlan[i][1];
+        break;
+      case 'allyhpbelow66':
+        var checkbox = document.getElementById('plans[3][0]');
+        checkbox.checked = true;
+        var dropdown = document.getElementById('plans[3][1]');
+        dropdown.value = dbPlan[i][1];
+        break;
+      case 'notnexttoenemy':
+        var checkbox = document.getElementById('plans[4][0]');
+        checkbox.checked = true;
+        if (dbPlan[i][1] != 'moveclosertoenemy')
+        {
+          var dropdown = document.getElementById('plans[4][1]');
+          dropdown.value = 'attack';
+          attack_arr.length = 0;
+          attack_arr = dbPlan[i][1].split(',');
+        }
+        break;
+      case 'nexttoenemy':
+        var checkbox = document.getElementById('plans[5][0]');
+        checkbox.checked = true;
+        if (dbPlan[i][1] != 'moveawayfromenemy')
+        {
+          var dropdown = document.getElementById('plans[5][1]');
+          dropdown.value = 'attack';
+          attack_arr.length = 0;
+          attack_arr = dbPlan[i][1].split(',');
+        }
+        break;
+    }
+  }
+
+  if (attack_arr.length > 0)
+  {
+    for (j=0; j<attack_arr.length; j++)
+    {
+      add();
+      var attackSelect = document.getElementById("attack[" + j + "]");
+      attackSelect.value = attack_arr[j];
+    }
+  }
+  else
+  {
+    add();
+  }
+}
+
+var num = 0;
 function add() {
   var bform = document.getElementById('battleplanfrm');
+  var newSkillList = document.createElement("select");
+  newSkillList.name = "attack[" + num + "]";
+  newSkillList.id = "attack[" + num + "]";
+  bform.insertBefore(newSkillList, document.getElementById("buttonAdd"));
 
-  var selectFirst = document.createElement("select");
-  selectFirst.name = "plans[" + num + "][0]";
-  selectFirst.id = "plans[" + num + "][0]";
-  selectFirst.innerHTML = "  <option value=''>Select an option</option><option value='yourhpbelow66'>When your HP is between 66% and 33%</option><option value='yourhpbelow33'>When your HP is between 33% and 0%</option><option value='allyhpbelow66'>When an ally's HP is between 66% and 33%</option><option value='allyhpbelow33'>When an ally's HP is between 33% and 0%</option><option value='notnexttoenemy'>When not next to an enemy</option><option value='nexttoenemy'>When next to an enemy</option>";
-  selectFirst.setAttribute('onchange', 'change(this, ' + num + ', 1)');
-  bform.insertBefore(selectFirst, document.getElementById("buttons"));
-
-  var selectSecond = document.createElement("select");
-  selectSecond.name = "plans[" + num + "][1]";
-  selectSecond.id = "plans[" + num + "][1]"; 
-  selectSecond.innerHTML = "<select name='plans[" + num + "][1]' id='plans[" + num + "][1]'></select><br />";
-  bform.insertBefore(selectSecond, document.getElementById("buttons"));  
-  bform.insertBefore(document.createElement("br"), document.getElementById("buttons"));
+  var skills = <?php echo json_encode($allskills); ?>;
+  if (skills != null)
+  {
+    for (i=0; i<skills.length; i++)
+      { addOption(newSkillList, skills[i]["skillname"], skills[i]["skillid"]); }
+  }
   num++;
 }
 
-function addOption(id,text,value) {
+function addOption(id, text, value)
+{
   var option = document.createElement("option");
-  option.text = text
+  option.text = text;
   option.value = value;
   id.add(option);
 }
-
-function change(from, row, col) {
-  var next = document.getElementById('plans[' + row + '][' + col + ']');
-  while (next.options.length > 0) {
-    next.remove(0);
-  }
-  switch(from.value) {
-    case "yourhpbelow66":
-      addOption(next, "Move closer to an enemy", "moveclosertoenemy");
-      addOption(next, "Move away from the enemy", "moveawayfromenemy");
-      var heals = <?php echo json_encode($healskills); ?>;
-      if (heals != null)
-      {
-        for (i=0; i<heals.length; i++)
-        {
-         addOption(next, heals[i]["skillname"], heals[i]["skillid"]);
-        }
-      }
-      break;
-  	case "yourhpbelow33":
-      addOption(next, "Move closer to an enemy", "moveclosertoenemy");
-  	  addOption(next, "Move away from the enemy", "moveawayfromenemy");
-      var heals = <?php echo json_encode($healskills); ?>;
-      if (heals != null)
-      {
-        for (i=0; i<heals.length; i++)
-        {
-         addOption(next, heals[i]["skillname"], heals[i]["skillid"]);
-        }
-      }
-  	  break;
-    case "allyhpbelow66":
-      var heals = <?php echo json_encode($healskills); ?>;
-      if (heals != null)
-      {
-        for (i=0; i<heals.length; i++)
-        {
-         addOption(next, heals[i]["skillname"], heals[i]["skillid"]);
-        }
-      }
-      break;    
-  	case "allyhpbelow33":
-      var heals = <?php echo json_encode($healskills); ?>;
-      if (heals != null)
-      {
-        for (i=0; i<heals.length; i++)
-        {
-         addOption(next, heals[i]["skillname"], heals[i]["skillid"]);
-        }
-      }
-  	  break;
-  	case "notnexttoenemy":
-  	  addOption(next, "Move closer to an enemy", "moveclosertoenemy");
-      var bscripts = <?php echo json_encode($battlescripts); ?>;
-      if (bscripts != null)
-      {
-        for (i=0; i<bscripts.length; i++)
-        {
-          addOption(next, bscripts[i]["name"], bscripts[i]["scriptID"]);
-        }
-      }
-  	  break;
-  	case "nexttoenemy":
-      addOption(next, "Move away from the enemy", "moveawayfromenemy");
-      var bscripts = <?php echo json_encode($battlescripts); ?>;
-      if (bscripts != null)
-      {
-        for (i=0; i<bscripts.length; i++)
-        {
-          addOption(next, bscripts[i]["name"], bscripts[i]["scriptID"]);
-        }
-      }
-  	  break;
-    default:
-      var bform = document.getElementById("battleplanfrm");
-      bform.removeChild(document.getElementById('plans[' + row + '][0]'));
-      bform.removeChild(document.getElementById('plans[' + row + '][1]'));
-      break;
-  }
-}
 </script>
 
+
 <form name='battleplan' id='battleplanfrm' action='battleplan.php' method='POST'>
-  <select name='plans[0][0]' id='plans[0][0]' onchange='change(this,0,1);'>
-  <option value=''>Select an option</option>
-  <option value='yourhpbelow66'>When your HP is between 66% and 33%</option>
-  <option value='yourhpbelow33'>When your HP is between 33% and 0%</option>
-  <option value='allyhpbelow66'>When an ally's HP is between 66% and 33%</option>
-  <option value='allyhpbelow33'>When an ally's HP is between 33% and 0%</option>
-  <option value='notnexttoenemy'>When not next to an enemy</option>
-  <option value='nexttoenemy'>When next to an enemy</option>
-  </select>
-  <select name='plans[0][1]' id='plans[0][1]'></select>
-  <br>
-  <button id="buttons" type='button' onclick='add()'>Add</button><input type='submit' name='save' value='Save'></form>
+  Attack Rotation:<br>
+  <button id="buttonAdd" type='button' onclick='add()'>Add</button><br>
+
+  <br><table>
+    <tr>
+    <tr>
+      <td><input type='checkbox' name='plans[0][0]' id='plans[0][0]' value='yourhpbelow33'>Your HP is below 33%</td>
+      <td>
+        <select name='plans[0][1]' id='plans[0][1]'>
+          <option value='moveawayfromenemy'>Move away from closest enemy</option>
+        </select>
+      </td>
+    </tr>
+      <td><input type='checkbox' name='plans[1][0]' id='plans[1][0]' value='yourhpbelow66'>Your HP is between 66% and 33%</td>
+      <td>
+        <select name='plans[1][1]' id='plans[1][1]'>
+        <option value='moveawayfromenemy'>Move away from closest enemy</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td><input type='checkbox' name='plans[2][0]' id='plans[2][0]' value='allyhpbelow33'>An ally's HP is below 33%</td>
+      <td><select name='plans[2][1]' id='plans[2][1]'></select></td>
+    </tr>
+    <tr>
+    <tr>
+      <td><input type='checkbox' name='plans[3][0]' id='plans[3][0]' value='allyhpbelow66'>An ally's HP is between 66% and 33%</td>
+      <td><select name='plans[3][1]' id='plans[3][1]'></select></td>
+    </tr>
+      <td><input type='checkbox' name='plans[4][0]' id='plans[4][0]' value='notnexttoenemy'>You are not next to enemy</td>
+      <td><select name='plans[4][1]' id='plans[4][1]'>
+          <option value='moveclosertoenemy'>Move towards closest enemy</option>
+          <option value='attack'>Attack</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td><input type='checkbox' name='plans[5][0]' id='plans[5][0]' value='nexttoenemy'>You are next to enemy</td>
+      <td><select name='plans[5][1]' id='plans[5][1]'>
+          <option value='moveawayfromenemy'>Move away from closest enemy</option>
+          <option value='attack'>Attack</option>
+        </select></td>
+    </tr>
+  </table><br>
+
+  <input type='submit' name='save' value='Save'></form>
 </form>
