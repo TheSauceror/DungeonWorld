@@ -7,9 +7,7 @@
 </HEAD>
 <BODY BGCOLOR=#000000>
 	<div id="header">
-		<!-- <a href="http://homepages.uc.edu/~piattjd/DungeonsOfEld/login.php"> -->
 		<img src="header.jpg" width="900" height="200" alt="Dungeons of Eld" title="Dungeons of Eld" />
-		</a>
 	</div>
 	
 	<div id="navMenu">

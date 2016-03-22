@@ -11,7 +11,6 @@ include "checklogin.php";
 include "menu.php";
 
 $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
-$guilds = mysqli_query($conn,"SELECT * FROM Guilds");
 
 if(isset($_POST['applyid']) && $hero['guild'] == 0) {
 	//protect these inputs from injection
@@ -22,9 +21,32 @@ if(isset($_POST['applyid']) && $hero['guild'] == 0) {
   echo "You have applied to $guild[guildname]!";
 }
 
+if(isset($_POST['leaveid'])) {
+  //protect these inputs from injection
+  //protect other people items from f12ing
+  $leaveid = mysqli_real_escape_string($conn, $_POST['leaveid']);
+  $guild = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Guilds WHERE guildid = '$hero[id]'")) or die(mysqli_error($conn));
+  mysqli_query($conn, "UPDATE Hero SET guild = 0 WHERE id = '$leaveid'");
+  echo "You have left $guild[guildname]!";
+  $hero['guild'] = 0;
+}
+
+if(isset($_POST['disbandid'])) {
+  //protect these inputs from injection
+  //protect other people items from f12ing
+  $disbandid = mysqli_real_escape_string($conn, $_POST['disbandid']);
+  $guild = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Guilds WHERE guildid = '$hero[guild]'")) or die(mysqli_error($conn));
+  mysqli_query($conn, "DELETE FROM Guilds WHERE guildid = '$hero[guild]'");
+  mysqli_query($conn, "UPDATE Hero SET guild = 0 WHERE id = '$hero[id]'");
+  echo "You have disbanded $guild[guildname]!";
+  $hero['guild'] = 0;
+}
+
 if($hero['guild'] == 0) {
 	echo "<form action='guild.php' method='post'><fieldset class='parchment'><legend>Create guild</legend>Name: <input type='text' name='guildname' required><input type='submit' value='Create'></fieldset></form>";
 }
+
+$guilds = mysqli_query($conn,"SELECT * FROM Guilds");
 
 echo "Guilds:<br>";
 

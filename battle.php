@@ -17,8 +17,10 @@ ini_set("display_errors", 1);
 echo "<center><h1>Running the dungeon...</h1></center>";
 
 $partyname = "";
-$dungeonid = $_POST['dungeon'];
-if($dungeonid == "") { header('Location: dungeons.php'); }
+$partyid = $_GET['partyid']; //protect this from injection
+if($partyid == "") { header('Location: dungeons.php'); }
+//$dungeonid = 
+//if($dungeonid == "") { header('Location: dungeons.php'); }
 $dungeonname = "";
 $dungeonlevel = 0;
 $dungeonrooms = "";
@@ -40,7 +42,7 @@ $maxTurns = 20;
 $cd = 0;
 
 function init() {
-  global $cookie, $partyname, $dungeonid, $dungeonname, $dungeonrooms, $dungeonlevel, $roomdescriptions, $partyfighters, $cd;
+  global $cookie, $partyname, $partyid, $dungeonname, $dungeonrooms, $dungeonlevel, $roomdescriptions, $partyfighters, $cd;
   $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
   $hero = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Hero WHERE id = '$cookie[0]'"));
   $party = mysqli_query($conn,"SELECT * FROM Hero WHERE party = '$hero[party]'");
@@ -50,9 +52,18 @@ function init() {
     // exit;
   }*/
 
+  $partyid = mysqli_real_escape_string($conn, "$partyid");
+  $dungeonstats = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Party, Dungeons WHERE Party.dungeonid = Dungeons.dungeonid AND Party.partyid = '$partyid'"));
+  $dungeonname = $dungeonstats['dungeonname'];
+  $dungeonrooms = explode("|", $dungeonstats['rooms']);
+  $dungeonlevel = $dungeonstats['dungeonlevel'];
+  $cd = time() + (6 * count($dungeonrooms));//600 = 10 minutes
+  $roomdescriptions = explode("|", $dungeonstats['des']);
+
   while($row = mysqli_fetch_assoc($party)) {
     $partyfighters[] = $row;
   }
+
   foreach ($partyfighters as $heronum => $hero) {
     echo "<span style='color:green;'>loading " . $hero['name'] . "'s items</span><br>";
     $partyfighters[$heronum]['sdam'] = getAllItemStats($hero['id'], "sdam");
@@ -69,15 +80,6 @@ function init() {
     $partyfighters[$heronum]['hpreg'] = getAllItemStats($hero['id'], "hpreg");
     $partyfighters[$heronum]['mpreg'] = getAllItemStats($hero['id'], "mpreg");
   }
-
-  $dungeonid = mysqli_real_escape_string($conn, "$dungeonid");
-  $dungeonstats = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Dungeons WHERE dungeonid = '$dungeonid'"));
-  $dungeonname = $dungeonstats['dungeonname'];
-  $dungeonrooms = explode("|", $dungeonstats['rooms']);
-  $dungeonlevel = $dungeonstats['dungeonlevel'];
-  $cd = time() + (6 * count($dungeonrooms));//600 = 10 minutes
-  mysqli_query($conn,"UPDATE Party SET cd = '$cd' WHERE partyid = '$hero[party]'");
-  $roomdescriptions = explode("|", $dungeonstats['des']);
   mysqli_close($conn);
 }
 
@@ -453,9 +455,8 @@ function testDamage($attacker, $skill)
       }
 
       $hid = $fighters[$attacker]['id'];
-      $conn=mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
-      $skillLevel = mysqli_fetch_assoc(mysqli_query($conn,"SELECT skilllevel FROM HeroSkills 
-        WHERE abilityid = '$skill' AND heroid = '$hid'"));
+      $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
+      $skillLevel = mysqli_fetch_assoc(mysqli_query($conn,"SELECT skilllevel FROM HeroSkills WHERE abilityid = '$skill' AND heroid = '$hid'"));
       mysqli_close($conn);
       if ($skillLevel == null)
       {
@@ -790,7 +791,13 @@ echo "<span style='color:yellow;'>";
 print_r($totalloot);
 echo "</span>";
 $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
-mysqli_query($conn,"INSERT INTO Reports (party, timestamp, dungeon, reportintro, reportinitiative, reportmap, reporttext) VALUES ('$hero[party]', '$cd', '$dungeonname', '$reportintro', '$reportinitiative', '$reportmap', '$reporttext')") or die(mysqli_error($conn));
+//mysqli_query($conn, "DELETE FROM Party WHERE partyid = '$hero[party]'");
+foreach ($partyfighters as $hero) {
+  mysqli_query($conn, "INSERT INTO Reports (heroid, timestamp, dungeon, reportintro, reportinitiative, reportmap, reporttext) VALUES ('$hero[id]', '$cd', '$dungeonname', '$reportintro', '$reportinitiative', '$reportmap', '$reporttext')") or die(mysqli_error($conn));
+  mysqli_query($conn, "UPDATE Hero SET dungeonlevel = '$dungeonlevel' + 1 WHERE id = '$hero[id]'");
+  //mysqli_query($conn, "UPDATE Hero SET cd = '$cd' WHERE id = '$hero[id]'");
+  //mysqli_query($conn, "UPDATE Hero SET party = '0' WHERE id = '$hero[id]'");
+}
 mysqli_close($conn);
 
 //echo "<META http-equiv='refresh' content='0;URL=reports.php'>";

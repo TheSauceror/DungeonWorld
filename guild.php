@@ -19,6 +19,14 @@ function leave(leaveid) {
   document.getElementById('leaveid').value = leaveid;
   document.getElementById('leavefrm').submit();
 }
+function disband(disbandid) {
+  document.getElementById('disbandid').value = disbandid;
+  document.getElementById('disbandfrm').submit();
+}
+function join(joinID) {
+  document.getElementById('joinID').value = joinID;
+  document.getElementById('joinfrm').submit();
+}
 </script>
 
 <?php
@@ -28,19 +36,19 @@ include "menu.php";
 
 $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
 
-$id = $hero['guild'];
-
-if(isset($_GET['id'])) {
-  $id = mysqli_real_escape_string($conn, $_GET['id']);
-}
-
 if(isset($_POST['guildname']) && $hero['guild'] == 0) {
   $name = mysqli_real_escape_string($conn, $_POST['guildname']);
-  mysqli_query($conn,"INSERT INTO Guilds (guildname, owner) VALUES ('$name', '$hero[id]')") or die(mysqli_error($conn));
+  mysqli_query($conn,"INSERT INTO Guilds (guildname, owner, guilddes) VALUES ('$name', '$hero[id]','')") or die(mysqli_error($conn));
   $guild = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Guilds WHERE owner = '$hero[id]'")) or die(mysqli_error($conn));
   mysqli_query($conn, "UPDATE Hero SET guild = $guild[guildid] WHERE id = '$hero[id]'");
   $hero['guild'] = $guild['guildid'];
   echo "You have created $guild[guildname]!";
+}
+
+$id = $hero['guild'];
+
+if(isset($_GET['id'])) {
+  $id = mysqli_real_escape_string($conn, $_GET['id']);
 }
 
 if($id == 0) {
@@ -91,10 +99,8 @@ if(isset($_POST['guilddes'])) {
   //protect these inputs from injection
   //protect other people items from f12ing
   $guilddes = mysqli_real_escape_string($conn, $_POST['guilddes']);
-  echo $guilddes;
   mysqli_query($conn, "UPDATE Guilds SET guilddes = '$guilddes' WHERE guildid = '$hero[guild]'");
   $guild['guilddes'] = $guilddes;
-  echo $guild['guilddes'];
   echo "The guild description has been changed!";
 }
 
@@ -109,17 +115,26 @@ if($guild['owner'] == $hero['id']) {
   echo "<h3>$guild[guilddes]</h3>";
 }
 
-echo "<table class='parchment'><tr><th>Name</th><th>Race</th><th>Profession</th><th>Party</th>";
+echo "<table class='parchment'><tr><th>Name</th><th>Race</th><th>Profession</th>";
+if($guild['guildid'] == $hero['guild']) { echo "<th>Join Party</th>"; }
 if($guild['owner'] == $hero['id']) { echo "<th>Member Options</th>"; }
 echo "</tr>";
 while($row = mysqli_fetch_assoc($members)) {
-  echo "<tr><td><a href='profile.php?id=" . $row['id'] . "'>" . $row['name'] . "</a></td><td>" . $row['race'] . "</td><td>" . $row['prof'] . "<td></td></td>";
-	if($guild['owner'] == $hero['id'] && $row['id'] != $hero['id']) { echo "<td><a href='javascript:kick($row[id]);'>Kick</a> / <a href='javascript:give($row[id]);'>Give ownership</a></td>"; }
+  echo "<tr><td><a href='profile.php?id=" . $row['id'] . "'>" . $row['name'] . "</a></td><td>" . $row['race'] . "</td><td>" . $row['prof'] . "</td>";
+  if($row['party'] != 0) {
+    $party = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Party, Dungeons WHERE Party.dungeonid = Dungeons.dungeonid AND Party.partyid = '$row[party]'"));
+    $partymembers = mysqli_fetch_assoc(mysqli_query($conn,"SELECT COUNT(*) AS partymembers FROM Hero WHERE party = '$party[partyid]'"))['partymembers'];
+    $memberparty = "<a href='javascript:join($party[partyid]);'>$party[dungeonname]</a> - $partymembers/$party[maxpeople]";
+    if($hero['party'] != 0) { $memberparty = "$party[dungeonname] - $partymembers/$party[maxpeople]"; }
+  } else { $memberparty = ""; }
+  if($guild['guildid'] == $hero['guild']) { echo "<td>$memberparty</td>"; }
+  if($guild['guildid'] == $hero['guild'] && mysqli_num_rows($members) == 1) { echo "<td><a href='javascript:disband($row[id]);'>Disband</a></td>"; }
+  if($guild['owner'] == $hero['id'] && $row['id'] != $hero['id']) { echo "<td><a href='javascript:kick($row[id]);'>Kick</a> / <a href='javascript:give($row[id]);'>Give ownership</a></td>"; }
   echo "</tr>";
 }
 echo "</table>";
 
-if($guild['owner'] != $hero['id'] && $guild['guildid'] == $hero['guild']) { echo "<h3><a href='javascript:leave($hero[id]);'>Leave Guild</a></h3>"; }
+if($guild['guildid'] == $hero['guild'] && $guild['owner'] != $hero['id']) { echo "<h3><a href='javascript:leave($hero[id]);'>Leave Guild</a></h3>"; }
 
 echo "<h3>Applicants</h3>";
 echo "<table class='parchment'><tr><th>Name</th><th>Race</th><th>Profession</th>";
@@ -138,6 +153,8 @@ echo "<form name='acceptfrm' id='acceptfrm' method='POST' action='guild.php'><in
 echo "<form name='denyfrm' id='denyfrm' method='POST' action='guild.php'><input name='denyid' type='hidden' value='' id='denyid'></form>";
 echo "<form name='kickfrm' id='kickfrm' method='POST' action='guild.php'><input name='kickid' type='hidden' value='' id='kickid'></form>";
 echo "<form name='givefrm' id='givefrm' method='POST' action='guild.php'><input name='giveid' type='hidden' value='' id='giveid'></form>";
-echo "<form name='leavefrm' id='leavefrm' method='POST' action='guild.php'><input name='leaveid' type='hidden' value='' id='leaveid'></form>";
+echo "<form name='leavefrm' id='leavefrm' method='POST' action='guilds.php'><input name='leaveid' type='hidden' value='' id='leaveid'></form>";
+echo "<form name='disbandfrm' id='disbandfrm' method='POST' action='guilds.php'><input name='disbandid' type='hidden' value='' id='disbandid'></form>";
+echo "<form name='joinfrm' id='joinfrm' method='POST' action='dungeons.php'><input name='joinid' type='hidden' value='' id='joinID'></form>";
 
 ?>

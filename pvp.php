@@ -1,18 +1,20 @@
 <?php
   include "functions.php";
 
-  $skill['skilllevel'] = 6;
-  $skill['effect'] = "{skill level}/2";
-  echo $skill['skilllevel'];
-  echo "<br>";
-  echo $skill['effect'];
-  echo "<br>";
-  //$skilleffect = eval("return (str_replace('{skill level}', $skill[skilllevel], $skill[effect]));");
-  //echo $skilleffect;
-  //echo "<br>";
-  $skilleffect = str_replace('{skill level}', $skill['skilllevel'], $skill['effect']);
-  echo $skilleffect;
-  echo "<br>";
-  $skilleffect = eval("return ($skilleffect);");
-  echo $skilleffect;
+
+$conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
+
+$name = 'test';
+$id = 0;
+
+//mysqli_query($conn,"INSERT INTO Guilds (guildname, owner, guilddes) VALUES ('$name', '$id','')") or die(mysqli_error($conn));
+
+$newguild = mysqli_insert_id($conn);
+
+print_r($newguild);
+echo $newguild;
+
+mysqli_close($conn);
+
+
 ?>

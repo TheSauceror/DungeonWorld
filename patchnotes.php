@@ -18,6 +18,10 @@
 	<li>Apostrophes break dungeon names</li>
 </ul>
 <hr width='33%'>
+<h2>March 21, 2016</h2>
+<ul>
+	<li>Added LFG party system</li>
+</ul>
 <h2>March 17, 2016</h2>
 <ul>
 	<li>Added guilds</li>

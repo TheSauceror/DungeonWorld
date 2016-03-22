@@ -24,8 +24,10 @@ if(isset($_POST['buyitemid'])) {
   //protect other people items from f12ing
   $buyitemid = mysqli_real_escape_string($conn, $_POST['buyitemid']);
 	$buyitemprice = getItemPrice($buyitemid, 0);
-	mysqli_query($conn, "UPDATE Inventory SET equip = 0, market = 0, owner = $cookie[0] WHERE inventoryid = '$_POST[buyitemid]' AND market > 0");
-	mysqli_query($conn, "UPDATE Hero SET gold = gold - $buyitemprice WHERE id = '$cookie[0]'");
+  if($hero['gold'] < $buyitemprice) { echo "Not enough gold"; } else {
+    mysqli_query($conn, "UPDATE Inventory SET equip = 0, market = 0, owner = $cookie[0] WHERE inventoryid = '$_POST[buyitemid]' AND market > 0");
+    mysqli_query($conn, "UPDATE Hero SET gold = gold - $buyitemprice WHERE id = '$cookie[0]'");
+  }
 }
 
 $items = mysqli_query($conn,"SELECT * FROM Inventory LEFT JOIN ItemBase ON Inventory.base = ItemBase.baseid Left JOIN ItemPrefix ON Inventory.prefix = ItemPrefix.prefixid LEFT JOIN ItemSuffix ON Inventory.suffix = ItemSuffix.suffixid LEFT JOIN Hero ON Inventory.owner = Hero.id WHERE Inventory.market > 0 ORDER BY market ASC");
