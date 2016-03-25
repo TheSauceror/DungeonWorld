@@ -69,16 +69,17 @@ function init() {
     $partyfighters[$heronum]['sdam'] = getAllItemStats($hero['id'], "sdam");
     $partyfighters[$heronum]['pdam'] = getAllItemStats($hero['id'], "pdam");
     $partyfighters[$heronum]['bdam'] = getAllItemStats($hero['id'], "bdam");
-    //@JAH
-    //$partyfighters[$heronum]['adam'] = getAllItemStats($hero['id'], "adam");
-    //$partyfighters[$heronum]['ddam'] = getAllItemStats($hero['id'], "ddam");
+    $partyfighters[$heronum]['adam'] = getAllItemStats($hero['id'], "adam");
+    $partyfighters[$heronum]['ddam'] = getAllItemStats($hero['id'], "ddam");
     $partyfighters[$heronum]['sarm'] = getAllItemStats($hero['id'], "sarm");
     $partyfighters[$heronum]['parm'] = getAllItemStats($hero['id'], "parm");
     $partyfighters[$heronum]['barm'] = getAllItemStats($hero['id'], "barm");
-    //$partyfighters[$heronum]['aarm'] = getAllItemStats($hero['id'], "aarm");
-    //$partyfighters[$heronum]['darm'] = getAllItemStats($hero['id'], "darm");
+    $partyfighters[$heronum]['aarm'] = getAllItemStats($hero['id'], "aarm");
+    $partyfighters[$heronum]['darm'] = getAllItemStats($hero['id'], "darm");
     $partyfighters[$heronum]['hpreg'] = getAllItemStats($hero['id'], "hpreg");
     $partyfighters[$heronum]['mpreg'] = getAllItemStats($hero['id'], "mpreg");
+    $partyfighters[$heronum]['maxhp'] = $partyfighters[$heronum]['hp'];
+    $partyfighters[$heronum]['maxmp'] = $partyfighters[$heronum]['mp'];
   }
   mysqli_close($conn);
 }
@@ -158,26 +159,31 @@ foreach($dungeonrooms as $key => $room) {
       if($fighters[$currentturn]['hp'] < 1)
       { break; }
 
-      $fighters[$currentturn]['hp'] += $status[$currentturn]['hpreg'];
-      if ($status[$currentturn]['hpreg'] < 0)
-        { $reporttext .= $fighters[$currentturn]['name'] . " takes " . abs($status[$currentturn]['hpreg']) . " damage over time<br>";}
-      else if ($status[$currentturn]['hpreg'] > 0)
-        { $reporttext .= $fighters[$currentturn]['name'] . " heals " . abs($status[$currentturn]['hpreg']) . " damage over time<br>"; }
+      if ($fighters[$currentturn]['party'] == 'Enemy')
+      {
+        $fighters[$currentturn]['hp'] = min($fighters[$currentturn]['maxhp'], $fighters[$currentturn]['hp'] + $status[$currentturn]['hpreg']);
+        $fighters[$currentturn]['mp'] = min($fighters[$currentturn]['maxmp'], $fighters[$currentturn]['mp'] + $status[$currentturn]['mpreg']);
+      }
+      else
+      {
+        $fighters[$currentturn]['hp'] = min($fighters[$currentturn]['maxhp'],
+          $fighters[$currentturn]['hp'] + $fighters[$currentturn]['hpreg'] + $status[$currentturn]['hpreg']);
+        $fighters[$currentturn]['mp'] = min($fighters[$currentturn]['maxmp'],
+          $fighters[$currentturn]['mp'] + $fighters[$currentturn]['mpreg'] + $status[$currentturn]['mpreg']);
+      }
 
-      $fighters[$currentturn]['mp'] += $status[$currentturn]['mpreg'];
-      if ($status[$currentturn]['mpreg'] < 0)
-        { $reporttext .= $fighters[$currentturn]['name'] . " loses " . abs($status[$currentturn]['mpreg']) . " mana over time<br>";}
-      else if ($status[$currentturn]['mpreg'] > 0)
-        { $reporttext .= $fighters[$currentturn]['name'] . " gains " . abs($status[$currentturn]['mpreg']) . " mana over time<br>"; }
+      if($fighters[$currentturn]['hp'] < 1)
+      { 
+        KillFighter($currentturn);
+        break;
+      }
 
       for($acts = 0; $acts < $fighters[$currentturn]['act']; $acts++) {
-        if($fighters[$currentturn]['hp'] < 1)
-        { killFighter($currentturn); }
         $j = -1;
         do{
           $j++;
-        }while(!testSwitch1($currentturn,$j));
-        testSwitch2($currentturn,$j);
+        }while(!condition($currentturn,$j));
+        action($currentturn,$j);
         //if(onlyOneTeam() || $currTurn >= $maxTurns) {
         //  break 2;
         //}
@@ -188,7 +194,7 @@ foreach($dungeonrooms as $key => $room) {
       }
     }
     updateMap($roomstats[$key]['length'], $roomstats[$key]['width'], $roomstats[$key]['floor']);
-    devalueStatus();
+    DevalueStatus();
    	$currTurn++;
   }
 
@@ -238,14 +244,20 @@ function giveLoot() { //rename to be more accurate
 }
 
 
-function testSwitch1($i, $j) {
+function condition($i, $j) {
   global $fighters, $reporttext;
   $testplan = explode("||",$fighters[$i]['battleplan']);
   // $reportmap .= count($testplan) . "x" . count($testplan);   
-  if($testplan[0] == "" || $j > count($testplan)) { //COMMENT OUT
+  /*if($testplan[0] == "" || $j > count($testplan)) { //COMMENT OUT
     $reporttext .= $fighters[$i]['name'] . " has no plan.<br>";
     return true;
+  }*/
+  if (!isset($testplan[$j]))
+  {
+    $reporttext .= $fighters[$i]['name'] . " has nothing to do.<br>";
+    return true;
   }
+
   $testplan = explode("|", $testplan[$j])[0];
   switch($testplan) {
     case "nexttoenemy":
@@ -258,24 +270,32 @@ function testSwitch1($i, $j) {
       $dist = (abs($fighters[$i]['x']-$fighters[$closest]['x']) + abs($fighters[$i]['y']-$fighters[$closest]['y']));
       return $dist > 1;
       break;
+    case "yourhpbelow33":
+      return $fighters[$i]['hp'] <= $fighters[$i]['maxhp']*(1/3);
+      break;
     case "yourhpbelow66":
       return $fighters[$i]['hp'] <= $fighters[$i]['maxhp']*(2/3);
       break;
-    case "yourhpbelow33":
-    	return $fighters[$i]['hp'] <= $fighters[$i]['maxhp']*(1/3);
-    	break;
-    //@JAH
-    // case "yourallyhpbellow66":
-    	// how are heros added to party (if it's alphabetically then they would have ally heal priority)
-    	// put in function to call on twice (once to check if ally is bellow val, second to actually cast spell)
-    	// CheckAllyHealth(string party, int val)
-    	//	for each figher $f
-    	// 		if $f party matches party
-    	//			if $f health <= val
-    	//				return $f
-    // case "yourallyhpbellow33":
-    	// return CheckAllyHealth($fighters[$i]['party']) != null;
-
+    case "allyhpbelow33":
+      for($z=0; $z<count($fighters); $z++)
+      {
+        if ($fighters[$i]['party'] == $fighters[$z]['party'] && $fighters[$i] != $fighters[$z])
+        {
+          if ($fighters[$z]['hp'] < $fighters[$z]['maxhp']*(1/3))
+            { return true; }
+        }
+      }
+      break;
+    case "allyhpbelow66":
+      for($z=0; $z<count($fighters); $z++)
+      {
+        if ($fighters[$i]['party'] == $fighters[$z]['party'] && $fighters[$i] != $fighters[$z])
+        {
+          if ($fighters[$z]['hp'] < $fighters[$z]['maxhp']*(2/3))
+            { return true; }
+        }
+      }
+      break;
     default:
       $reporttext .= $fighters[$i]['name'] . " has nothing to do.<br>";
       return true;
@@ -283,10 +303,12 @@ function testSwitch1($i, $j) {
   }
 }
 
-function testSwitch2($i ,$j) {
+function action($i ,$j) {
   global $fighters, $status, $map, $totalgold, $reporttext, $currTurn;
   $testplan = explode("||",$fighters[$i]['battleplan']);
   if($testplan[0] == "") { return; }
+  if(!isset($testplan[$j])) { return; }
+  $condition = explode("|", $testplan[$j])[0];
   $testplan = explode("|", $testplan[$j])[1];
   switch($testplan) {
     case "moveclosertoenemy":
@@ -369,8 +391,7 @@ function testSwitch2($i ,$j) {
       $reporttext .= $fighters[$i]['x'] . ", " .+ $fighters[$i]['y'] . ").<br>";
       return;
       break;
-    case "meleeattack":
-      // @JAH Legacy battleplan code, remove after skills work
+    /*case "meleeattack":
       $closest = findNearestEnemy($i);
       if((abs($fighters[$i]['x']-$fighters[$closest]['x']) + abs($fighters[$i]['y']-$fighters[$closest]['y'])) < 2) {
         $damage = getDamage($fighters[$i], $fighters[$closest]);
@@ -379,7 +400,6 @@ function testSwitch2($i ,$j) {
       return;
       break;
     case "rangedattack":
-      // @JAH Legacy battlplan code, remove after skills work
       $closest = findNearestEnemy($i);
       if((abs($fighters[$i]['x']-$fighters[$closest]['x']) + abs($fighters[$i]['y']-$fighters[$closest]['y'])) < 9) {
         $damage = getDamage($fighters[$i], $fighters[$closest]);
@@ -388,14 +408,13 @@ function testSwitch2($i ,$j) {
       return;
       break;
     case "magicattack":
-      // @JAH Legacy battlplan code, remove after skills work
       $closest = findNearestEnemy($i);
       if((abs($fighters[$i]['x']-$fighters[$closest]['x']) + abs($fighters[$i]['y']-$fighters[$closest]['y'])) < 6) {
         $damage = getDamage($fighters[$i], $fighters[$closest]);
         doDamage($i, "zaps", $closest, $damage);
       } else { $reporttext .= $fighters[$i]['name'] . " is out of range.<br>";}
       return;
-      break;
+      break;*/
     default:
       if ($status[$i]['silence'] > 0 || $status[$i]['stun'] > 0)
       {
@@ -403,207 +422,271 @@ function testSwitch2($i ,$j) {
         return;
       }
 
-      $conn=mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
-      $bscript = mysqli_fetch_assoc(mysqli_query($conn,"SELECT content FROM BattleScript WHERE scriptID = '$testplan'"));
-      mysqli_close($conn);
-      if ($bscript != null)
+      $rotation = explode(",", $testplan);
+      if (count($rotation) > 0)
       {
-        $rotation = explode("|",$bscript['content']);
-        if (count($rotation) > 0)
-          { testDamage($i, $rotation[($currTurn-1) % count($rotation)]); }
-        else
-          { $reporttext .= $fighters[$i]['name'] . " does not know what to do.<br>"; }
+        $skill = $rotation[($currTurn-1) % count($rotation)];
+        $conn=mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
+        $skillInfo = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM SkillList WHERE skillid = '$skill'"));
+        mysqli_close($conn);
+
+        if ($fighters[$i]['mp'] - $skillInfo['cost'] < 0)
+        {
+            $reporttext .= $fighters[$i]['name'] . " does not have enough MP.<br>";
+            return;
+        }
+        $fighters[$i]['mp'] -= $skillInfo['cost'];
+        switch ($skillInfo['category'])
+        {
+          case 'heal':
+            if ($condition == 'yourhpbelow33' || $condition == 'yourhpbelow66')
+            {
+              DoHeal($i, $i, $skillInfo, $skill);
+              break;
+            }
+            else if ($condition == 'allyhpbelow33')
+            {
+              for($z=0; $z<count($fighters); $z++)
+              {
+                if ($fighters[$i]['party'] == $fighters[$z]['party'] && $fighters[$i] != $fighters[$z])
+                {
+                  if ($fighters[$z]['hp'] < $fighters[$z]['maxhp']*(1/3))
+                  { 
+                    DoHeal($i, $z, $skillInfo, $skill);
+                    break;
+                  }
+                }
+              }
+            }
+            else if ($condition == 'allyhpbelow66')
+            {
+              for($z=0; $z<count($fighters); $z++)
+              {
+                if ($fighters[$i]['party'] == $fighters[$z]['party'] && $fighters[$i] != $fighters[$z])
+                {
+                  if ($fighters[$z]['hp'] < $fighters[$z]['maxhp']*(2/3))
+                  {
+                    DoHeal($i, $z, $skillInfo, $skill);
+                    break;
+                  }
+                }
+              }
+            }
+            break;
+          case 'buff':
+            DoBuff($i, $skillInfo, $skill);
+            break;
+          default:
+            DoDamage($i, $skillInfo, $skill);
+            break;
+        }
       }
       else
         { $reporttext .= $fighters[$i]['name'] . " does not know what to do.<br>"; }
-    	break;
+      return;
+      break;
   }
 }
 
-function testDamage($attacker, $skill)
+function DoHeal($attacker, $reciever, $skillInfo, $skill)
 {
   global $fighters, $status, $totalgold, $totalloot, $reporttext, $map, $dungeonlevel;
-
-  $conn=mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
-  $skillInfo = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM SkillList WHERE skillid = '$skill'"));
-  mysqli_close($conn);
-
-  if ($fighters[$attacker]['mp'] - $skillInfo['cost'] < 0)
-  {
-      $reporttext .= $fighters[$attacker]['name'] . " does no have enough MP.<br>";
+  $hid = $fighters[$attacker]['id'];
+    $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
+    $skillLevel = mysqli_fetch_assoc(mysqli_query($conn,"SELECT skilllevel FROM HeroSkills WHERE abilityid = '$skill' AND heroid = '$hid'"));
+    mysqli_close($conn);
+    if ($skillLevel == null && $fighters[$attacker]['party'] != 'Enemy')
+    {
+      $reporttext .= $fighters[$attacker]['name'] . " cannot use " . $skillInfo['skillname'] . ".<br>";
       return;
-  }
-  $fighters[$attacker]['mp'] -= $skillInfo['cost'];
+    }
 
-  switch ($skillInfo['category']) {
-    case "buff":
-    //@JAH
-      // Buff attacker
-      break;
-    case "heal":
-    //@JAH
-      // Heal attacker
-    default:
-      $defender = findNearestEnemy($attacker);
-      if ($skillInfo['category'] == 'melee')
-      {
-        if((abs($fighters[$attacker]['x']-$fighters[$defender]['x']) + abs($fighters[$attacker]['y']-$fighters[$defender]['y'])) > 1)
-        {
-          $reporttext .= $fighters[$attacker]['name'] . " is out of range.<br>";
-          return;
-        }
-      }
-
-      $hid = $fighters[$attacker]['id'];
-      $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
-      $skillLevel = mysqli_fetch_assoc(mysqli_query($conn,"SELECT skilllevel FROM HeroSkills WHERE abilityid = '$skill' AND heroid = '$hid'"));
-      mysqli_close($conn);
-      if ($skillLevel == null)
-      {
-        $reporttext .= $fighters[$attacker]['name'] . " cannot use " . $skillInfo['name'] . ".<br>";
-        return;
-      }
-
-      $damType = "bdam";  // TEST VALUES, DEFAULT TO NULL IN FULL BUILD
-      $armType = "barm";
-      $damBonus = "bdam";
-      $armBonus = "barm";
-      switch ($skillInfo['type']) {
-        case "piercing damage":
-          $damType = "pdam";
-          $armType = "parm";
-          $damBonus = "pdam";
-          $armBonus = "parm";
-          break;
-        case "slashing damage":
-          $damType = "sdam";
-          $armType = "sarm";
-          $damBonus = "sdam";
-          $armBonus = "sarm";
-          break;
-        case "bludgeoning damage":
-          $damType = "bdam";
-          $armType = "barm";
-          $damBonus = "bdam";
-          $armBonus = "barm";
-          break;
-        case "arcane damage":
-        /* @JAH
-          $damType = "adam";
-          $armtype = "aarm";
-          $damBonus = "adam";
-          $armBonus = "aarm";
-          break;
-        case "divine damage":
-          $damType = "ddam";
-          $armType = "darm";
-          $damBonus = "ddam";
-          $armBonus = "darm";
-          break;
-        */
-        case "pure damage":
-          $damType = null;
-          break;
-        default:
-          //echo "Unhandled damage type " . $skillInfo['type'] . "<br>";
-          //return;
-          break;
-      }
-
-      $damCat = null;
-      switch ($skillInfo['category']) {
-        case "melee":
-          $damCat = "str";
-          break;
-        case "ranged":
-          $damCat = "dex";
-          break;
-        case "magic":
-          $damCat = "nce";
-          break;
-        case "heal":
-          $damCat = "pie";
-          break;
-      }
-
-      $dbDamage = str_replace("{skill level}", $skillLevel['skilllevel'], $skillInfo['effect']);
-      $damage = eval("return ($dbDamage);");
-      $totalPower = 100;
-      $totalArmor = 1;
-      $abilityScale = $fighters[$attacker][$damCat]+$status[$attacker][$damCat];
-      if ($damType != null)
-      {
-        $totalPower = $fighters[$attacker][$damType]+$status[$attacker][$damType];
-        $totalArmor = $fighters[$defender][$armType]+$fighters[$defender][$armType];
-        $damage = scaleDamage($damage, $abilityScale, $totalPower, $totalArmor);
-      }
-      $damage = scaleDamage($damage, $abilityScale, $totalPower, $totalArmor);
-
-
-      echo "<span style='color:blue;'>damage: </span>", $damage, " from ", $fighters[$attacker]['name'], " to ",
-        $fighters[$defender]['name'], "<br>";
-
-      $reporttext .= $fighters[$attacker]['name'] . " uses " . $skillInfo['skillname'] . " on " . $fighters[$defender]['name'] . " for " . $damage . " damage.<br>";
-      $fighters[$defender]['hp'] -= $damage;
-
-      if ($skillInfo['skillstatus'] != null)
-      {
-        switch ($skillInfo['skillstatus']) {
-          case 'dot':
-            $dbDot = str_replace("{skill level}", $skillLevel['skilllevel'], $skillInfo['duration']);
-            $dot = eval("return ($dbDot);");
-            $dot = scaleDamage($dot, $abilityScale, $totalPower, $totalArmor);
-            if ($status[$defender]['hpreg'] < $dot)
-            {
-              echo "<span style='color:blue;'>damage: </span>", $dot, " over time from ", $fighters[$attacker]['name'], " to ", $status[$defender]['name'], "<br>";
-              $reporttext .= $skillInfo['skillname'] . " causes damage over time on " . $status[$defender]['name'] . "<br>";
-              $status[$defender]['hpreg'] = -$dot;
-            }
-            break;
-          case 'root':
-            $root = str_replace("{skill level}", $skillLevel['skilllevel'], $skillInfo['duration']);
-            $rootDur = max(1, floor(eval("return ($root);")));
-            if ($status[$defender]['root'] < $rootDur)
-            {
-              echo $status[$defender]['name'] . " is rooted for " . $rootDur . " turns" . "<br>";
-              $reporttext .= $skillInfo['skillname'] . " roots " . $status[$defender]['name'] . "<br>";
-              $status[$defender]['root'] = $rootDur;
-            }
-            break;
-          case 'silence':
-            $silence = str_replace("{skill level}", $skillLevel['skilllevel'], $skillInfo['duration']);
-            $silenceDur = max(1, floor(eval("return ($silence);")));
-            if ($status[$defender]['silence'] < $silenceDur)
-            {
-              echo $status[$defender]['name'] . " is silenced for " . $silenceDur . " turns" . "<br>";
-              $reporttext .= $skillInfo['skillname'] . " silences " . $status[$defender]['name'] . "<br>";
-              $status[$defender]['silence'] = $silenceDur;
-            }
-            break;
-          case 'stun':
-            $stun = str_replace("{skill level}", $skillLevel['skilllevel'], $skillInfo['duration']);
-            $stunDur = max(1, floor(eval("return ($stun);")));
-            if ($status[$defender]['stun'] < $stunDur)
-            {
-              echo $status[$defender]['name'] . " is stunned for " . $stunDur . " turns" . "<br>";
-              //$reporttext .-= $skillInfo['skillname'] . " stuns " . $status[$defender]['name'] . "<br>";
-              $status[$defender]['stun'] = $stunDur;
-            }
-            break;
-          default:
-            // @JAH Explodes pipes
-            // applies duration to each $status[$defender][array]
-            break;
-        }
-      }
-
-      if($fighters[$defender]['hp'] < 1)
-        { killFighter($defender); }
-      break;
-  }
+    $healStat = str_replace("{skill level}", $skillLevel['skilllevel'], $skillInfo['effect']);
+    $heal = max(1, floor(eval("return ($healStat);")));
+    $heal = ScaleDamage($heal, $fighters[$attacker]['pie'], 100, 1);
+    $reporttext .= $fighters[$attacker]['name'] . " heals " . $fighters[$reciever]['name'] . " for " . $heal . " damage " . " with " . $skillInfo['skillname'] . ".<br>";
+    $fighters[$reciever]['hp'] = min($fighters[$reciever]['maxhp'], $fighters[$reciever]['hp'] + $heal);
 }
 
-function devalueStatus()
+function DoBuff($attacker, $skillInfo, $skill)
+{
+  global $fighters, $status, $totalgold, $totalloot, $reporttext, $map, $dungeonlevel;
+  $buffs = explode('|', $skillInfo['skillstatus']);
+  foreach ($buffs as $buff)
+  {
+    $hid = $fighters[$attacker]['id'];
+    $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
+    $skillLevel = mysqli_fetch_assoc(mysqli_query($conn,"SELECT skilllevel FROM HeroSkills WHERE abilityid = '$skill' AND heroid = '$hid'"));
+    mysqli_close($conn);
+    if ($skillLevel == null && $fighters[$attacker]['party'] != 'Enemy')
+    {
+      $reporttext .= $fighters[$attacker]['name'] . " cannot use " . $skillInfo['skillname'] . ".<br>";
+      return;
+    }
+
+    $buffStats = str_replace("{skill level}", $skillLevel['skilllevel'], $skillInfo['duration']);
+    $stats = max(1, floor(eval("return ($buffStats);")));
+    if ($status[$attacker][$buff] < $stats)
+      { $status[$attacker][$buff] = $stats; }
+  }
+
+  $reporttext .= $fighters[$attacker]['name'] . " uses " . $skillInfo['skillname'] . " and gains +" .
+    $stats . " " . $skillInfo['type'] . "<br>";
+}
+
+function DoDamage($attacker, $skillInfo, $skill)
+{
+  global $fighters, $status, $totalgold, $totalloot, $reporttext, $map, $dungeonlevel;
+  $defender = findNearestEnemy($attacker);
+  if ($skillInfo['category'] == 'melee')
+  {
+    if((abs($fighters[$attacker]['x']-$fighters[$defender]['x']) + abs($fighters[$attacker]['y']-$fighters[$defender]['y'])) > 1)
+    {
+      $reporttext .= $fighters[$attacker]['name'] . " is out of range.<br>";
+      return;
+    }
+  }
+
+  $hid = $fighters[$attacker]['id'];
+  $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
+  $skillLevel = mysqli_fetch_assoc(mysqli_query($conn,"SELECT skilllevel FROM HeroSkills WHERE abilityid = '$skill' AND heroid = '$hid'"));
+  mysqli_close($conn);
+  if ($skillLevel == null && $fighters[$attacker]['party'] != 'Enemy')
+  {
+    $reporttext .= $fighters[$attacker]['name'] . " cannot use " . $skillInfo['skillname'] . ".<br>";
+    return;
+  }
+
+  $damType = null;
+  $armType = null;
+  switch ($skillInfo['type'])
+  {
+    case "piercing damage":
+      $damType = "pdam";
+      $armType = "parm";
+      break;
+    case "slashing damage":
+      $damType = "sdam";
+      $armType = "sarm";
+      break;
+    case "bludgeoning damage":
+      $damType = "bdam";
+      $armType = "barm";
+      break;
+    case "arcane damage":
+      $damType = "adam";
+      $armType = "aarm";
+      break;
+    case "divine damage":
+      $damType = "ddam";
+      $armType = "darm";
+      break;
+    case "pure damage":
+      break;
+    case "{weapon type}":
+      //@JAH  GET WEAPON TYPE
+      break;
+    default:
+      echo "Unhandled damage type " . $skillInfo['type'] . "<br>";
+      return;
+      break;
+  }
+
+  $damCat = null;
+  switch ($skillInfo['category']) {
+    case "melee":
+      $damCat = "str";
+      break;
+    case "ranged":
+      $damCat = "dex";
+      break;
+    case "magic":
+      $damCat = "nce";
+      break;
+    case "heal":
+      $damCat = "pie";
+      break;
+  }
+
+  $dbDamage = str_replace("{skill level}", $skillLevel['skilllevel'], $skillInfo['effect']);
+  $damage = eval("return ($dbDamage);");
+  $totalPower = 100;
+  $totalArmor = 1;
+  $abilityScale = $fighters[$attacker][$damCat]+$status[$attacker][$damCat];
+  if ($damType != null)
+  {
+    $totalPower = $fighters[$attacker][$damType]+$status[$attacker][$damType]+1;
+    $totalArmor = $fighters[$defender][$armType]+$status[$defender][$armType]+1;
+    $damage = ScaleDamage($damage, $abilityScale, $totalPower, $totalArmor);
+  }
+  $damage = ScaleDamage($damage, $abilityScale, $totalPower, $totalArmor);
+
+
+  echo "<span style='color:blue;'>damage: </span>", $damage, " from ", $fighters[$attacker]['name'], " to ",
+    $fighters[$defender]['name'], "<br>";
+
+  $reporttext .= $fighters[$attacker]['name'] . " uses " . $skillInfo['skillname'] . " on " . $fighters[$defender]['name'] . " for " . $damage . " damage.<br>";
+  $fighters[$defender]['hp'] -= $damage;
+
+  if ($skillInfo['skillstatus'] != null)
+  {
+    switch ($skillInfo['skillstatus']) {
+      case 'dot':
+        $dbDot = str_replace("{skill level}", $skillLevel['skilllevel'], $skillInfo['duration']);
+        $dot = eval("return ($dbDot);");
+        $dot = ScaleDamage($dot, $abilityScale, $totalPower, $totalArmor);
+        if ($status[$defender]['hpreg'] < $dot)
+        {
+          echo "<span style='color:blue;'>damage: </span>", $dot, " over time from ", $fighters[$attacker]['name'], " to ", $status[$defender]['name'], "<br>";
+          $reporttext .= $skillInfo['skillname'] . " causes " . $dot ." damage over time on " . $status[$defender]['name'] ."<br>";
+          $status[$defender]['hpreg'] = -$dot;
+        }
+        break;
+      case 'root':
+        $root = str_replace("{skill level}", $skillLevel['skilllevel'], $skillInfo['duration']);
+        $rootDur = max(1, floor(eval("return ($root);")));
+        if ($status[$defender]['root'] < $rootDur)
+        {
+          $reporttext .= $skillInfo['skillname'] . " roots " . $status[$defender]['name'] . "<br>";
+          $status[$defender]['root'] = $rootDur;
+        }
+        break;
+      case 'silence':
+        $silence = str_replace("{skill level}", $skillLevel['skilllevel'], $skillInfo['duration']);
+        $silenceDur = max(1, floor(eval("return ($silence);")));
+        if ($status[$defender]['silence'] < $silenceDur)
+        {
+          $reporttext .= $skillInfo['skillname'] . " silences " . $status[$defender]['name'] . "<br>";
+          $status[$defender]['silence'] = $silenceDur;
+        }
+        break;
+      case 'stun':
+        $stun = str_replace("{skill level}", $skillLevel['skilllevel'], $skillInfo['duration']);
+        $stunDur = max(1, floor(eval("return ($stun);")));
+        if ($status[$defender]['stun'] < $stunDur)
+        {
+          $reporttext .= $skillInfo['skillname'] . " stuns " . $status[$defender]['name'] . "<br>";
+          $status[$defender]['stun'] = $stunDur;
+        }
+        break;
+      default:
+        $debuffs = explode('|', $skillInfo['skillstatus']);
+        foreach ($debuffs as $debuff)
+        {
+          $debuffStats = str_replace("{skill level}", $skillLevel['skilllevel'], $skillInfo['duration']);
+          $dstats = max(1, floor(eval("return ($debuffStats);")));
+          if ($status[$defender][$debuff] < $dstats)
+            { $status[$defender][$debuff] = $dstats; }
+          }
+        break;
+    }
+  }
+
+  if($fighters[$defender]['hp'] < 1)
+    { KillFighter($defender); }
+}
+
+function DevalueStatus()
 {
   global $status;
   foreach ($status as $id => $a)
@@ -621,24 +704,24 @@ function devalueStatus()
   }
 }
 
-function scaleDamage($baseDamage, $abilityScale, $totalPow, $totalArm)
+function ScaleDamage($baseDamage, $abilityScale, $totalPow, $totalArm)
 {
   $damage = $baseDamage;
   if ($abilityScale != null)
   {
-    $damage = max(1, log($abilityScale+1)*$damage);
+    $damage = log($abilityScale+1)*$damage;
 
     if ($totalPow/max(1, $totalArm) < 1)
     {
-      $damage = max(1, $totalPow/max(1, $totalArm) * $damage);
+      $damage = $totalPow/max(1, $totalArm) * $damage;
     }
   }
-  return floor($damage);
+  return max(1, floor($damage));
 }
 
-function killFighter($dead)
+function KillFighter($dead)
 {
-  global $fighters, $totalgold, $reporttext;
+  global $fighters, $totalgold, $reporttext, $dungeonlevel;
   $fighters[$dead]['hp'] = 0;
   $map[$fighters[$dead]['y']][$fighters[$dead]['x']] = -1;
   $reporttext .= $fighters[$dead]['name'] . " dies.<br>";
@@ -654,7 +737,7 @@ function killFighter($dead)
   }
 }
 
-function doDamage($attacker, $verb, $defender, $damage) {
+/*function doDamage($attacker, $verb, $defender, $damage) {
   global $fighters, $totalgold, $totalloot, $reporttext, $map, $dungeonlevel;
   $reporttext .= $fighters[$attacker]['name'] . " " . $verb . " " . $fighters[$defender]['name'] . " for " . $damage . " damage.<br>";
   $fighters[$defender]['hp'] -= $damage;
@@ -679,10 +762,10 @@ function doDamage($attacker, $verb, $defender, $damage) {
           echo "<span style='color:yellow;'>" . $fighters[$defender]['name'] . " drops " . getItemName(0, 0, 0, $dropstats[0], $dropstats[1], $dropstats[2], $dropstats[3], $dropstats[4], $dropstats[5]) . "</span><br>";
           $totalloot[] = $possibledrop[1];
         }
-      }*/
+      }&/
     }
   }
-}
+}*/
 
 function onlyOneTeam() {
   global $fighters;
