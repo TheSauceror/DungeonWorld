@@ -9,13 +9,17 @@ include "menu.php";
 ini_set("display_errors", 1);
 
 $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
-$reportid = mysqli_real_escape_string($conn, $_GET['reportid']);
+
+if($_POST['reportid'] == NULL) { header('Location: reports.php'); }
+
+$reportid = mysqli_real_escape_string($conn, $_POST['reportid']);
+$end = mysqli_real_escape_string($conn, $_POST['end']);
+
 //$hero = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Hero, Party WHERE id = '$cookie[0]' AND Hero.party = Party.partyid"));
 $report = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Reports WHERE reportid = '$reportid' AND heroid = '$cookie[0]'"));
 
-if($report == NULL) { echo "Report not found"; }
-
 // echo stripslashes($report);
+mysqli_query($conn,"UPDATE Reports SET unread = 0 WHERE reportid = '$reportid' and heroid = '$cookie[0]'");
 
 mysqli_close($conn);
 
@@ -27,16 +31,16 @@ $reporttext = explode("|",stripslashes($report['reporttext']));
 ?>
 
 <table style="width:100%;">
-	<tr><td colspan="3" style="width:100%;text-align:center;height:28px;"><div id="reportintro" class="parchment"></div></td></tr>
+	<tr><td colspan="3" style="height:28px;"><div id="reportintro" class="parchment center"></div></td></tr>
 	<tr>
-		<td style="width:33%;text-align:center;padding:25px;" class="parchment"><div id="reportinitiative"></div></td>
-		<td style="width:33%;text-align:center;padding:25px;" class="parchment"><div id="reportmap"></div></td>
-		<td style="width:33%;text-align:center;line-height:22px;padding:25px;" class="parchment"><div id="reporttext"></div></td>
+		<td style="padding:25px;" class="parchment width33 center"  id="reportinitiativediv"><div id="reportinitiative"></div></td>
+		<td style="padding:25px;" class="parchment width33 center" id="reportmapdiv"><div id="reportmap"></div></td>
+		<td style="line-height:22px;padding:25px;" class="parchment width33 center" id="reporttextdiv"><div id="reporttext"></div></td>
 	</tr>
 </table>
 <br>
 
-<center><button class="button" onclick="back();">Back</button><button class="button" onclick="next();" style="margin-left:100px;">Next</button></center>
+<center><button class="button hidden" id="back" onclick="back();">Back</button><button class="button" id="next" onclick="next();" style="margin-left:100px;">Next</button></center>
 
 <script>
 var reportintro = <?php echo json_encode($reportintro); ?>;
@@ -46,29 +50,67 @@ var reporttext = <?php echo json_encode($reporttext); ?>;
 
 var index = 0;
 
-document.getElementById("reportintro").innerHTML = reportintro[0];
-document.getElementById("reportinitiative").innerHTML = reportinitiative[0];
-document.getElementById("reportmap").innerHTML = reportmap[0];
-document.getElementById("reporttext").innerHTML = reporttext[0];
+if(<?php echo json_encode($end); ?> == 1) {
+  index = reportmap.length - 1;
+}
+
+document.getElementById("reportintro").innerHTML = reportintro[index];
+document.getElementById("reportinitiative").innerHTML = reportinitiative[index];
+document.getElementById("reportmap").innerHTML = reportmap[index];
+document.getElementById("reporttext").innerHTML = reporttext[index];
+
+checkEmpty();
 
 function next() {
-  if(index == reportmap.length - 1) { return; }
   index++;
+  document.getElementById("back").style.visibility = "visible";
   document.getElementById("reportintro").innerHTML = reportintro[index];
   document.getElementById("reportinitiative").innerHTML = reportinitiative[index];
   document.getElementById("reportmap").innerHTML = reportmap[index];
   document.getElementById("reporttext").innerHTML = reporttext[index];
+  checkEmpty();
 }
 
 function back() {
-  if(index == 0) { return; }
   index--;
+  document.getElementById("next").style.visibility = "visible";
   document.getElementById("reportintro").innerHTML = reportintro[index];
   document.getElementById("reportinitiative").innerHTML = reportinitiative[index];
   document.getElementById("reportmap").innerHTML = reportmap[index];
   document.getElementById("reporttext").innerHTML = reporttext[index];
+  checkEmpty();
 }
 
+function checkEmpty() {
+  if(index == 0) {
+    document.getElementById("next").style.visibility = "visible";
+    document.getElementById("back").style.visibility = "hidden";
+  }
+  if(index == reportmap.length - 1) {
+    document.getElementById("next").style.visibility = "hidden";
+    document.getElementById("back").style.visibility = "visible";
+  }
+  if(document.getElementById("reportintro").innerHTML == "") {
+    document.getElementById("reportintro").style.visibility = "hidden";
+  } else {
+    document.getElementById("reportintro").style.visibility = "visible";
+  }
+  if(document.getElementById("reportinitiative").innerHTML == "") {
+    document.getElementById("reportinitiativediv").style.visibility = "hidden";
+  } else {
+    document.getElementById("reportinitiativediv").style.visibility = "visible";
+  }
+  if(document.getElementById("reportmap").innerHTML == "") {
+    document.getElementById("reportmapdiv").style.visibility = "hidden";
+  } else {
+    document.getElementById("reportmapdiv").style.visibility = "visible";
+  }
+  if(document.getElementById("reporttext").innerHTML == "") {
+    document.getElementById("reporttextdiv").style.visibility = "hidden";
+  } else {
+    document.getElementById("reporttextdiv").style.visibility = "visible";
+  }
+}
 </script>
 
 </body>

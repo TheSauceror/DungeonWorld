@@ -15,7 +15,12 @@ ini_set("display_errors", 1);
 
 $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
 
-echo "<h1>$hero[name]'s Skills</h1>";
+if(strpos($hero['tutorial'], 'skillsintro') === false) {
+  echo "<div class='alert'>Here's where you can train your repertoire of <span class='red'>skills</span>. Remember to update your <a href='battleplan.php'><span class='red'>Strategy</span></a> with your newfound power!</div>";
+  mysqli_query($conn,"UPDATE Hero SET tutorial = CONCAT(tutorial, 'skillsintro|') WHERE id = '$cookie[0]'") or die(mysqli_error($conn));
+}
+
+echo "<div class='parchment'><h3>Skills</h3>";
 
 if(isset($_POST['skill'])) {
   $sID = mysqli_real_escape_string($conn, $_POST['skill']);
@@ -54,7 +59,7 @@ while($row = mysqli_fetch_assoc($skilllist)) {
 mysqli_close($conn);
 
 echo "<h3>Available gold: " . $hero['gold'] . "</h3>";
-echo "<table class='parchment'><tr><th>Skill</th><th>Tier</th><th>Level</th><th>MP Cost</th><th>Effect</th><th>Training Cost</th></tr>";
+echo "<table><tr><th>Skill</th><th>Tier</th><th>Level</th><th>MP Cost</th><th>Effect</th><th>Training Cost</th></tr>";
 foreach ($skills as $skill) {
   if($skill['tier'] > $maxtier + 1) { continue; }
   $cost = pow($skill['skilllevel'], 2) * 50 * $skill['tier'];
@@ -71,13 +76,14 @@ foreach ($skills as $skill) {
   $skilleffect = str_replace("{skill level}", $skill['skilllevel'], $skill['effect']);
   $skilleffect = eval("return ($skilleffect);");
   $skilldes .= $skilleffect . " " . $skill['type'];
-  $skilldes .= " to " . $skill['targets'] . " target";
+  $skilltargets = str_replace("{skill level}", $skill['skilllevel'], $skill['targets']);
+  $skilldes .= " to " . $skilltargets . " target";
   if($skill['targets'] > 1) { $skilldes .= "s"; }
   if($skill['skillstatus'] != "") { $skilldes .= " and " . $skill['skillstatus']; }
 
   echo "<tr><td>$skill[skillname]</td><td>$skill[tier]</td><td>$skill[skilllevel]</td><td>$skill[cost]</td><td>$skilldes</td><td><a href='javascript:updateSkill(\"$skill[skillid]\");'>$cost gold</a></td></tr>";
 }
-echo "</table>";
+echo "</table></div>";
 echo "<form name='skillfrm' id='skillfrm' method='POST' action='skills.php'><input name='skill' type='hidden' value='' id='skillID'></form>";
 
 ?>

@@ -48,9 +48,9 @@ if($hero['guild'] == 0) {
 
 $guilds = mysqli_query($conn,"SELECT * FROM Guilds");
 
-echo "Guilds:<br>";
+echo "<div class='parchment'><h3>Guilds:</h3>";
 
-echo "<table class='parchment'><tr><th>Name</th><th>Members</th><th>Description</th>";
+echo "<table><tr><th>Name</th><th>Members</th><th>Description</th>";
 if($hero['guild'] == 0) { echo "<th>Apply</th>"; }
 echo "</tr>";
 while($row = mysqli_fetch_assoc($guilds)) {
@@ -65,7 +65,7 @@ while($row = mysqli_fetch_assoc($guilds)) {
   }
   echo "</tr>";
 }
-echo "</table>";
+echo "</table></div>";
 	
 mysqli_close($conn);
 

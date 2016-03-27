@@ -2,6 +2,13 @@
 include "checklogin.php";
 include "menu.php";
 
+$conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
+
+if(strpos($hero['tutorial'], 'battleplanintro') === false) {
+  echo "<div class='alert'>Here's where you set your strategy for adventures. Choose what <a href='skills.php'><span class='red'>Skills</span></a> you want to use and when to use them. Once you do you can go on <a href='dungeons.php'><span class='red'>Adventures</span></a>.</div>";
+  mysqli_query($conn,"UPDATE Hero SET tutorial = CONCAT(tutorial, 'battleplanintro|') WHERE id = '$cookie[0]'") or die(mysqli_error($conn));
+}
+
 if(isset($_POST['save'])) {
   foreach($_POST['plans'] as $plans) {
     if (array_key_exists('0', $plans) && array_key_exists('1', $plans))
@@ -21,16 +28,11 @@ if(isset($_POST['save'])) {
   if (isset($battleplans))
   {
     $battleplan = implode("||",$battleplans);
-    $conn=mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
     mysqli_query($conn,"UPDATE Hero SET battleplan = '$battleplan' WHERE id = '$cookie[0]'");
-    mysqli_close($conn);
   }
 }
 
-
-$conn=mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
 $currentplans = mysqli_fetch_assoc(mysqli_query($conn,"SELECT battleplan FROM Hero WHERE id = '$cookie[0]'"));
-mysqli_close($conn);
 
 $currentplan = explode("||",$currentplans['battleplan']);
 foreach($currentplan as $currents) {
@@ -38,22 +40,21 @@ foreach($currentplan as $currents) {
 }
 
 $allskills = null;
-$conn=mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
 $skillresults = mysqli_query($conn,"SELECT skillid, skillname FROM SkillList, HeroSkills WHERE heroID = '$cookie[0]' AND abilityid =skillid AND category!='heal'") or die(mysqli_error($conn));
 while ($row = mysqli_fetch_assoc($skillresults))
 {
   $allskills[] = $row;
 }
-mysqli_close($conn);
 
 $healskills = null;
-$conn=mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
 $healresults = mysqli_query($conn,"SELECT skillid, skillname FROM SkillList, HeroSkills WHERE heroID = '$cookie[0]' AND abilityid =skillid AND category='heal'") or die(mysqli_error($conn));
 while($row = mysqli_fetch_assoc($healresults))
 {
   $healskills[] = $row;
 }
+
 mysqli_close($conn);
+
 ?>
 
 
@@ -171,7 +172,7 @@ function addOption(id, text, value)
 </script>
 
 
-<form name='battleplan' id='battleplanfrm' action='battleplan.php' method='POST'>
+<form name='battleplan' id='battleplanfrm' action='battleplan.php' method='POST' class='parchment'>
   Attack Rotation:<br>
   <button id="buttonAdd" type='button' onclick='add()'>Add</button><br>
 

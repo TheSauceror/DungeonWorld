@@ -39,7 +39,7 @@ if(isset($_POST['name'], $_POST['pw'], $_POST['race'], $_POST['prof'])) {
   if(!is_null(mysqli_fetch_assoc(mysqli_query($conn, "SELECT * FROM Hero WHERE name = '$name'")))) {
     echo "Hero name already exists.";
   } else {
-    mysqli_query($conn, "INSERT INTO Hero (name, pw, race, prof, gold, battleplan) VALUES ('$name', '$pw', '$race', '$prof', '250', '')");
+    mysqli_query($conn, "INSERT INTO Hero (name, pw, race, prof, gold, battleplan, tutorial) VALUES ('$name', '$pw', '$race', '$prof', '250', 'notnexttoenemy|7||nexttoenemy|7', '')");
     $hero = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Hero WHERE name = '$name' AND pw = '$pw'"));
     calculateHPMPInit($hero['id']);
     switch($prof) {
@@ -88,9 +88,8 @@ if(isset($_POST['name'], $_POST['pw'], $_POST['race'], $_POST['prof'])) {
   mysqli_close($conn);
 }
 
-echo "<form action='login.php' method='post'>
-<fieldset class='parchment'>
-<legend>New Account</legend>
+echo "<div class='parchment'><h3>New Account</h3>
+<form action='login.php' method='post'>
 Name: <input type='text' name='name' required>
 <br>Password: <input type='password' name='pw' required>
 <br>Race: <select name='race' required onchange='changestats(this.value)'><option value='Human'>Human</option><option value='Elf'>Elf</option><option value='Orc'>Orc</option><option>Dwarf</option></select>
@@ -98,17 +97,16 @@ Name: <input type='text' name='name' required>
 <br>Profession: <select name='prof' required onchange='changestats(this.value)'><option value='Barbarian'>Barbarian</option><option value='Archer'>Archer</option><option value='Mage'>Mage</option><option>Knight</option><option>Priest</option></select>
 <span id='profstats'>+30% HP, -15% MP</span>
 <br><input type='submit'>
-</fieldset></form>";
+</form></div>";
 
 echo "<br><br>";
 
-echo "<form action='login.php' method='post'>
-<fieldset class='parchment'>
-<legend>Login</legend>
+echo "<div class='parchment'><h3>Login</h3>
+<form action='login.php' method='post'>
 Name: <input type='text' name='name' required>
 <br>Password: <input type='password' name='pw' required>
 <br><input type='submit'>
-</fieldset></form>";
+</form></div>";
 
 
 ?>

@@ -7,10 +7,10 @@ small, strike, strong, tt, var,
 dl, dt, dd, ol,
 fieldset, form, label, legend,
 table, caption, tbody, tfoot, thead, tr, th, td {
-    outline: 0;
-    margin: 0;
-    padding: 0;
-    border: 0;
+    outline: 0px;
+    margin: 0px;
+    padding: 0px;
+    border: 0px;
     font-size: 100%;
     vertical-align: baseline;
 }
@@ -27,8 +27,16 @@ a {
     color: black;
 }
 
+h1, h2, h3 {
+    margin: 0px;
+}
+
 .white {
     color: white;
+}
+
+.red {
+    color: red;
 }
 
 table, th, td {
@@ -39,7 +47,6 @@ table, th, td {
 
 .button {
     font-size: 24pt;
-    /*background-color: white;*/
     background-image:url('metal.jpg');
     background-size: 100% 100%;
     color: black;
@@ -58,4 +65,41 @@ table, th, td {
 .parchment {
     background-image: url("parchment.png");
     background-size: 100% 100%;
+    padding: 25px 50px;
+}
+
+.width33 {
+    width: 33%;
+}
+
+.width25 {
+    width: 25%;
+}
+
+.width100 {
+    width: 100%;
+}
+
+.center {
+    text-align: center;
+}
+
+.left {
+    float: left;
+}
+
+.alert {
+    position: relative;
+    background-image:url('metal.jpg');
+    background-size: 100% 100%;
+    padding: 10px 30px;
+    border-radius: 16px;
+    margin: auto;
+    text-align: center;
+    width: 85%;
+    font-weight: bold;
+}
+
+.hidden {
+    visibility: hidden;
 }

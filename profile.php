@@ -36,6 +36,11 @@ if(isset($_GET['id'])) {
 
 $hero = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Hero LEFT JOIN Guilds ON Hero.guild = Guilds.guildid WHERE Hero.id = '$id'"));
 
+if(strpos($hero['tutorial'], 'profileintro') === false) {
+  echo "<div class='alert'>Welcome, hero! A life of adventuring is one fraught with danger, but also a rewarding one! As long as you can survive, that is...<br>Your character stats are listed here on your <span class='red'>Profile</span>. You can train them, but nothing is free. Luckily for you, gold is easy to come by nowadays. I see you're already equipped for battle. You can also <span class='red'>change your gear</span> on this page, once you get some better items. Before you set off, you'd best plan a <a href='battleplan.php'><span class='red'>strategy</span></a>.</div>";
+  mysqli_query($conn,"UPDATE Hero SET tutorial = CONCAT(tutorial, 'profileintro|') WHERE id = '$cookie[0]'") or die(mysqli_error($conn));
+}
+
 echo "<h1>$hero[name] the $hero[race] $hero[prof]";
 if($hero['guild'] != 0) { echo " of <a href='guild.php?id=$hero[guild]'>$hero[guildname]</a>"; }
 echo "</h1>";
@@ -55,12 +60,13 @@ if(isset($_POST['attribute'])) {
 }
 
 if($id == $cookie[0]) {
-  echo "<h3>Available gold: " . $hero['gold'] . "</h3>";
+  echo "<br><h3>Available gold: " . $hero['gold'] . "</h3>";
 } else {
-  echo "<a href='sendmessage.php?to=$id' target='_blank'><h3>Send a message</h3></a>";
+  echo "<a href='sendmessage.php?to=$id' target='_blank'><h3>Send a message</h3></a><br>";
 }
 
-echo "<table class='parchment'><tr><th>Attribute</th><th>Level</th>";
+echo "<div class='parchment left'><h3>Attributes:</h3>";
+echo "<table><tr><th>Attribute</th><th>Level</th>";
 if($id == $cookie[0]) { echo "<th>Training Cost</th></tr>"; }
 echo "<tr><td>Strength <sub class='help' title='Increases melee damage and health'>?</sub></td><td>$hero[str]</td>";
 if($id == $cookie[0]) { echo "<td><a href='javascript:updateAttribute(\"str\");'>" . $hero['str']*100 . " gold</a>"; }
@@ -78,11 +84,9 @@ echo "<tr><td>Piety <sub class='help' title='Increases healing power. Greatly in
 if($id == $cookie[0]) { echo "<td><a href='javascript:updateAttribute(\"pie\");'>" . $hero['pie']*100 . " gold</a>"; }
 echo "</td></tr>";
 echo "</table>";
+echo "</div>";
 
-echo "<form name='attributefrm' id='attributefrm' method='POST' action='profile.php'><input name='attribute' type='hidden' value='' id='attributeID'></form>";
-
-echo "<br>";
-echo "<div class='parchment'>";
+echo "<div class='parchment left'><h3>Stats:</h3>";
 echo "HP: " . $hero['maxhp'];
 echo "<br>";
 echo "MP: " . $hero['maxmp'];
@@ -95,31 +99,33 @@ echo "MP regen: " . getAllItemStats($id, "mpreg");
 echo "<br><br>";
 
 //echo ": " . array_sum(array_map(function($temp){return $temp[];},$gear)) . "<br>";
-echo "Slashing damage: " . getAllItemStats($id, "sdam") . "<br>";
-echo "Piercing damage: " . getAllItemStats($id, "pdam") . "<br>";
-echo "Bludgeoning damage: " . getAllItemStats($id, "bdam") . "<br>";
+echo "Slashing power: " . getAllItemStats($id, "sdam") . "<br>";
+echo "Piercing power: " . getAllItemStats($id, "pdam") . "<br>";
+echo "Bludgeoning power: " . getAllItemStats($id, "bdam") . "<br>";
+echo "Arcane power: " . getAllItemStats($id, "adam") . "<br>";
+echo "Divine power: " . getAllItemStats($id, "ddam") . "<br>";
 echo "<br>";
-echo "Slashing armor: " . getAllItemStats($id, "sarm") . "<br>";
-echo "Piercing armor: " . getAllItemStats($id, "parm") . "<br>";
-echo "Bludgeoning armor: " . getAllItemStats($id, "barm") . "<br>";
+echo "Slashing defense: " . getAllItemStats($id, "sarm") . "<br>";
+echo "Piercing defense: " . getAllItemStats($id, "parm") . "<br>";
+echo "Bludgeoning defense: " . getAllItemStats($id, "barm") . "<br>";
+echo "Arcane defense: " . getAllItemStats($id, "aarm") . "<br>";
+echo "Divine defense: " . getAllItemStats($id, "darm") . "<br>";
 echo "</div>";
 
-echo "<br>Items:<br>";
-
+echo "<div class='parchment left'><h3>Items:</h3>Dungeon Level: $hero[dungeonlevel] <sub class='help' title='You can only equip items of your highest completed dungeon level or lower'>?</sub>";
 if($id == $cookie[0]) {
   echo "<form name='equipfrm' id='equipfrm' method='POST' action='profile.php'>";
-  echo "<table class='parchment'>";
-  echo "<tr><td>Main Hand:</td><td><select name='mainhand' onChange='this.form.submit();'>"; getAllSlot($id, 'Hand', 1); echo "</select></td><td>" . getItemDes(0, $id, 'Hand', 1) . "</td></tr>";
-  echo "<tr><td>Off Hand:</td><td><select name='offhand' onChange='this.form.submit();'>"; getAllSlot($id, 'Hand', 2); echo "</select></td><td>" . getItemDes(0, $id, 'Hand', 2) . "</td></tr>";
-  echo "<tr><td>Head:</td><td><select name='head' onChange='this.form.submit();'>"; getAllSlot($id, 'Head', 1); echo "</select></td><td>" . getItemDes(0, $id, 'Head', 1) . "</td></tr>";
-  echo "<tr><td>Torso:</td><td><select name='torso' onChange='this.form.submit();'>"; getAllSlot($id, 'Torso', 1); echo "</select></td><td>" . getItemDes(0, $id, 'Torso', 1) . "</td></tr>";
-  echo "<tr><td>Arms:</td><td><select name='arms' onChange='this.form.submit();'>"; getAllSlot($id, 'Arms', 1); echo "</select></td><td>" . getItemDes(0, $id, 'Arms', 1) . "</td></tr>";
-  echo "<tr><td>Legs:</td><td><select name='legs' onChange='this.form.submit();'>"; getAllSlot($id, 'Legs', 1); echo "</select></td><td>" . getItemDes(0, $id, 'Legs', 1) . "</td></tr>";
-  echo "<tr><td>Feet:</td><td><select name='feet' onChange='this.form.submit();'>"; getAllSlot($id, 'Feet', 1); echo "</select></td><td>" . getItemDes(0, $id, 'Feet', 1) . "</td></tr>";
+  echo "<table>";
+  echo "<tr><td>Main Hand:</td><td><select name='mainhand' onChange='this.form.submit();'>"; getAllSlot($id, $hero['dungeonlevel'], 'Hand', 1); echo "</select></td><td>" . getItemDes(0, $id, 'Hand', 1) . "</td></tr>";
+  echo "<tr><td>Off Hand:</td><td><select name='offhand' onChange='this.form.submit();'>"; getAllSlot($id, $hero['dungeonlevel'], 'Hand', 2); echo "</select></td><td>" . getItemDes(0, $id, 'Hand', 2) . "</td></tr>";
+  echo "<tr><td>Head:</td><td><select name='head' onChange='this.form.submit();'>"; getAllSlot($id, $hero['dungeonlevel'], 'Head', 1); echo "</select></td><td>" . getItemDes(0, $id, 'Head', 1) . "</td></tr>";
+  echo "<tr><td>Torso:</td><td><select name='torso' onChange='this.form.submit();'>"; getAllSlot($id, $hero['dungeonlevel'], 'Torso', 1); echo "</select></td><td>" . getItemDes(0, $id, 'Torso', 1) . "</td></tr>";
+  echo "<tr><td>Arms:</td><td><select name='arms' onChange='this.form.submit();'>"; getAllSlot($id, $hero['dungeonlevel'], 'Arms', 1); echo "</select></td><td>" . getItemDes(0, $id, 'Arms', 1) . "</td></tr>";
+  echo "<tr><td>Legs:</td><td><select name='legs' onChange='this.form.submit();'>"; getAllSlot($id, $hero['dungeonlevel'], 'Legs', 1); echo "</select></td><td>" . getItemDes(0, $id, 'Legs', 1) . "</td></tr>";
+  echo "<tr><td>Feet:</td><td><select name='feet' onChange='this.form.submit();'>"; getAllSlot($id, $hero['dungeonlevel'], 'Feet', 1); echo "</select></td><td>" . getItemDes(0, $id, 'Feet', 1) . "</td></tr>";
   echo "</table>";
   echo "</form>";
 } else {
-  echo "<div class='parchment'>";
   echo "Main Hand: " . getItemName($id, 'Hand', 1, 0, 0, 0, 0, 0, 0) . " - " . getItemDes(0, $id, 'Hand', 1) . "<br>";
   echo "Off Hand: " . getItemName($id, 'Hand', 2, 0, 0, 0, 0, 0, 0) . " - " . getItemDes(0, $id, 'Hand', 2) . "<br>";
   echo "Head: " . getItemName($id, 'Head', 1, 0, 0, 0, 0, 0, 0) . " - " . getItemDes(0, $id, 'Head', 1) . "<br>";
@@ -127,14 +133,16 @@ if($id == $cookie[0]) {
   echo "Arms: " . getItemName($id, 'Arms', 1, 0, 0, 0, 0, 0, 0) . " - " . getItemDes(0, $id, 'Arms', 1) . "<br>";
   echo "Legs: " . getItemName($id, 'Legs', 1, 0, 0, 0, 0, 0, 0) . " - " . getItemDes(0, $id, 'Legs', 1) . "<br>";
   echo "Feet: " . getItemName($id, 'Feet', 1, 0, 0, 0, 0, 0, 0) . " - " . getItemDes(0, $id, 'Feet', 1) . "<br>";
-  echo "</div>";
 }
+echo "</div>";
+
+echo "<form name='attributefrm' id='attributefrm' method='POST' action='profile.php'><input name='attribute' type='hidden' value='' id='attributeID'></form>";
 
 mysqli_close($conn);
 
-function getAllSlot($hero, $slot, $equip) {
+function getAllSlot($hero, $level, $slot, $equip) {
   $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd"); 
-  $slotitems = mysqli_query($conn,"SELECT * FROM Inventory LEFT JOIN ItemBase ON Inventory.base = ItemBase.baseid Left JOIN ItemPrefix ON Inventory.prefix = ItemPrefix.prefixid LEFT JOIN ItemSuffix ON Inventory.suffix = ItemSuffix.suffixid WHERE Inventory.owner = '$hero' AND ItemBase.slot = '$slot' AND Inventory.market = '0'");
+  $slotitems = mysqli_query($conn,"SELECT * FROM Inventory LEFT JOIN ItemBase ON Inventory.base = ItemBase.baseid Left JOIN ItemPrefix ON Inventory.prefix = ItemPrefix.prefixid LEFT JOIN ItemSuffix ON Inventory.suffix = ItemSuffix.suffixid WHERE Inventory.owner = '$hero' AND ItemBase.slot = '$slot' AND Inventory.time = '0' AND Inventory.baselevel <= '$level'");
   echo "<option value=''>----------</option>";
   while($row = mysqli_fetch_assoc($slotitems)) {
     if($row['equip'] != $equip && $row['equip'] != 0) { continue; }

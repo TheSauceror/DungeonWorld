@@ -3,24 +3,34 @@
 	include "menu.php";
 ?>
 
+<div class="parchment">
 <h2>Planned Updates</h2>
 <ul>
-	<li>We'll be getting rid of the current party system, and make it work more like a queue</li>
-	<li>Items will start dropping from monsters in the next couple days</li>
+	<li></li>
 </ul>
-<hr width='33%'>
+</div>
+
+<div class="parchment">
 <h2>Known Bugs</h2>
 <ul>
-	<li>Dungeons don't end on failure correctly</li>
-	<li>Fix hero battleplan</li>
-	<li>Need to move messages from GET to POST</li>
-	<li>Need to fix sendmessage and replying</li>
-	<li>Apostrophes break dungeon names</li>
+	<li>Adventures don't end on failure correctly</li>
+	<li>Messages only work by sending to Hero ID, not by Hero name</li>
 </ul>
-<hr width='33%'>
+</div>
+<div class="parchment">
+<h2>March 26, 2016</h2>
+<ul>
+	<li>Added feedback system</li>
+	<li>Added "Defend Against the Rat Invasion" Adventure</li>
+</ul>
+<h2>March 24, 2016</h2>
+<ul>
+	<li>Added tutorial</li>
+	<li>Added "Clear Out The Rat Nest Adventure"</li>
+</ul>
 <h2>March 21, 2016</h2>
 <ul>
-	<li>Added LFG party system</li>
+	<li>Added party system</li>
 </ul>
 <h2>March 17, 2016</h2>
 <ul>
@@ -37,7 +47,7 @@
 <h2>March 9, 2016</h2>
 <ul>
 	<li>Updated UI</li>
-	<li>Added dungeon levels/types/tiers</li>
+	<li>Added adventures levels/types/tiers</li>
 </ul>
 <h2>March 7, 2016</h2>
 <ul>
@@ -52,7 +62,7 @@
 <ul>
 	<li>Removed function redundancy</li>
 	<li>Isolated login check</li>
-	<li>Show dungeon currently being explored</li>
+	<li>Show adventure currently being explored</li>
 	<li>Improved item descriptions</li>
 </ul>
 <h2>February 29, 2016</h2>
@@ -60,7 +70,7 @@
 	<li>Changed rooms to list enemies by id</li>
 	<li>Reorganized pages</li>
 	<li>Made items un/equippable </li>
-	<li>Set up dungeon levels</li>
+	<li>Set up adventure levels</li>
 	<li>Implemented item component levels</li>
 	<li>Disabled changing other hero's equipment</li>
 	<li>Disabled seeing other hero's gold</li>
@@ -74,7 +84,7 @@
 </ul>
 <h2>February 24, 2016</h2>
 <ul>
-	<li>Changed reports to show up after the dungeon is completed</li>
+	<li>Changed reports to show up after the adventure is completed</li>
 	<li>Started setting up the market</li>
 	<li>Changed itemlist to show your inventory</li>
 	<li>Organized database better</li>
@@ -94,7 +104,7 @@
 </ul>
 <h2>February 13, 2016</h2>
 <ul>
-	<li>Dungeons shouldn't  reach the max text size and freeze anymore</li>
+	<li>Adventures shouldn't reach the max text size and freeze anymore</li>
 	<li>Fixed intelligence</li>
 	<li>Race/prof attribute %'s are precalculated before battle</li>
 </ul>
@@ -133,10 +143,10 @@
 </ul>
 <h2>February 2, 2016</h2>
 <ul>
-	<li>Changed dungeon cooldown to 10 minutes/room from 1 hour/room</li>
+	<li>Changed adventure cooldown to 10 minutes/room from 1 hour/room</li>
 	<li>Added distinct floor options for rooms</li>
-	<li>Fixed room counting in dungeons</li>
-	<li>Added the Whiteshire Abbey dungeon</li>
+	<li>Fixed room counting in adventures</li>
+	<li>Added the "Whiteshire Abbey" adventure</li>
 </ul>
 <h2>January 29, 2016</h2>
 <ul>
@@ -146,3 +156,4 @@
 	<li>Fixed image urls</li>
 	<li>Fixed unit image settings to pull from profession instead of name</li>
 </ul>
+</div>

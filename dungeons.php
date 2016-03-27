@@ -20,10 +20,13 @@ include "menu.php";
 
 $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
 
-//$hero = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Hero WHERE id = '$cookie[0]'"));
+if(strpos($hero['tutorial'], 'dungeonsintro') === false) {
+  echo "<div class='alert'>Time to test the waters! Here you can <span class='red'>create</span> and <span class='red'>join</span> adventuring parties. Parties have a <span class='red'>size limit</span> based on difficulty. Once a party gets full, it'll <span class='red'>automatically</span> depart. After a while you'll return and you can check your progress. As you complete adventures, you'll discover more, each with more dangerous monsters and more rewarding loot.</div>";
+  mysqli_query($conn,"UPDATE Hero SET tutorial = CONCAT(tutorial, 'dungeonsintro|') WHERE id = '$cookie[0]'") or die(mysqli_error($conn));
+}
 
 if(trim(str_replace("|", "", $hero['battleplan'])) == "") {
-	echo "<center><h1>You need a battleplan to do dungeons.</h1></center>";
+	echo "<center><h1>You need a <a href='battleplan.php'>battleplan</a> to go on an adventure.</h1></center>";
 	exit;
 }
 
@@ -72,11 +75,11 @@ if(isset($_POST['joinid'])) {
 }
 
 $dungeons = mysqli_query($conn,"SELECT * FROM Dungeons WHERE dungeonid > 0 AND Dungeons.dungeonlevel <= '$hero[dungeonlevel]' ORDER BY dungeonlevel ASC, maxpeople ASC");
-$parties = mysqli_query($conn,"SELECT * FROM Party, Dungeons WHERE Party.dungeonid = Dungeons.dungeonid AND Dungeons.dungeonlevel <= '$hero[dungeonlevel]'");
+$parties = mysqli_query($conn,"SELECT * FROM Party, Dungeons WHERE Party.dungeonid = Dungeons.dungeonid AND Dungeons.dungeonlevel <= '$hero[dungeonlevel]' ORDER BY dungeonlevel ASC, maxpeople ASC");
 
 if($hero['party'] == 0) {
-  echo "<h1>Dungeons:</h1>";
-  echo "<table class='parchment'><tr><th>Dungeon Name</th><th>Type</th><th>Level</th><th>Create Party</th></tr>";
+  echo "<div class='parchment'><h3>Adventures:</h3>";
+  echo "<table><tr><th>Adventure Name</th><th>Type</th><th>Level</th><th>Create Party</th></tr>";
   while($row = mysqli_fetch_assoc($dungeons)) {
   	if($row['maxpeople'] == 1) { $row['maxpeople'] = 'Solo'; }
   	if($row['maxpeople'] == 4) { $row['maxpeople'] = 'Party'; }
@@ -89,7 +92,7 @@ if($hero['party'] == 0) {
     }
     echo "</a></td></tr>";
   }
-  echo "</table>";
+  echo "</table></div>";
 } else {
   $membernames = "";
   $party = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Party, Dungeons WHERE Party.partyid = '$hero[party]' AND Dungeons.dungeonid = Party.dungeonid"));
@@ -99,17 +102,17 @@ if($hero['party'] == 0) {
     $membernames .= "<a href='profile.php?id=" . $row['id'] . "'>" . $row['name'] . "</a>";
   }
   $party['members'] = mysqli_fetch_assoc(mysqli_query($conn,"SELECT COUNT(*) AS members FROM Hero WHERE party = '$hero[party]'"))['members'];
-  echo "<h1>Your Party:</h1>";
-  echo "<table class='parchment'><tr><th>Dungeon Name</th><th>Level</th><th>Members</th><th>Member Names</th><th>Leave Party</th></tr>";
+  echo "<div class='parchment'><h3>Your Party:</h3>";
+  echo "<table><tr><th>Adventure Name</th><th>Level</th><th>Members</th><th>Member Names</th><th>Leave Party</th></tr>";
   //if($party['maxpeople'] == 1) { $party['maxpeople'] = 'Solo'; }
   //if($party['maxpeople'] == 4) { $party['maxpeople'] = 'Party'; }
   //if($party['maxpeople'] == 6) { $party['maxpeople'] = 'Raid'; }
-  echo "<tr><td>" . $party['dungeonname'] . "</a></td><td>" . $party['dungeonlevel'] . "</td><td>" . $party['members'] . " / " . $party['maxpeople'] . "</td><td>" . $membernames . "</td><td><a href='javascript:leave($hero[id]);'>X</a></td></tr>";
-  echo "</table>";  
+  echo "<tr><td>" . $party['dungeonname'] . "</a></td><td>" . $party['dungeonlevel'] . "</td><td>" . $party['members'] . " / " . $party['maxpeople'] . "</td><td>" . $membernames . "</td><td class='center'><a href='javascript:leave($hero[id]);'>X</a></td></tr>";
+  echo "</table></div>";  
 }
 
-echo "<h1>Parties:</h1>";
-echo "<table class='parchment'><tr><th>Dungeon Name</th><th>Level</th><th>Members</th>";
+echo "<div class='parchment'><h3>Parties:</h3>";
+echo "<table><tr><th>Dungeon Name</th><th>Level</th><th>Members</th>";
 if($hero['party'] == 0) { echo "<th>Join Party</th>"; }
 echo "</tr>";
 while($row = mysqli_fetch_assoc($parties)) {
@@ -118,10 +121,10 @@ while($row = mysqli_fetch_assoc($parties)) {
 	//if($row['maxpeople'] == 4) { $row['maxpeople'] = 'Party'; }
 	//if($row['maxpeople'] == 6) { $row['maxpeople'] = 'Raid'; }
   echo "<tr><td>" . $row['dungeonname'] . "</td><td>" . $row['dungeonlevel'] . "</td><td>" . $row['members'] . " / " . $row['maxpeople'] . "</td>";
-  if($hero['party'] == 0) { echo "<td><a href='javascript:join($row[partyid]);'>X</a></td>"; }
+  if($hero['party'] == 0) { echo "<td class='center'><a href='javascript:join($row[partyid]);'>X</a></td>"; }
   echo"</tr>";
 }
-echo "</table>";
+echo "</table></div>";
 
 echo "<form name='leavefrm' id='leavefrm' method='POST' action='dungeons.php'><input name='leaveid' type='hidden' value='' id='leaveID'></form>";
 echo "<form name='createfrm' id='createfrm' method='POST' action='dungeons.php'><input name='createid' type='hidden' value='' id='createID'></form>";

@@ -110,12 +110,12 @@ $applicants = mysqli_query($conn,"SELECT * FROM GuildApplicants LEFT JOIN Hero O
 echo "<h1>$guild[guildname]</h1>";
 
 if($guild['owner'] == $hero['id']) {
-  echo "<form action='guild.php' method='post'><fieldset class='parchment'><legend>Edit guild description</legend>Description: <input type='text' name='guilddes' required value='$guild[guilddes]'><input type='submit' value='Save'></fieldset></form>";
+  echo "<form action='guild.php' method='post' class='parchment'><h3>Edit guild description</h3><fieldset>Description: <input type='text' name='guilddes' required value='$guild[guilddes]'><input type='submit' value='Save'></fieldset></form>";
 } else {
   echo "<h3>$guild[guilddes]</h3>";
 }
 
-echo "<table class='parchment'><tr><th>Name</th><th>Race</th><th>Profession</th>";
+echo "<div class='parchment'><h3>Guild Members</h3><table><tr><th>Name</th><th>Race</th><th>Profession</th>";
 if($guild['guildid'] == $hero['guild']) { echo "<th>Join Party</th>"; }
 if($guild['owner'] == $hero['id']) { echo "<th>Member Options</th>"; }
 echo "</tr>";
@@ -132,12 +132,12 @@ while($row = mysqli_fetch_assoc($members)) {
   if($guild['owner'] == $hero['id'] && $row['id'] != $hero['id']) { echo "<td><a href='javascript:kick($row[id]);'>Kick</a> / <a href='javascript:give($row[id]);'>Give ownership</a></td>"; }
   echo "</tr>";
 }
-echo "</table>";
+echo "</table></div>";
 
 if($guild['guildid'] == $hero['guild'] && $guild['owner'] != $hero['id']) { echo "<h3><a href='javascript:leave($hero[id]);'>Leave Guild</a></h3>"; }
 
-echo "<h3>Applicants</h3>";
-echo "<table class='parchment'><tr><th>Name</th><th>Race</th><th>Profession</th>";
+echo "<div class='parchment'><h3>Applicants</h3>";
+echo "<table><tr><th>Name</th><th>Race</th><th>Profession</th>";
 if($guild['owner'] == $hero['id']) { echo "<th colspan='2'>Respond</th>"; }
 echo "</tr>";
 while($row = mysqli_fetch_assoc($applicants)) {
@@ -145,7 +145,7 @@ while($row = mysqli_fetch_assoc($applicants)) {
 	if($guild['owner'] == $hero['id']) { echo "<td><a href='javascript:accept($row[id]);'>Accept</a></td><td><a href='javascript:deny($row[id]);'>Deny</a></td>"; }
   echo "</tr>";
 }
-echo "</table>";
+echo "</table></div>";
 
 mysqli_close($conn);
 

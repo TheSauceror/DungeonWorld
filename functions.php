@@ -22,7 +22,7 @@ function getItemPrice($itemid, $mult) {
   $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
 	$item = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Inventory LEFT JOIN ItemBase ON Inventory.base = ItemBase.baseid Left JOIN ItemPrefix ON Inventory.prefix = ItemPrefix.prefixid LEFT JOIN ItemSuffix ON Inventory.suffix = ItemSuffix.suffixid WHERE Inventory.inventoryid = '$itemid'"));
   mysqli_close($conn);
-  if($mult == 0) { $mult = (.5+($item['market']-time())/60/60/24/7/2); }
+  if($mult == 0) { $mult = (.5+($item['time']-time())/60/60/24/7/2); }
   return max(1, floor($mult * (($item['prefixvalue'] * $item['prefixlevel']) + ($item['basevalue'] * $item['baselevel']) + ($item['suffixvalue'] * $item['suffixlevel']))));
 }
 
@@ -92,33 +92,49 @@ function getItemDes($itemid, $hero, $slot, $equip) { //calculate description for
   if($itemid != 0) {
   	$item = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Inventory LEFT JOIN ItemBase ON Inventory.base = ItemBase.baseid Left JOIN ItemPrefix ON Inventory.prefix = ItemPrefix.prefixid LEFT JOIN ItemSuffix ON Inventory.suffix = ItemSuffix.suffixid WHERE Inventory.inventoryid = '$itemid'"));
   } else {
-  	$item = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Inventory LEFT JOIN ItemBase ON Inventory.base = ItemBase.baseid Left JOIN ItemPrefix ON Inventory.prefix = ItemPrefix.prefixid LEFT JOIN ItemSuffix ON Inventory.suffix = ItemSuffix.suffixid  WHERE Inventory.owner = '$hero' AND ItemBase.slot = '$slot' AND Inventory.market = '0' AND Inventory.equip = '$equip'"));
+  	$item = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Inventory LEFT JOIN ItemBase ON Inventory.base = ItemBase.baseid Left JOIN ItemPrefix ON Inventory.prefix = ItemPrefix.prefixid LEFT JOIN ItemSuffix ON Inventory.suffix = ItemSuffix.suffixid  WHERE Inventory.owner = '$hero' AND ItemBase.slot = '$slot' AND Inventory.time = '0' AND Inventory.equip = '$equip'"));
   }
   $itemdes = "";
   mysqli_close($conn);
   if($item['basesdam'] > 0) {
     if($itemdes != "") { $itemdes .= ", "; }
-    $itemdes .= max(0, ($item['prefixsdam'] * $item['prefixlevel']) + ($item['basesdam'] * $item['baselevel']) + ($item['suffixsdam'] * $item['suffixlevel'])) . " slashing damage";
+    $itemdes .= max(0, ($item['prefixsdam'] * $item['prefixlevel']) + ($item['basesdam'] * $item['baselevel']) + ($item['suffixsdam'] * $item['suffixlevel'])) . " slashing power";
   }
   if($item['basepdam'] > 0) {
     if($itemdes != "") { $itemdes .= ", "; }
-    $itemdes .= max(0, ($item['prefixpdam'] * $item['prefixlevel']) + ($item['basepdam'] * $item['baselevel']) + ($item['suffixpdam'] * $item['suffixlevel'])) . " piercing damage";
+    $itemdes .= max(0, ($item['prefixpdam'] * $item['prefixlevel']) + ($item['basepdam'] * $item['baselevel']) + ($item['suffixpdam'] * $item['suffixlevel'])) . " piercing power";
   }
   if($item['basebdam'] > 0) {
     if($itemdes != "") { $itemdes .= ", "; }
-    $itemdes .= max(0, ($item['prefixbdam'] * $item['prefixlevel']) + ($item['basebdam'] * $item['baselevel']) + ($item['suffixbdam'] * $item['suffixlevel'])) . " bludgeoning damage";
+    $itemdes .= max(0, ($item['prefixbdam'] * $item['prefixlevel']) + ($item['basebdam'] * $item['baselevel']) + ($item['suffixbdam'] * $item['suffixlevel'])) . " bludgeoning power";
+  }
+  if($item['baseadam'] > 0) {
+    if($itemdes != "") { $itemdes .= ", "; }
+    $itemdes .= max(0, ($item['prefixadam'] * $item['prefixlevel']) + ($item['baseadam'] * $item['baselevel']) + ($item['suffixadam'] * $item['suffixlevel'])) . " arcane power";
+  }
+  if($item['baseddam'] > 0) {
+    if($itemdes != "") { $itemdes .= ", "; }
+    $itemdes .= max(0, ($item['prefixddam'] * $item['prefixlevel']) + ($item['baseddam'] * $item['baselevel']) + ($item['suffixddam'] * $item['suffixlevel'])) . " divine power";
   }
   if($item['basesarm'] > 0) {
     if($itemdes != "") { $itemdes .= ", "; }
-    $itemdes .= max(0, ($item['prefixsarm'] * $item['prefixlevel']) + ($item['basesarm'] * $item['baselevel']) + ($item['suffixsarm'] * $item['suffixlevel'])) . " slashing armor";
+    $itemdes .= max(0, ($item['prefixsarm'] * $item['prefixlevel']) + ($item['basesarm'] * $item['baselevel']) + ($item['suffixsarm'] * $item['suffixlevel'])) . " slashing defense";
   }
   if($item['baseparm'] > 0) {
     if($itemdes != "") { $itemdes .= ", "; }
-    $itemdes .= max(0, ($item['prefixparm'] * $item['prefixlevel']) + ($item['baseparm'] * $item['baselevel']) + ($item['suffixparm'] * $item['suffixlevel'])) . " piercing armor";
+    $itemdes .= max(0, ($item['prefixparm'] * $item['prefixlevel']) + ($item['baseparm'] * $item['baselevel']) + ($item['suffixparm'] * $item['suffixlevel'])) . " piercing defense";
   }
   if($item['basebarm'] > 0) {
     if($itemdes != "") { $itemdes .= ", "; }
-    $itemdes .= max(0, ($item['prefixbarm'] * $item['prefixlevel']) + ($item['basebarm'] * $item['baselevel']) + ($item['suffixbarm'] * $item['suffixlevel'])) . " bludgeoning armor";
+    $itemdes .= max(0, ($item['prefixbarm'] * $item['prefixlevel']) + ($item['basebarm'] * $item['baselevel']) + ($item['suffixbarm'] * $item['suffixlevel'])) . " bludgeoning defense";
+  }
+  if($item['baseaarm'] > 0) {
+    if($itemdes != "") { $itemdes .= ", "; }
+    $itemdes .= max(0, ($item['prefixaarm'] * $item['prefixlevel']) + ($item['baseaarm'] * $item['baselevel']) + ($item['suffixaarm'] * $item['suffixlevel'])) . " arcane defense";
+  }
+  if($item['basedarm'] > 0) {
+    if($itemdes != "") { $itemdes .= ", "; }
+    $itemdes .= max(0, ($item['prefixdarm'] * $item['prefixlevel']) + ($item['basedarm'] * $item['baselevel']) + ($item['suffixdarm'] * $item['suffixlevel'])) . " divine defense";
   }
   if($item['basehpreg'] > 0) {
     if($itemdes != "") { $itemdes .= ", "; }

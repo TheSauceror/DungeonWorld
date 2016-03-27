@@ -21,13 +21,13 @@ $subject = "";
 if(isset($_GET['to'])) { $to = $_GET['to']; }
 if(isset($_GET['subject'])) { $subject = $_GET['subject']; }
 
-echo "<form action='sendmessage.php' method='post'>
+echo "<div class='parchment'><form action='sendmessage.php' method='post'>
 <fieldset>
-<legend>Send A Message</legend>
+<h3>Send A Message</h3>
 To: <input type='text' name='to' required value='$to'><br>
 Subject: <input type='text' name='subject' required value='$subject'><br>
 Message: <br><textarea name='message' required cols='40' rows='5'></textarea><br>
 <input type='submit'>
-</fieldset></form>";
+</fieldset></form></div>";
 
 ?>
