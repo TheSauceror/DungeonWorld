@@ -175,7 +175,7 @@ foreach($dungeonrooms as $key => $room) {
       if($fighters[$currentturn]['hp'] < 1)
       { 
         KillFighter($currentturn);
-        break;
+        continue;
       }
 
       for($acts = 0; $acts < $fighters[$currentturn]['act']; $acts++) {
@@ -319,7 +319,8 @@ function action($i ,$j) {
       }
 
       $closest = findNearestEnemy($i);
-      $reporttext .= $fighters[$i]['name'] . " moved from (" . $fighters[$i]['x'] . ", " . $fighters[$i]['y'] . ") to (";
+      $reporttext .= $fighters[$i]['name'] . " moved toward " . $fighters[$closest]['name'] . "<br>";
+      //$reporttext .= $fighters[$i]['name'] . " moved from (" . $fighters[$i]['x'] . ", " . $fighters[$i]['y'] . ") to (";
       for ($k = 0; $k < $fighters[$i]['move']; $k++) {
       //$move = $fighters[$i]['agi'];
       //while($move > 0 ) {
@@ -348,7 +349,7 @@ function action($i ,$j) {
           //$move--;
         }
       }
-      $reporttext .= $fighters[$i]['x'] . ", " .+ $fighters[$i]['y'] . ").<br>";
+      //$reporttext .= $fighters[$i]['x'] . ", " .+ $fighters[$i]['y'] . ").<br>";
       return;
       break;
     case "moveawayfromenemy":
@@ -359,7 +360,8 @@ function action($i ,$j) {
       }
 
       $closest = findNearestEnemy($i);
-      $reporttext .= $fighters[$i]['name'] . " moved from (" . $fighters[$i]['x'] . ", " . $fighters[$i]['y'] . ") to (";
+      $reporttext .= $fighters[$i]['name'] . " moved away from " . $fighters[$closest]['name'] . "<br>";
+      //$reporttext .= $fighters[$i]['name'] . " moved from (" . $fighters[$i]['x'] . ", " . $fighters[$i]['y'] . ") to (";
       for ($k = 0; $k < $fighters[$i]['move']; $k++) {
       //$move = $fighters[$i]['agi'];
       //while($move > 0 ) {
@@ -388,7 +390,7 @@ function action($i ,$j) {
           //$move--;
         }
       }
-      $reporttext .= $fighters[$i]['x'] . ", " .+ $fighters[$i]['y'] . ").<br>";
+      //$reporttext .= $fighters[$i]['x'] . ", " .+ $fighters[$i]['y'] . ").<br>";
       return;
       break;
     /*case "meleeattack":
@@ -502,7 +504,7 @@ function DoHeal($attacker, $reciever, $skillInfo, $skill)
     }
 
     $healStat = str_replace("{skill level}", $skillLevel['skilllevel'], $skillInfo['effect']);
-    $heal = max(1, floor(eval("return ($healStat);")));
+    $heal = eval("return ($healStat);");
     $heal = ScaleDamage($heal, $fighters[$attacker]['pie'], 100, 1);
     $reporttext .= $fighters[$attacker]['name'] . " heals " . $fighters[$reciever]['name'] . " for " . $heal . " damage " . " with " . $skillInfo['skillname'] . ".<br>";
     $fighters[$reciever]['hp'] = min($fighters[$reciever]['maxhp'], $fighters[$reciever]['hp'] + $heal);
@@ -525,7 +527,7 @@ function DoBuff($attacker, $skillInfo, $skill)
     }
 
     $buffStats = str_replace("{skill level}", $skillLevel['skilllevel'], $skillInfo['duration']);
-    $stats = max(1, floor(eval("return ($buffStats);")));
+    $stats = eval("return ($buffStats);");
     if ($status[$attacker][$buff] < $stats)
       { $status[$attacker][$buff] = $stats; }
   }
@@ -587,8 +589,8 @@ function DoDamage($attacker, $skillInfo, $skill)
       //@JAH  GET WEAPON TYPE
       break;
     default:
-      echo "Unhandled damage type " . $skillInfo['type'] . "<br>";
-      return;
+      //echo "Unhandled damage type " . $skillInfo['type'] . "<br>"; @JAH
+      //return;
       break;
   }
 
@@ -710,7 +712,6 @@ function ScaleDamage($baseDamage, $abilityScale, $totalPow, $totalArm)
   if ($abilityScale != null)
   {
     $damage = log($abilityScale+1)*$damage;
-
     if ($totalPow/max(1, $totalArm) < 1)
     {
       $damage = $totalPow/max(1, $totalArm) * $damage;
@@ -877,9 +878,12 @@ $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd")
 //mysqli_query($conn, "DELETE FROM Party WHERE partyid = '$hero[party]'");
 foreach ($partyfighters as $hero) {
   mysqli_query($conn, "INSERT INTO Reports (heroid, timestamp, dungeon, reportintro, reportinitiative, reportmap, reporttext) VALUES ('$hero[id]', '$cd', '$dungeonname', '$reportintro', '$reportinitiative', '$reportmap', '$reporttext')") or die(mysqli_error($conn));
-  mysqli_query($conn, "UPDATE Hero SET dungeonlevel = '$dungeonlevel' + 1 WHERE id = '$hero[id]'");
-  //mysqli_query($conn, "UPDATE Hero SET cd = '$cd' WHERE id = '$hero[id]'");
-  //mysqli_query($conn, "UPDATE Hero SET party = '0' WHERE id = '$hero[id]'");
+  if ($hero['dungeonlevel'] <= $dungeonlevel)
+  {
+    mysqli_query($conn, "UPDATE Hero SET dungeonlevel = '$dungeonlevel' + 1 WHERE id = '$hero[id]'");
+    //mysqli_query($conn, "UPDATE Hero SET cd = '$cd' WHERE id = '$hero[id]'");
+    //mysqli_query($conn, "UPDATE Hero SET party = '0' WHERE id = '$hero[id]'");
+  }
 }
 mysqli_close($conn);
 
