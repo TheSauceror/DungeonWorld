@@ -115,15 +115,15 @@ foreach ($skills as $skill) {
       $skilldes .= " and " . $skilldur . " damage over time";
       break;
     case 'root':
-      $skilldur = $skill['skilllevel'];
+      $skilldur = $skill['duration'];
       $skilldes .= "also roots the target for " . $skilldur . " turns";
       break;
     case 'stun':
-      $skilldur = $skill['skilllevel'];
+      $skilldur = $skill['duration'];
       $skilldes .= "also stuns the target for " . $skilldur . " turns";
       break;
     case 'silence':
-      $skilldur = $skill['skilllevel'];
+      $skilldur = $skill['duration'];
       $skilldes .= "also silences the target for " . $skilldur . " turns";
       break;
     default:
