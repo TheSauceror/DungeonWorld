@@ -6,7 +6,10 @@
 <div class="parchment">
 <h2>Planned Updates</h2>
 <ul>
-	<li></li>
+	<li>Social Patch- Expand on Guild system, continue to improve party finder</li>
+	<li>Items Expansion- Add primary stats to items, unique and powerful passives</li>
+	<li>PvP Patch- New PvP mode, Elo and level based matchmaking, introduce PvP rewards</li>
+	<li>Skills Patch- Create skill tree and specialization, passive skills, more depth to existing skills</li>
 </ul>
 </div>
 
