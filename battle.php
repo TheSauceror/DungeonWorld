@@ -161,7 +161,7 @@ foreach($dungeonrooms as $key => $room) {
     getTurnOrder();
     foreach ($turnorder[0] as $currentturn) {
       if($fighters[$currentturn]['hp'] < 1)
-      { break; }
+      { continue; }
 
       if ($fighters[$currentturn]['party'] == 'Enemy')
       {
