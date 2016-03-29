@@ -26,12 +26,12 @@ if(strpos($hero['tutorial'], 'dungeonsintro') === false) {
 }
 
 if(trim(str_replace("|", "", $hero['battleplan'])) == "") {
-	echo "<center><h1>You need a <a href='battleplan.php'>battleplan</a> to go on an adventure.</h1></center>";
+	echo "<div class='alert'>You need a <a href='battleplan.php'>strategy</a> to go on an adventure.</div>";
 	exit;
 }
 
 if($hero['cd'] > time()) {
-  echo "<center><h1>Dungeon cooldown until: " . date("m-d-y H:i:s", $hero['cd']) . "</h1></center>";
+  echo "<div class='alert'>Dungeon cooldown until: " . date("m-d-y H:i:s", $hero['cd']) . "</div>";
   // exit;
 }
 
@@ -43,7 +43,7 @@ if(isset($_POST['leaveid'])) {
   if($members == 1) { mysqli_query($conn, "DELETE FROM Party WHERE partyid = '$hero[party]'"); }
   mysqli_query($conn, "UPDATE Hero SET party = '0' WHERE id = '$leaveid'");
   $hero['party'] = 0;
-  echo "You have left your party!";
+  echo "<div class='alert'>You have left your party!</div>";
 }
 
 if(isset($_POST['createid'])) {
@@ -54,11 +54,9 @@ if(isset($_POST['createid'])) {
   $newparty = mysqli_insert_id($conn);
   mysqli_query($conn, "UPDATE Hero SET party = '$newparty' WHERE id = '$hero[id]'");
   $hero['party'] = $newparty;
-  echo "You have created a party!";
+  echo "<div class='alert'>You have created a party!</div>";
   $members = mysqli_fetch_assoc(mysqli_query($conn,"SELECT COUNT(*) AS members FROM Hero WHERE party = '$hero[party]'"))['members'];
   $maxpeople = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Party, Dungeons WHERE Party.dungeonid = Dungeons.dungeonid AND Party.partyid = '$hero[party]'"));
-  echo $members;
-  echo $maxpeople['maxpeople'];
   if($members == $maxpeople['maxpeople']) { header('Location: battle.php?partyid=' . $hero['party']); }
 }
 
@@ -68,7 +66,7 @@ if(isset($_POST['joinid'])) {
   $joinid = mysqli_real_escape_string($conn, $_POST['joinid']);
   mysqli_query($conn, "UPDATE Hero SET party = '$joinid' WHERE id = '$hero[id]'");
   $hero['party'] = $joinid;
-  echo "You have joined a party!";
+  echo "<div class='alert'>You have joined a party!</div>";
   $members = mysqli_fetch_assoc(mysqli_query($conn,"SELECT COUNT(*) AS members FROM Hero WHERE party = '$hero[party]'"))['members'];
   $maxpeople = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Party, Dungeons WHERE Party.dungeonid = Dungeons.dungeonid AND Party.partyid = '$hero[party]'"));
   if($members == $maxpeople['maxpeople']) { header('Location: battle.php?partyid=' . $hero['party']); }

@@ -41,9 +41,9 @@ if(strpos($hero['tutorial'], 'profileintro') === false) {
   mysqli_query($conn,"UPDATE Hero SET tutorial = CONCAT(tutorial, 'profileintro|') WHERE id = '$cookie[0]'") or die(mysqli_error($conn));
 }
 
-echo "<h1>$hero[name] the $hero[race] $hero[prof]";
+echo "<div class='parchment center'><h1>$hero[name] the $hero[race] $hero[prof]";
 if($hero['guild'] != 0) { echo " of <a href='guild.php?id=$hero[guild]'>$hero[guildname]</a>"; }
-echo "</h1>";
+echo "</div>";
 
 if(isset($_POST['attribute'])) {
   $aID = mysqli_real_escape_string($conn, $_POST['attribute']);
@@ -59,13 +59,13 @@ if(isset($_POST['attribute'])) {
   }
 }
 
-if($id == $cookie[0]) {
-  echo "<br><h3>Available gold: " . $hero['gold'] . "</h3>";
-} else {
-  echo "<a href='sendmessage.php?to=$id' target='_blank'><h3>Send a message</h3></a><br>";
+if($id != $cookie[0]) {
+  echo "<div class='parchment center'><a href='sendmessage.php?to=$id' target='_blank'><h3>Send a message</h3></a></div>";
 }
 
-echo "<div class='parchment left'><h3>Attributes:</h3>";
+echo "<div class='parchment left'>";
+if($id == $cookie[0]) { echo "<h3>Available gold: $hero[gold]</h3><hr>"; }
+echo "<h3>Attributes:</h3>";
 echo "<table><tr><th>Attribute</th><th>Level</th>";
 if($id == $cookie[0]) { echo "<th>Training Cost</th></tr>"; }
 echo "<tr><td>Strength <sub class='help' title='Increases melee damage and health'>?</sub></td><td>$hero[str]</td>";
@@ -126,15 +126,16 @@ if($id == $cookie[0]) {
   echo "</table>";
   echo "</form>";
 } else {
-  echo "Main Hand: " . getItemName($id, 'Hand', 1, 0, 0, 0, 0, 0, 0) . " - " . getItemDes(0, $id, 'Hand', 1) . "<br>";
-  echo "Off Hand: " . getItemName($id, 'Hand', 2, 0, 0, 0, 0, 0, 0) . " - " . getItemDes(0, $id, 'Hand', 2) . "<br>";
-  echo "Head: " . getItemName($id, 'Head', 1, 0, 0, 0, 0, 0, 0) . " - " . getItemDes(0, $id, 'Head', 1) . "<br>";
-  echo "Torso: " . getItemName($id, 'Torso', 1, 0, 0, 0, 0, 0, 0) . " - " . getItemDes(0, $id, 'Torso', 1) . "<br>";
-  echo "Arms: " . getItemName($id, 'Arms', 1, 0, 0, 0, 0, 0, 0) . " - " . getItemDes(0, $id, 'Arms', 1) . "<br>";
-  echo "Legs: " . getItemName($id, 'Legs', 1, 0, 0, 0, 0, 0, 0) . " - " . getItemDes(0, $id, 'Legs', 1) . "<br>";
-  echo "Feet: " . getItemName($id, 'Feet', 1, 0, 0, 0, 0, 0, 0) . " - " . getItemDes(0, $id, 'Feet', 1) . "<br>";
+  echo "<br><table>";
+  echo "<tr><td>Main Hand:</td><td>" . getItemName($id, 'Hand', 1, 0, 0, 0, 0, 0, 0) . "</td><td>" . getItemDes(0, $id, 'Hand', 1) . "</td></tr>";
+  echo "<tr><td>Off Hand:</td><td>" . getItemName($id, 'Hand', 2, 0, 0, 0, 0, 0, 0) . "</td><td>" . getItemDes(0, $id, 'Hand', 2) . "</td></tr>";
+  echo "<tr><td>Head:</td><td>" . getItemName($id, 'Head', 1, 0, 0, 0, 0, 0, 0) . "</td><td>" . getItemDes(0, $id, 'Head', 1) . "</td></tr>";
+  echo "<tr><td>Torso:</td><td>" . getItemName($id, 'Torso', 1, 0, 0, 0, 0, 0, 0) . "</td><td>" . getItemDes(0, $id, 'Torso', 1) . "</td></tr>";
+  echo "<tr><td>Arms:</td><td>" . getItemName($id, 'Arms', 1, 0, 0, 0, 0, 0, 0) . "</td><td>" . getItemDes(0, $id, 'Arms', 1) . "</td></tr>";
+  echo "<tr><td>Legs:</td><td>" . getItemName($id, 'Legs', 1, 0, 0, 0, 0, 0, 0) . "</td><td>" . getItemDes(0, $id, 'Legs', 1) . "</td></tr>";
+  echo "<tr><td>Feet:</td><td>" . getItemName($id, 'Feet', 1, 0, 0, 0, 0, 0, 0) . "</td><td>" . getItemDes(0, $id, 'Feet', 1) . "</td></tr>";
 }
-echo "</div>";
+echo "</table></div>";
 
 echo "<form name='attributefrm' id='attributefrm' method='POST' action='profile.php'><input name='attribute' type='hidden' value='' id='attributeID'></form>";
 

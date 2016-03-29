@@ -57,7 +57,7 @@ function init() {
   $dungeonname = $dungeonstats['dungeonname'];
   $dungeonrooms = explode("|", $dungeonstats['rooms']);
   $dungeonlevel = $dungeonstats['dungeonlevel'];
-  $cd = time() + (6 * count($dungeonrooms));//600 = 10 minutes
+  $cd = time() + 1;//(6 * count($dungeonrooms));//600 = 10 minutes
   $roomdescriptions = explode("|", $dungeonstats['des']);
 
   while($row = mysqli_fetch_assoc($party)) {
@@ -98,8 +98,12 @@ foreach($dungeonrooms as $key => $room) {
   foreach($dungeonrooms as $dungeonroom) {
     $roomstats[] = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Rooms WHERE roomid = '$dungeonroom'"));
   }
+  $enemynames = [];
   foreach(explode("|", $roomstats[$key]['enemies']) as $enemyid) {
-    $fighters[] = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Enemies WHERE id = '$enemyid'"));
+    $enemyfighter = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Enemies WHERE id = '$enemyid'"));
+    $enemynames[$enemyfighter['name']]++;
+    $enemyfighter['name'] .= " " . $enemynames[$enemyfighter['name']];
+    $fighters[] = $enemyfighter;
   }
   mysqli_close($conn);
   echo "<span style='color:red;'>fighters after: </span>";
@@ -722,7 +726,7 @@ function ScaleDamage($baseDamage, $abilityScale, $totalPow, $totalArm)
 
 function KillFighter($dead)
 {
-  global $fighters, $totalgold, $reporttext, $dungeonlevel;
+  global $map, $fighters, $totalgold, $reporttext, $dungeonlevel;
   $fighters[$dead]['hp'] = 0;
   $map[$fighters[$dead]['y']][$fighters[$dead]['x']] = -1;
   $reporttext .= $fighters[$dead]['name'] . " dies.<br>";

@@ -18,7 +18,7 @@ if(isset($_POST['applyid']) && $hero['guild'] == 0) {
 	$applyid = mysqli_real_escape_string($conn, $_POST['applyid']);
 	mysqli_query($conn,"INSERT INTO GuildApplicants (heroid, guildid) VALUES ('$hero[id]', '$applyid')") or die(mysqli_error($conn));
 	$guild = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Guilds WHERE guildid = '$applyid'")) or die(mysqli_error($conn));
-  echo "You have applied to $guild[guildname]!";
+  echo "<div class='alert'>You have applied to $guild[guildname]!</div>";
 }
 
 if(isset($_POST['leaveid'])) {
@@ -27,7 +27,7 @@ if(isset($_POST['leaveid'])) {
   $leaveid = mysqli_real_escape_string($conn, $_POST['leaveid']);
   $guild = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Guilds WHERE guildid = '$hero[id]'")) or die(mysqli_error($conn));
   mysqli_query($conn, "UPDATE Hero SET guild = 0 WHERE id = '$leaveid'");
-  echo "You have left $guild[guildname]!";
+  echo "<div class='alert'>You have left $guild[guildname]!</div>";
   $hero['guild'] = 0;
 }
 
@@ -38,7 +38,7 @@ if(isset($_POST['disbandid'])) {
   $guild = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Guilds WHERE guildid = '$hero[guild]'")) or die(mysqli_error($conn));
   mysqli_query($conn, "DELETE FROM Guilds WHERE guildid = '$hero[guild]'");
   mysqli_query($conn, "UPDATE Hero SET guild = 0 WHERE id = '$hero[id]'");
-  echo "You have disbanded $guild[guildname]!";
+  echo "<div class='alert'>You have disbanded $guild[guildname]!</div>";
   $hero['guild'] = 0;
 }
 

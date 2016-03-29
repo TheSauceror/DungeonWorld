@@ -42,7 +42,7 @@ if(isset($_POST['guildname']) && $hero['guild'] == 0) {
   $guild = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Guilds WHERE owner = '$hero[id]'")) or die(mysqli_error($conn));
   mysqli_query($conn, "UPDATE Hero SET guild = $guild[guildid] WHERE id = '$hero[id]'");
   $hero['guild'] = $guild['guildid'];
-  echo "You have created $guild[guildname]!";
+  echo "<div class='alert'>You have created $guild[guildname]!</div>";
 }
 
 $id = $hero['guild'];
@@ -64,7 +64,7 @@ if(isset($_POST['acceptid'])) {
 	mysqli_query($conn, "DELETE FROM GuildApplicants WHERE heroid = '$acceptid'");
 	mysqli_query($conn, "UPDATE Hero SET guild = $guild[guildid] WHERE id = '$acceptid'");
   $accepthero = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Hero WHERE id = '$acceptid'")) or die(mysqli_error($conn));
-	echo "$accepthero[name] has joined your guild!";
+	echo "<div class='alert'>$accepthero[name] has joined your guild!</div>";
 }
 
 if(isset($_POST['denyid'])) {
@@ -73,7 +73,7 @@ if(isset($_POST['denyid'])) {
 	$denyid = mysqli_real_escape_string($conn, $_POST['denyid']);
 	mysqli_query($conn, "DELETE FROM GuildApplicants WHERE heroid = '$denyid' AND guildid = $guild[guildid]");
   $denyhero = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Hero WHERE id = '$denyid'")) or die(mysqli_error($conn));
-	echo "$denyhero[name] has been rejected!";
+	echo "<div class='alert'>$denyhero[name] has been rejected!</div>";
 }
 
 if(isset($_POST['kickid'])) {
@@ -82,7 +82,7 @@ if(isset($_POST['kickid'])) {
   $kickid = mysqli_real_escape_string($conn, $_POST['kickid']);
   mysqli_query($conn, "UPDATE Hero SET guild = 0 WHERE id = '$kickid'");
   $kickhero = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Hero WHERE id = '$kickid'")) or die(mysqli_error($conn));
-  echo "$kickhero[name] has been kicked!";
+  echo "<div class='alert'>$kickhero[name] has been kicked!</div>";
 }
 
 if(isset($_POST['giveid'])) {
@@ -92,7 +92,7 @@ if(isset($_POST['giveid'])) {
   mysqli_query($conn, "UPDATE Guilds SET owner = $giveid WHERE guildid = '$hero[guild]'");
   $guild['owner'] = $giveid;
   $givehero = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Hero WHERE id = '$giveid'")) or die(mysqli_error($conn));
-  echo "Ownership has been given to $givehero[name]!";
+  echo "<div class='alert'>Ownership has been given to $givehero[name]!</div>";
 }
 
 if(isset($_POST['guilddes'])) {
@@ -101,7 +101,7 @@ if(isset($_POST['guilddes'])) {
   $guilddes = mysqli_real_escape_string($conn, $_POST['guilddes']);
   mysqli_query($conn, "UPDATE Guilds SET guilddes = '$guilddes' WHERE guildid = '$hero[guild]'");
   $guild['guilddes'] = $guilddes;
-  echo "The guild description has been changed!";
+  echo "<div class='alert'>The guild description has been changed!</div>";
 }
 
 $members = mysqli_query($conn,"SELECT * FROM Hero WHERE guild = '$id'");

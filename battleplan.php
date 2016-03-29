@@ -29,6 +29,7 @@ if(isset($_POST['save'])) {
   {
     $battleplan = implode("||",$battleplans);
     mysqli_query($conn,"UPDATE Hero SET battleplan = '$battleplan' WHERE id = '$cookie[0]'");
+    echo "<div class='alert'>Strategy saved!</div>";
   }
 }
 
