@@ -66,20 +66,78 @@ foreach ($skills as $skill) {
   if($cost == 0) { $cost = pow($skill['tier'] - 1, 3) * 50; }
   if($skill['skilllevel'] == NULL) { $skill['skilllevel'] = 0; }
   $skilldes = "";
-  if($skill['category'] == "heal") {
+  /*if($skill['category'] == "heal") {
     $skilldes .= "Heals for ";
   } else if($skill['category'] == "buff") {
     $skilldes .= "Buffs an ally for ";
   } else {
     $skilldes .= "Does ";
-  }
+  }*/
+
   $skilleffect = str_replace("{skill level}", $skill['skilllevel'], $skill['effect']);
   $skilleffect = eval("return ($skilleffect);");
-  $skilldes .= $skilleffect . " " . $skill['type'];
-  $skilltargets = str_replace("{skill level}", $skill['skilllevel'], $skill['targets']);
-  $skilldes .= " to " . $skilltargets . " target";
-  if($skill['targets'] > 1) { $skilldes .= "s"; }
-  if($skill['skillstatus'] != "") { $skilldes .= " and " . $skill['skillstatus']; }
+  $skillcat = null;
+  switch ($skill['category']) {
+    case 'melee':
+      $skillcat = 'str';
+      $skilleffect = max(1, floor(log($hero[$skillcat]+1)*$skilleffect));
+      $skilldes .= "Does " . $skilleffect . " " . $skill['type'] . " ";
+      break;
+    case 'ranged':
+      $skillcat = 'dex';
+      $skilleffect = max(1, floor(log($hero[$skillcat]+1)*$skilleffect));
+      $skilldes .= "Does " . $skilleffect . " " . $skill['type'] . " ";
+      break;
+    case 'magic':
+      $skillcat = 'nce';
+      $skilleffect = max(1, floor(log($hero[$skillcat]+1)*$skilleffect));
+      $skilldes .= "Does " . $skilleffect . " " . $skill['type'] . " ";
+      break;
+    case 'heal':
+      $skillcat = 'pie';
+      $skilleffect = max(1, floor(log($hero[$skillcat]+1)*$skilleffect));
+      $skilldes .= "Heals for  " . $skilleffect;
+      break;
+    case 'buff':
+      $skilldes .= "Buffs ";
+      break;
+    default:
+      break;
+  }
+
+  switch ($skill['skillstatus']) {
+    case '':
+      break;
+    case 'dot':
+      $skilldur = str_replace("{skill level}", $skill['skilllevel'], $skill['duration']);
+      $skilldur = eval("return ($skilldur);");
+      $skilldur = max(1, floor(log($hero[$skillcat]+1)*$skilldur));
+      $skilldes .= " and " . $skilldur . " damage over time";
+      break;
+    case 'root':
+      $skilldur = $skill['skilllevel'];
+      $skilldes .= "also roots the target for " . $skilldur . " turns";
+      break;
+    case 'stun':
+      $skilldur = $skill['skilllevel'];
+      $skilldes .= "also stuns the target for " . $skilldur . " turns";
+      break;
+    case 'silence':
+      $skilldur = $skill['skilllevel'];
+      $skilldes .= "also silences the target for " . $skilldur . " turns";
+      break;
+    default:
+      $skilldur = str_replace("{skill level}", $skill['skilllevel'], $skill['duration']);
+      $skilldur = eval("return ($skilldur);");
+      $skilldes .= $skill['skillstatus'] . " by " . $skilldur;
+  }
+
+  //$skilltargets = str_replace("{skill level}", $skill['skilllevel'], $skill['targets']);
+  //$skilldes .= " to " . $skilltargets . " target";
+  //if($skill['targets'] > 1) { $skilldes .= "s"; }
+  //if($skill['skillstatus'] != "") {
+  //  $skilldes .= " and " . $skill['skillstatus'];
+  //}
 
   echo "<tr><td>$skill[skillname]</td><td>$skill[tier]</td><td>$skill[skilllevel]</td><td>$skill[cost]</td><td>$skilldes</td><td><a href='javascript:updateSkill(\"$skill[skillid]\");'>$cost gold</a></td></tr>";
 }
