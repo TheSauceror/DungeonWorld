@@ -644,7 +644,7 @@ function DoDamage($attacker, $skillInfo, $skill)
         if ($status[$defender]['hpreg'] < $dot)
         {
           echo "<span style='color:blue;'>damage: </span>", $dot, " over time from ", $fighters[$attacker]['name'], " to ", $status[$defender]['name'], "<br>";
-          $reporttext .= $skillInfo['skillname'] . " causes " . $dot ." damage over time on " . $status[$defender]['name'] ."<br>";
+          $reporttext .= $skillInfo['skillname'] . " causes " . $dot ." damage to " . $status[$defender]['name'] ."<br>";
           $status[$defender]['hpreg'] = -$dot;
         }
         break;
