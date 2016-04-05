@@ -1,20 +1,20 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/1999/REC-html401-19991224/loose.dtd">
 <HTML>
 <HEAD>
-	<title>Dungeons Of Eld</title>
+	<title>Adventures Of Eld</title>
 	<link rel="shortcut icon" href="/favicon.ico">
 	<link rel="stylesheet" type="text/css" href="eld.css" />
 </HEAD>
 <BODY BGCOLOR=#000000>
 	<div id="header">
-		<img src="header.jpg" width="900" height="200" alt="Dungeons of Eld" title="Dungeons of Eld" />
+		<img src="AdventuresOfEld.png" width="900" height="200" alt="Adventures of Eld" title="Adventures of Eld" />
 	</div>
 	
 	<div id="navMenu">
 		<ul>
 			<li><a href="index.php"><span class="navText">Home</span></a></li>
 			<li><a href="gameplay.php"><span class="navText">Gameplay</span></a></li>
-			<li><a href="patch.php"><span class="navText">Patch Notes</span></a></li>
+			<!-- <li><a href="patch.php"><span class="navText">Patch Notes</span></a></li> -->
 			<li><a href="login.php"><span class="navText">Play</span></a></li>
 		</ul>
 	</div>

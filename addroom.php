@@ -1,3 +1,5 @@
+<head><title>Adventures Of Eld - Dev Tools</title></head>
+
 <?php
   include "checklogin.php";
   include "menu.php";
@@ -17,10 +19,11 @@ if(isset($_POST['length'])) {
 
   mysqli_query($conn, "INSERT INTO Rooms (length, width, floor, enemies) VALUES ('$length', '$width', '$floor', '$enemies')") or die (mysqli_error($conn));
   mysqli_close($conn);
-  echo "Room Added!";
+  echo "<div class='alert'>Room Added!</div>";
 }
 ?>
 
+<div class='parchment'>
 <h1>Add Room</h1>
 <form name='addroomfrm' id='roomfrm' method='POST' action='addroom.php'>
 	<table>
@@ -32,3 +35,4 @@ if(isset($_POST['length'])) {
 	<br>
 	<input type='submit' value='Add Room'>
 </form>
+</div>

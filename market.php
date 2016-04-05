@@ -1,15 +1,11 @@
+<head><title>Adventures Of Eld - Market</title></head>
+
 <script>
 function buyItem(buyitemid) {
   document.getElementById('buyitemid').value = buyitemid;
   document.getElementById('buyitemfrm').submit();
 }
 </script>
-
-<style>
-  a{
-    //text-decoration: none;
-  }
-</style>
 
 <?php
 
@@ -29,7 +25,7 @@ if(isset($_POST['buyitemid'])) {
   //protect other people items from f12ing
   $buyitemid = mysqli_real_escape_string($conn, $_POST['buyitemid']);
 	$buyitemprice = getItemPrice($buyitemid, 0);
-  if($hero['gold'] < $buyitemprice) { echo "Not enough gold"; } else {
+  if($hero['gold'] < $buyitemprice) { echo "<div class='alert'>Not enough gold!</div>"; } else {
     mysqli_query($conn, "UPDATE Inventory SET equip = 0, time = 0, owner = $cookie[0] WHERE inventoryid = '$_POST[buyitemid]' AND time > 0");
     mysqli_query($conn, "UPDATE Hero SET gold = gold - $buyitemprice WHERE id = '$cookie[0]'");
   }
@@ -47,17 +43,18 @@ while($row = mysqli_fetch_assoc($items)) {
   $row['sdam'] = getItemStats($row['inventoryid'], "sdam");
   $row['pdam'] = getItemStats($row['inventoryid'], "pdam");
   $row['bdam'] = getItemStats($row['inventoryid'], "bdam");
+  $row['adam'] = getItemStats($row['inventoryid'], "adam");
+  $row['ddam'] = getItemStats($row['inventoryid'], "ddam");
   $row['sarm'] = getItemStats($row['inventoryid'], "sarm");
   $row['parm'] = getItemStats($row['inventoryid'], "parm");
   $row['barm'] = getItemStats($row['inventoryid'], "barm");
+  $row['aarm'] = getItemStats($row['inventoryid'], "aarm");
+  $row['darm'] = getItemStats($row['inventoryid'], "darm");
   $row['hpreg'] = getItemStats($row['inventoryid'], "hpreg");
   $row['mpreg'] = getItemStats($row['inventoryid'], "mpreg");
   $row['itemdes'] = getItemDes($row['inventoryid'], 0, 0, 0);
   $itemlist[] = $row;
 }
-
-$sort = "time";
-$order = "asc";
 
 if(isset($_GET['order'])) {
   if($_GET['order'] == "des") {
@@ -80,11 +77,7 @@ echo "</table>";
 echo "</div>";*/
 
 echo "<div class='parchment'><h3>Items for sale:</h3>";
-echo "<form name='sortfrm' id='sortfrm' method='GET' action='market.php'>Sort by: <select name='sort' id='sort'><option value='time'>Time</option>
-<option value='price'>Price</option>
-<option value='prefixname'>Prefix Name</option>
-<option value='basename'>Base Name</option>
-<option value='suffixname'>Suffix Name</option><option value='sdam'>Slashing Damage</option><option value='pdam'>Piercing Damage</option><option value='bdam'>Bludgeoning Damage</option><option value='sarm'>Slashing Armor</option><option value='parm'>Piercing Armor</option><option value='barm'>Bludgeoning Armor</option><option value='hpreg'>HP Regen</option><option value='mpreg'>MP Regen</option></select><select name='order' id='order'><option value='asc'>Ascending</option><option value='des'>Descending</option></select><input type='submit' value='Sort'></form>";
+echo "<form name='sortfrm' id='sortfrm' method='GET' action='market.php'>Sort by: <select name='sort' id='sort'><option value='time'>Time</option><option value='price'>Price</option><option value='slot'>Slot</option><option value='prefixname'>Prefix Name</option><option value='basename'>Base Name</option><option value='suffixname'>Suffix Name</option><option value='sdam'>Slashing Power</option><option value='pdam'>Piercing Power</option><option value='bdam'>Bludgeoning Power</option><option value='adam'>Arcane Power</option><option value='ddam'>Divine Power</option><option value='sarm'>Slashing Defense</option><option value='parm'>Piercing Defense</option><option value='barm'>Bludgeoning Defense</option><option value='aarm'>Arcane Defense</option><option value='darm'>Divine Defense</option><option value='hpreg'>HP Regen</option><option value='mpreg'>MP Regen</option></select><select name='order' id='order'><option value='des'>Descending</option><option value='asc'>Ascending</option></select><input type='submit' value='Sort'></form>";
 echo "<table><tr><th>Prefix</th><th>Base</th><th>Suffix</th><th>For Sale Until</th><th>Slot</th><th>Description</th><th>Buy Item</th></tr>";
 foreach($itemlist as $item => $row) {
   echo "<tr><td>" . $row['prefixname'];

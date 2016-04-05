@@ -1,3 +1,5 @@
+<head><title>Adventures Of Eld - Skills</title></head>
+
 <script>
 function updateSkill(sID) {
   document.getElementById('skillID').value = sID;
@@ -35,7 +37,7 @@ if(isset($_POST['skill'])) {
     $query = "UPDATE HeroSkills SET skilllevel = (skilllevel + 1 ) WHERE abilityid = '$sID' AND heroid = '$cookie[0]'";
   }
   if($hero['gold'] < $cost) {
-    echo "Not enough gold";
+    echo "<div class='alert'>Not enough gold!</div>";
   } else {
     mysqli_query($conn,"$query") or die(mysqli_error($conn));
     mysqli_query($conn,"UPDATE Hero SET gold = gold - $cost WHERE id = '$cookie[0]'") or die(mysqli_error($conn));
@@ -115,11 +117,11 @@ foreach ($skills as $skill) {
       $skilldes .= " and " . $skilldur . " damage over time";
       break;
     case 'root':
-      $skilldur = $skill['skilllevel'];
+      $skilldur = $skill['duration'];
       $skilldes .= "also roots the target for " . $skilldur . " turns";
       break;
     case 'stun':
-      $skilldur = $skill['skilllevel'];
+      $skilldur = $skill['duration'];
       $skilldes .= "also stuns the target for " . $skilldur . " turns";
       break;
     case 'silence':

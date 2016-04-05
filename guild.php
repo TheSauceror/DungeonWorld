@@ -1,3 +1,5 @@
+<head><title>Adventures Of Eld - Guild</title></head>
+
 <script>
 function accept(acceptid) {
   document.getElementById('acceptid').value = acceptid;
@@ -33,14 +35,17 @@ function join(joinID) {
 
 include "checklogin.php";
 include "menu.php";
+include "functions.php";
 
 $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
 
 if(isset($_POST['guildname']) && $hero['guild'] == 0) {
   $name = mysqli_real_escape_string($conn, $_POST['guildname']);
-  mysqli_query($conn,"INSERT INTO Guilds (guildname, owner, guilddes) VALUES ('$name', '$hero[id]','')") or die(mysqli_error($conn));
+  $timestamp = date("m-d-y H:i:s");
+  mysqli_query($conn,"INSERT INTO Guilds (guildname, owner, guilddes, guildchat) VALUES ('$name', '$hero[id]', '', '$timestamp - $name was created!<br>')") or die(mysqli_error($conn));
   $guild = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Guilds WHERE owner = '$hero[id]'")) or die(mysqli_error($conn));
   mysqli_query($conn, "UPDATE Hero SET guild = $guild[guildid] WHERE id = '$hero[id]'");
+  mysqli_query($conn, "DELETE FROM GuildApplicants WHERE heroid = '$cookie[0]'");
   $hero['guild'] = $guild['guildid'];
   echo "<div class='alert'>You have created $guild[guildname]!</div>";
 }
@@ -64,7 +69,8 @@ if(isset($_POST['acceptid'])) {
 	mysqli_query($conn, "DELETE FROM GuildApplicants WHERE heroid = '$acceptid'");
 	mysqli_query($conn, "UPDATE Hero SET guild = $guild[guildid] WHERE id = '$acceptid'");
   $accepthero = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Hero WHERE id = '$acceptid'")) or die(mysqli_error($conn));
-	echo "<div class='alert'>$accepthero[name] has joined your guild!</div>";
+	sendMessage($accepthero['id'], 0, $guild['guildname'], "You have been accepted to $guild[guildname]!");
+  echo "<div class='alert'>$accepthero[name] has joined your guild!</div>";
 }
 
 if(isset($_POST['denyid'])) {
@@ -73,6 +79,7 @@ if(isset($_POST['denyid'])) {
 	$denyid = mysqli_real_escape_string($conn, $_POST['denyid']);
 	mysqli_query($conn, "DELETE FROM GuildApplicants WHERE heroid = '$denyid' AND guildid = $guild[guildid]");
   $denyhero = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Hero WHERE id = '$denyid'")) or die(mysqli_error($conn));
+  sendMessage($denyhero['id'], 0, $guild['guildname'], "You have been rejected from $guild[guildname]!");
 	echo "<div class='alert'>$denyhero[name] has been rejected!</div>";
 }
 
@@ -82,6 +89,7 @@ if(isset($_POST['kickid'])) {
   $kickid = mysqli_real_escape_string($conn, $_POST['kickid']);
   mysqli_query($conn, "UPDATE Hero SET guild = 0 WHERE id = '$kickid'");
   $kickhero = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Hero WHERE id = '$kickid'")) or die(mysqli_error($conn));
+  sendMessage($kickhero['id'], 0, $guild['guildname'], "You have been kicked from $guild[guildname]!");
   echo "<div class='alert'>$kickhero[name] has been kicked!</div>";
 }
 
@@ -92,6 +100,7 @@ if(isset($_POST['giveid'])) {
   mysqli_query($conn, "UPDATE Guilds SET owner = $giveid WHERE guildid = '$hero[guild]'");
   $guild['owner'] = $giveid;
   $givehero = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Hero WHERE id = '$giveid'")) or die(mysqli_error($conn));
+  sendMessage($givehero['id'], 0, $guild['guildname'], "You have been given ownership of $guild[guildname]!");
   echo "<div class='alert'>Ownership has been given to $givehero[name]!</div>";
 }
 
@@ -104,18 +113,27 @@ if(isset($_POST['guilddes'])) {
   echo "<div class='alert'>The guild description has been changed!</div>";
 }
 
+if(isset($_POST['guildchattext'])) {
+  //protect these inputs from injection
+  //protect other people items from f12ing
+  $guildchattext = mysqli_real_escape_string($conn, $_POST['guildchattext']);
+  $timestamp = date("m-d-y H:i:s");
+  mysqli_query($conn, "UPDATE Guilds SET guildchat = CONCAT(guildchat, '$timestamp - $hero[name]: $guildchattext<br>') WHERE guildid = '$hero[guild]'");
+  $guild['guildchat'] .= "$timestamp - $hero[name]: $guildchattext<br>";
+}
+
 $members = mysqli_query($conn,"SELECT * FROM Hero WHERE guild = '$id'");
 $applicants = mysqli_query($conn,"SELECT * FROM GuildApplicants LEFT JOIN Hero ON GuildApplicants.heroid = Hero.id WHERE guildid = '$id'");
 
-echo "<h1>$guild[guildname]</h1>";
-
+echo "<div class='parchment center'><h1>$guild[guildname]</h1>";
 if($guild['owner'] == $hero['id']) {
-  echo "<form action='guild.php' method='post' class='parchment'><h3>Edit guild description</h3><fieldset>Description: <input type='text' name='guilddes' required value='$guild[guilddes]'><input type='submit' value='Save'></fieldset></form>";
+  echo "<form action='guild.php' method='post'>Description: <input type='text' name='guilddes' required value='$guild[guilddes]'><input type='submit' value='Save'></form>";
 } else {
   echo "<h3>$guild[guilddes]</h3>";
 }
+echo "</div>";
 
-echo "<div class='parchment'><h3>Guild Members</h3><table><tr><th>Name</th><th>Race</th><th>Profession</th>";
+echo "<div class='parchment left'><h3>Guild Members</h3><table><tr><th>Name</th><th>Race</th><th>Profession</th>";
 if($guild['guildid'] == $hero['guild']) { echo "<th>Join Party</th>"; }
 if($guild['owner'] == $hero['id']) { echo "<th>Member Options</th>"; }
 echo "</tr>";
@@ -136,7 +154,7 @@ echo "</table></div>";
 
 if($guild['guildid'] == $hero['guild'] && $guild['owner'] != $hero['id']) { echo "<h3><a href='javascript:leave($hero[id]);'>Leave Guild</a></h3>"; }
 
-echo "<div class='parchment'><h3>Applicants</h3>";
+echo "<div class='parchment left'><h3>Applicants</h3>";
 echo "<table><tr><th>Name</th><th>Race</th><th>Profession</th>";
 if($guild['owner'] == $hero['id']) { echo "<th colspan='2'>Respond</th>"; }
 echo "</tr>";
@@ -146,6 +164,12 @@ while($row = mysqli_fetch_assoc($applicants)) {
   echo "</tr>";
 }
 echo "</table></div>";
+
+if($guild['guildid'] == $hero['guild']) {
+  echo "<div class='parchment left'><h3>Guild Chat</h3>";
+  echo "<div id='guildchat'>$guild[guildchat]</div>";
+  echo "<form name='guildchatfrm' id='guildchatfrm' method='POST' action='guild.php'><input name='guildchattext' type='text' value='' id='guildchattext'><input type='submit' value='Send'></form>";
+}
 
 mysqli_close($conn);
 

@@ -19,7 +19,6 @@ echo "<center><h1>Running the dungeon...</h1></center>";
 $partyname = "";
 $partyid = $_GET['partyid']; //protect this from injection
 if($partyid == "") { header('Location: dungeons.php'); }
-//$dungeonid = 
 //if($dungeonid == "") { header('Location: dungeons.php'); }
 $dungeonname = "";
 $dungeonlevel = 0;
@@ -38,7 +37,7 @@ $reportintro = "";
 $reportinitiative = "";
 $reportmap = "";
 $reporttext = "";
-$maxTurns = 20;
+$maxTurns = 40;
 $cd = 0;
 
 function init() {
@@ -57,7 +56,7 @@ function init() {
   $dungeonname = $dungeonstats['dungeonname'];
   $dungeonrooms = explode("|", $dungeonstats['rooms']);
   $dungeonlevel = $dungeonstats['dungeonlevel'];
-  $cd = time() + 1;//(6 * count($dungeonrooms));//600 = 10 minutes
+  $cd = time() + 1;//(600 * count($dungeonrooms));
   $roomdescriptions = explode("|", $dungeonstats['des']);
 
   while($row = mysqli_fetch_assoc($party)) {
@@ -235,6 +234,7 @@ function giveLoot() { //rename to be more accurate
     $id = $fighter['id'];
     $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
     mysqli_query($conn, "UPDATE Hero SET gold = gold + $eachgold WHERE id = '$id'");
+    mysqli_query($conn, "UPDATE Hero SET maxgold = maxgold + $eachgold WHERE id = '$id'");
     mysqli_close($conn);
     $reportintro .= $fighter['name'] . " gets " . $eachgold . " gold<br>";
   }
@@ -891,6 +891,6 @@ foreach ($partyfighters as $hero) {
 }
 mysqli_close($conn);
 
-//echo "<META http-equiv='refresh' content='0;URL=reports.php'>";
+echo "<META http-equiv='refresh' content='0;URL=reports.php'>";
 
 ?>

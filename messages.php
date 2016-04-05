@@ -1,3 +1,5 @@
+<head><title>Adventures Of Eld - Messages</title></head>
+
 <?php
 
 include "checklogin.php";
@@ -8,7 +10,7 @@ $conn=mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
 if(isset($_GET['delete'])) {
   $delete = mysqli_real_escape_string($conn, $_GET['delete']);
   mysqli_query($conn,"DELETE FROM Messages WHERE messageid = '$delete' AND receiver = '$cookie[0]'");
-  echo "Message deleted!<br><br>";
+  echo "<div class='alert'>Message deleted!</div>";
 }
 
 if(isset($_GET['messageid'])) {

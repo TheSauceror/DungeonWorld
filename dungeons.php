@@ -1,3 +1,5 @@
+<head><title>Adventures Of Eld - Adventures</title></head>
+
 <script>
 function leave(leaveID) {
   document.getElementById('leaveID').value = leaveID;

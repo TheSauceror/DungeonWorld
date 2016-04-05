@@ -1,3 +1,5 @@
+<head><title>Adventures Of Eld - Feedback</title></head>
+
 <?php
 
 include "checklogin.php";

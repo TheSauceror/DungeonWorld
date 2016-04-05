@@ -1,5 +1,5 @@
 <html>
-<head><title>Battle</title></head>
+<head><title>Adventures Of Eld - Report</title></head>
 <body>
 <?php
 

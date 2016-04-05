@@ -1,3 +1,5 @@
+<head><title>Adventures Of Eld - Strategy</title></head>
+
 <?php
 include "checklogin.php";
 include "menu.php";

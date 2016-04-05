@@ -12,6 +12,7 @@ echo "<a href='dungeons.php' class='white'>Adventures</a> - ";
 $unreadreports = mysqli_query($conn,"SELECT * FROM Reports WHERE heroid = '$cookie[0]' AND unread = 1");
 if(!is_null(mysqli_fetch_assoc($unreadreports))) { echo "<a href='reports.php' class='white'><strong>Reports (" . mysqli_num_rows($unreadreports) . ")</strong></a> - "; } else { echo "<a href='reports.php' class='white'>Reports</a> - "; };
 echo "<a href='market.php' class='white'>Market</a> - ";
+echo "<a href='guilds.php' class='white'>Guilds</a> - ";
 $unreadmessages = mysqli_query($conn,"SELECT * FROM Messages WHERE receiver = '$cookie[0]' AND unread = 1");
 if(!is_null(mysqli_fetch_assoc($unreadmessages))) { echo "<a href='messages.php' class='white'><strong>NEW MESSAGES (" . mysqli_num_rows($unreadmessages) . ")</strong></a> - "; } else { echo "<a href='messages.php' class='white'>Messages</a> - "; };
 echo "<a href='patchnotes.php' class='white'>Patch Notes</a> - ";

@@ -8,7 +8,12 @@ function getItemName($hero, $slot, $equip, $baseid, $baselevel, $prefixid, $pref
     $itemname['baselevel'] = $baselevel;
     $itemname['suffixlevel'] = $suffixlevel;
   } else {
-    $itemname = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Inventory LEFT JOIN ItemBase ON Inventory.base = ItemBase.baseid Left JOIN ItemPrefix ON Inventory.prefix = ItemPrefix.prefixid LEFT JOIN ItemSuffix ON Inventory.suffix = ItemSuffix.suffixid WHERE Inventory.owner = '$hero' AND ItemBase.slot='$slot' AND Inventory.equip = '$equip'"));
+    if($slot == 'Two Hand') {
+      $itemname = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Inventory LEFT JOIN ItemBase ON Inventory.base = ItemBase.baseid Left JOIN ItemPrefix ON Inventory.prefix = ItemPrefix.prefixid LEFT JOIN ItemSuffix ON Inventory.suffix = ItemSuffix.suffixid  WHERE Inventory.owner = '$hero' AND ItemBase.slot LIKE '%Hand%' AND Inventory.equip = '$equip'"));
+    } else {
+      $itemname = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Inventory LEFT JOIN ItemBase ON Inventory.base = ItemBase.baseid Left JOIN ItemPrefix ON Inventory.prefix = ItemPrefix.prefixid LEFT JOIN ItemSuffix ON Inventory.suffix = ItemSuffix.suffixid  WHERE Inventory.owner = '$hero' AND ItemBase.slot = '$slot' AND Inventory.equip = '$equip'"));
+    }
+  //$itemname = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Inventory LEFT JOIN ItemBase ON Inventory.base = ItemBase.baseid Left JOIN ItemPrefix ON Inventory.prefix = ItemPrefix.prefixid LEFT JOIN ItemSuffix ON Inventory.suffix = ItemSuffix.suffixid WHERE Inventory.owner = '$hero' AND ItemBase.slot='$slot' AND Inventory.equip = '$equip'"));
   }
   mysqli_close($conn);
   $fullitemname = "";
@@ -92,57 +97,79 @@ function getItemDes($itemid, $hero, $slot, $equip) { //calculate description for
   if($itemid != 0) {
   	$item = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Inventory LEFT JOIN ItemBase ON Inventory.base = ItemBase.baseid Left JOIN ItemPrefix ON Inventory.prefix = ItemPrefix.prefixid LEFT JOIN ItemSuffix ON Inventory.suffix = ItemSuffix.suffixid WHERE Inventory.inventoryid = '$itemid'"));
   } else {
-  	$item = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Inventory LEFT JOIN ItemBase ON Inventory.base = ItemBase.baseid Left JOIN ItemPrefix ON Inventory.prefix = ItemPrefix.prefixid LEFT JOIN ItemSuffix ON Inventory.suffix = ItemSuffix.suffixid  WHERE Inventory.owner = '$hero' AND ItemBase.slot = '$slot' AND Inventory.time = '0' AND Inventory.equip = '$equip'"));
+  	if($slot == 'Two Hand') {
+      $item = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Inventory LEFT JOIN ItemBase ON Inventory.base = ItemBase.baseid Left JOIN ItemPrefix ON Inventory.prefix = ItemPrefix.prefixid LEFT JOIN ItemSuffix ON Inventory.suffix = ItemSuffix.suffixid  WHERE Inventory.owner = '$hero' AND ItemBase.slot LIKE '%Hand%' AND Inventory.time = '0' AND Inventory.equip = '$equip'"));
+    } else {
+      $item = mysqli_fetch_assoc(mysqli_query($conn,"SELECT * FROM Inventory LEFT JOIN ItemBase ON Inventory.base = ItemBase.baseid Left JOIN ItemPrefix ON Inventory.prefix = ItemPrefix.prefixid LEFT JOIN ItemSuffix ON Inventory.suffix = ItemSuffix.suffixid  WHERE Inventory.owner = '$hero' AND ItemBase.slot = '$slot' AND Inventory.time = '0' AND Inventory.equip = '$equip'"));
+    }
   }
+  $statdes = 0;
   $itemdes = "";
+  if($item['slot'] == 'Two Hand') { $itemdes .= "Two Hand"; }
   mysqli_close($conn);
-  if($item['basesdam'] > 0) {
+  if($statdes != 0) {
     if($itemdes != "") { $itemdes .= ", "; }
-    $itemdes .= max(0, ($item['prefixsdam'] * $item['prefixlevel']) + ($item['basesdam'] * $item['baselevel']) + ($item['suffixsdam'] * $item['suffixlevel'])) . " slashing power";
+    $itemdes .= $statdes;
   }
-  if($item['basepdam'] > 0) {
+  $statdes = max(0, ($item['prefixsdam'] * $item['prefixlevel']) + ($item['basesdam'] * $item['baselevel']) + ($item['suffixsdam'] * $item['suffixlevel'])) . " slashing power";
+  if($statdes != 0) {
     if($itemdes != "") { $itemdes .= ", "; }
-    $itemdes .= max(0, ($item['prefixpdam'] * $item['prefixlevel']) + ($item['basepdam'] * $item['baselevel']) + ($item['suffixpdam'] * $item['suffixlevel'])) . " piercing power";
+    $itemdes .= $statdes;
   }
-  if($item['basebdam'] > 0) {
+  $statdes = max(0, ($item['prefixpdam'] * $item['prefixlevel']) + ($item['basepdam'] * $item['baselevel']) + ($item['suffixpdam'] * $item['suffixlevel'])) . " piercing power";
+  if($statdes != 0) {
     if($itemdes != "") { $itemdes .= ", "; }
-    $itemdes .= max(0, ($item['prefixbdam'] * $item['prefixlevel']) + ($item['basebdam'] * $item['baselevel']) + ($item['suffixbdam'] * $item['suffixlevel'])) . " bludgeoning power";
+    $itemdes .= $statdes;
   }
-  if($item['baseadam'] > 0) {
+  $statdes = max(0, ($item['prefixbdam'] * $item['prefixlevel']) + ($item['basebdam'] * $item['baselevel']) + ($item['suffixbdam'] * $item['suffixlevel'])) . " bludgeoning power";
+  if($statdes != 0) {
     if($itemdes != "") { $itemdes .= ", "; }
-    $itemdes .= max(0, ($item['prefixadam'] * $item['prefixlevel']) + ($item['baseadam'] * $item['baselevel']) + ($item['suffixadam'] * $item['suffixlevel'])) . " arcane power";
+    $itemdes .= $statdes;
   }
-  if($item['baseddam'] > 0) {
+  $statdes = max(0, ($item['prefixadam'] * $item['prefixlevel']) + ($item['baseadam'] * $item['baselevel']) + ($item['suffixadam'] * $item['suffixlevel'])) . " arcane power";
+  if($statdes != 0) {
     if($itemdes != "") { $itemdes .= ", "; }
-    $itemdes .= max(0, ($item['prefixddam'] * $item['prefixlevel']) + ($item['baseddam'] * $item['baselevel']) + ($item['suffixddam'] * $item['suffixlevel'])) . " divine power";
+    $itemdes .= $statdes;
   }
-  if($item['basesarm'] > 0) {
+  $statdes = max(0, ($item['prefixddam'] * $item['prefixlevel']) + ($item['baseddam'] * $item['baselevel']) + ($item['suffixddam'] * $item['suffixlevel'])) . " divine power";
+  if($statdes != 0) {
     if($itemdes != "") { $itemdes .= ", "; }
-    $itemdes .= max(0, ($item['prefixsarm'] * $item['prefixlevel']) + ($item['basesarm'] * $item['baselevel']) + ($item['suffixsarm'] * $item['suffixlevel'])) . " slashing defense";
+    $itemdes .= $statdes;
   }
-  if($item['baseparm'] > 0) {
+  $statdes = max(0, ($item['prefixsarm'] * $item['prefixlevel']) + ($item['basesarm'] * $item['baselevel']) + ($item['suffixsarm'] * $item['suffixlevel'])) . " slashing defense";
+  if($statdes != 0) {
     if($itemdes != "") { $itemdes .= ", "; }
-    $itemdes .= max(0, ($item['prefixparm'] * $item['prefixlevel']) + ($item['baseparm'] * $item['baselevel']) + ($item['suffixparm'] * $item['suffixlevel'])) . " piercing defense";
+    $itemdes .= $statdes;
   }
-  if($item['basebarm'] > 0) {
+  $statdes = max(0, ($item['prefixparm'] * $item['prefixlevel']) + ($item['baseparm'] * $item['baselevel']) + ($item['suffixparm'] * $item['suffixlevel'])) . " piercing defense";
+  if($statdes != 0) {
     if($itemdes != "") { $itemdes .= ", "; }
-    $itemdes .= max(0, ($item['prefixbarm'] * $item['prefixlevel']) + ($item['basebarm'] * $item['baselevel']) + ($item['suffixbarm'] * $item['suffixlevel'])) . " bludgeoning defense";
+    $itemdes .= $statdes;
   }
-  if($item['baseaarm'] > 0) {
+  $statdes = max(0, ($item['prefixbarm'] * $item['prefixlevel']) + ($item['basebarm'] * $item['baselevel']) + ($item['suffixbarm'] * $item['suffixlevel'])) . " bludgeoning defense";
+  if($statdes != 0) {
     if($itemdes != "") { $itemdes .= ", "; }
-    $itemdes .= max(0, ($item['prefixaarm'] * $item['prefixlevel']) + ($item['baseaarm'] * $item['baselevel']) + ($item['suffixaarm'] * $item['suffixlevel'])) . " arcane defense";
+    $itemdes .= $statdes;
   }
-  if($item['basedarm'] > 0) {
+  $statdes = max(0, ($item['prefixaarm'] * $item['prefixlevel']) + ($item['baseaarm'] * $item['baselevel']) + ($item['suffixaarm'] * $item['suffixlevel'])) . " arcane defense";
+  if($statdes != 0) {
     if($itemdes != "") { $itemdes .= ", "; }
-    $itemdes .= max(0, ($item['prefixdarm'] * $item['prefixlevel']) + ($item['basedarm'] * $item['baselevel']) + ($item['suffixdarm'] * $item['suffixlevel'])) . " divine defense";
+    $itemdes .= $statdes;
   }
-  if($item['basehpreg'] > 0) {
+  $statdes = max(0, ($item['prefixdarm'] * $item['prefixlevel']) + ($item['basedarm'] * $item['baselevel']) + ($item['suffixdarm'] * $item['suffixlevel'])) . " divine defense";
+  if($statdes != 0) {
     if($itemdes != "") { $itemdes .= ", "; }
-    $itemdes .= max(0, ($item['prefixhpreg'] * $item['prefixlevel']) + ($item['basehpreg'] * $item['baselevel']) + ($item['suffixhpreg'] * $item['suffixlevel'])) . " HP regen";
+    $itemdes .= $statdes;
   }
-  if($item['basempreg'] > 0) {
+  $statdes = max(0, ($item['prefixhpreg'] * $item['prefixlevel']) + ($item['basehpreg'] * $item['baselevel']) + ($item['suffixhpreg'] * $item['suffixlevel'])) . " HP regen";
+  if($statdes != 0) {
     if($itemdes != "") { $itemdes .= ", "; }
-    $itemdes .= max(0, ($item['prefixmpreg'] * $item['prefixlevel']) + ($item['basempreg'] * $item['baselevel']) + ($item['suffixmpreg'] * $item['suffixlevel'])) . " MP regen";
+    $itemdes .= $statdes;
+  }
+  $statdes = max(0, ($item['prefixmpreg'] * $item['prefixlevel']) + ($item['basempreg'] * $item['baselevel']) + ($item['suffixmpreg'] * $item['suffixlevel'])) . " MP regen";
+  if($statdes != 0) {
+    if($itemdes != "") { $itemdes .= ", "; }
+    $itemdes .= $statdes;
   }
   return $itemdes;
 }
@@ -207,7 +234,7 @@ function calculateHPMPInit($heroid) {
   mysqli_close($conn);
 }
 
-function sort_up($a, $b) { //move these to functions? if used for sorting elsewhere
+function sort_up($a, $b) {
   if(gettype($a[$_GET['sort']]) == "string") {
     return strnatcasecmp($a[$_GET['sort']], $b[$_GET['sort']]);
   } else {
@@ -215,12 +242,19 @@ function sort_up($a, $b) { //move these to functions? if used for sorting elsewh
   }
 }
 
-function sort_down($a, $b) { //move these to functions? if used for sorting elsewhere
+function sort_down($a, $b) {
   if(gettype($a[$_GET['sort']]) == "string") {
     return strnatcasecmp($b[$_GET['sort']], $a[$_GET['sort']]);
   } else {
     return $b[$_GET['sort']] - $a[$_GET['sort']];
   }
+}
+
+function sendMessage($to, $from, $subject, $message) {
+  $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
+  $timestamp = date("m-d-y H:i:s");
+  mysqli_query($conn, "INSERT INTO Messages (receiver, sender, subject, message, timestamp) VALUES ('$to', '$from', '$subject', '$message', '$timestamp')");
+  mysqli_close($conn);
 }
 
 ?>

@@ -1,3 +1,5 @@
+<head><title>Adventures Of Eld - Dev Tools</title></head>
+
 <?php
   include "checklogin.php";
   include "menu.php";
@@ -113,9 +115,11 @@ if(isset($_POST['name'])) {
 
 	mysqli_close($conn);
 
-	echo "Enemy Added!";
+	echo "<div class='alert'>Enemy Added!</div>";
 }
 ?>
+
+<div class='parchment'>
 <h1>Add Enemy</h1>
 <form name='addenemyfrm' id='addenemyfrm' method='POST' action='addenemy.php'>
 <table>
@@ -176,3 +180,4 @@ if(isset($_POST['name'])) {
 <br>
 <input type='submit' value='Add Enemy'>
 </form>
+</div>

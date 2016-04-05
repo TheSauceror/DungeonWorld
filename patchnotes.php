@@ -1,3 +1,5 @@
+<head><title>Adventures Of Eld - Patch Notes</title></head>
+
 <?php
 	include "checklogin.php";
 	include "menu.php";
@@ -6,21 +8,36 @@
 <div class="parchment">
 <h2>Planned Updates</h2>
 <ul>
-	<li>Social Patch- Expand on Guild system, continue to improve party finder</li>
-	<li>Items Expansion- Add primary stats to items, unique and powerful passives</li>
-	<li>PvP Patch- New PvP mode, Elo and level based matchmaking, introduce PvP rewards</li>
-	<li>Skills Patch- Create skill tree and specialization, passive skills, more depth to existing skills</li>
+	<li>Social Patch - Expand on Guild system, continue to improve party finder</li>
+	<li>Items Expansion - Add primary stats to items, unique and powerful passives</li>
+	<li>PvP Patch - New PvP mode, Elo and level based matchmaking, introduce PvP rewards</li>
+	<li>Skills Patch - Create skill tree and specialization, passive skills, more depth to existing skills</li>
 </ul>
 </div>
-
+<div class="parchment">
+<h2>For Beta Testing</h2>
+<ul>
+	<li>Your characters might be messed with a little so we can test features</li>
+	<li>Adventures don't redirect to Reports</li>
+	<li>Parties aren't disbanded after Adventures</li>
+	<li>Adventure cooldown is removed</li>
+</ul>
+</div>
 <div class="parchment">
 <h2>Known Bugs</h2>
 <ul>
 	<li>Adventures don't end on failure correctly</li>
 	<li>Messages only work by sending to Hero ID, not by Hero name</li>
+	<li>All Reports show up as red, even when they didn't fail</li>
+	<li>Adventures unlock the next adventure level on failure</li>
 </ul>
 </div>
 <div class="parchment">
+<h2>April 4, 2016</h2>
+<ul>
+	<li>Two-handed items now use both hands</li>
+	<li>Max Gold increments</li>
+</ul>
 <h2>March 26, 2016</h2>
 <ul>
 	<li>Added feedback system</li>

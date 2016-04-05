@@ -68,6 +68,14 @@ table, th, td {
     padding: 25px 50px;
 }
 
+.width100 {
+    width: 100%;
+}
+
+.width50 {
+    width: 50%;
+}
+
 .width33 {
     width: 33%;
 }
@@ -76,8 +84,8 @@ table, th, td {
     width: 25%;
 }
 
-.width100 {
-    width: 100%;
+.height100 {
+    height: 100%;
 }
 
 .center {

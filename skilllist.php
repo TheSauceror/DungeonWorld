@@ -1,3 +1,5 @@
+<head><title>Adventures Of Eld - Skill List</title></head>
+
 <?php
 
 include "checklogin.php";
@@ -5,10 +7,10 @@ include "menu.php";
 
 $conn = mysqli_connect("ucfsh.ucfilespace.uc.edu","piattjd","curtis1","piattjd");
 
-echo "Skills:<br>";
-
 $skills = mysqli_query($conn,"SELECT * FROM SkillList");
-echo "<table class='parchment'><tr><th>ID</th><th>Name</th><th>Profession</th><th>Tier</th><th>MP Cost</th><th>Effect</th></tr>";
+
+echo "<div class='parchment'><h3>Skills:</h3>";
+echo "<table><tr><th>ID</th><th>Name</th><th>Profession</th><th>Tier</th><th>MP Cost</th><th>Effect</th></tr>";
 
 while($row = mysqli_fetch_assoc($skills)) {
 	$rowdes = "";
@@ -25,7 +27,7 @@ while($row = mysqli_fetch_assoc($skills)) {
   if($row['skillstatus'] != "") { $rowdes .= " and " . $row['skillstatus']; }
   echo "<tr><td>" . $row['skillid'] . "</td><td>" . $row['skillname'] . "</td><td>" . $row['skillprof'] . "</td><td>" . $row['tier'] . "</td><td>" . $row['cost'] . "</td><td>" . $rowdes . "</td></tr>";
 }
-echo "</table>";
+echo "</table></div>";
 
 mysqli_close($conn);
 ?>

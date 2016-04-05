@@ -1,3 +1,5 @@
+<head><title>Adventures Of Eld - Reports</title></head>
+
 <script>
 function updateReport(reportid, end) {
   document.getElementById('reportid').value = reportid;
@@ -32,7 +34,9 @@ while($row = mysqli_fetch_assoc($reports)) {
 	if($row['unread'] == 1 && $row['timestamp'] <= time()) { echo "</strong>"; }
   echo "</td><td>";
   if($row['unread'] == 1 && $row['timestamp'] <= time()) { echo "<strong>"; }
-  echo $row['dungeon'];
+  $color = "red";
+  //if($row['victory'] == 1) { $color = "green"; }
+  echo "<span class='red'>$row[dungeon]</span>";
   if($row['unread'] == 1 && $row['timestamp'] <= time()) { echo "</strong>"; }
   echo "</td><td>";
   if($row['timestamp'] <= time()) {

@@ -1,3 +1,5 @@
+<head><title>Adventures Of Eld - Dev Tools</title></head>
+
 <?php
   include "checklogin.php";
   include "menu.php";
@@ -18,10 +20,10 @@ if(isset($_POST['name'])) {
     ('$name', '$level', '$type', '$rooms', '$des', '')") or die (mysqli_error($conn));
   mysqli_close($conn);
 
-  echo "Dungeon Added!";
+  echo "<div class='alert'>Dungeon Added!</div>";
 }
 ?>
-
+<div class='parchment'>
 <h1>Add Dungeon</h1>
 <form name='adddungeonfrm' id='dungeonfrm' method='POST' action='adddungeon.php'>
 	<table>
@@ -34,3 +36,4 @@ if(isset($_POST['name'])) {
 	<br>
 	<input type='submit' value='Add Dungeon'>
 </form>
+</div>
