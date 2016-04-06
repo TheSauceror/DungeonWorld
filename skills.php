@@ -125,7 +125,7 @@ foreach ($skills as $skill) {
       $skilldes .= "also stuns the target for " . $skilldur . " turns";
       break;
     case 'silence':
-      $skilldur = $skill['skilllevel'];
+      $skilldur = $skill['duration'];
       $skilldes .= "also silences the target for " . $skilldur . " turns";
       break;
     default:
